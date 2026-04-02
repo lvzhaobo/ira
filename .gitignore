@@ -7,3 +7,4 @@ data/uploads/
 !data/.gitkeep
 .env
 .venv/
+workshop/

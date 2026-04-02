@@ -1,4 +1,5 @@
 """JSON file read/write with optional lock (threading lock for prototype)."""
+
 from __future__ import annotations
 
 import json

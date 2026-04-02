@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify
-
 from app.json_store import read_json
+from flask import Blueprint, current_app, jsonify
 
 bp = Blueprint("dashboard", __name__)
 

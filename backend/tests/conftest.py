@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from app import create_app
 
 
@@ -28,7 +27,22 @@ def app(tmp_path):
         ("kb_documents.json", {"items": []}),
         ("compliance_blocks.json", {"items": []}),
         ("multi_agent_runs.json", {"runs": []}),
-        ("report_drafts.json", {"items": [{"id": "t1", "title": "测试草稿", "report_type": "周报", "workflow_stage": "编制中", "compliance_status": "未送审", "updated_at": "2026-04-02", "trace_id": "x"}]}),
+        (
+            "report_drafts.json",
+            {
+                "items": [
+                    {
+                        "id": "t1",
+                        "title": "测试草稿",
+                        "report_type": "周报",
+                        "workflow_stage": "编制中",
+                        "compliance_status": "未送审",
+                        "updated_at": "2026-04-02",
+                        "trace_id": "x",
+                    }
+                ]
+            },
+        ),
         ("workspace_preferences.json", {"default_route": "/workbench", "show_workshop_panel": True}),
     ]:
         (tmp_path / name).write_text(json.dumps(payload), encoding="utf-8")

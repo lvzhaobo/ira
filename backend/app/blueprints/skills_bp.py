@@ -94,7 +94,9 @@ def _skill_items_from_dir(base_dir: Path, source: str) -> list[dict]:
 def skills_catalog():
     project_skills_dir = _project_root() / ".claude" / "skills"
     personal_skills_dir = Path.home() / ".claude" / "skills"
-    items = _skill_items_from_dir(project_skills_dir, "project") + _skill_items_from_dir(personal_skills_dir, "personal")
+    items = _skill_items_from_dir(project_skills_dir, "project") + _skill_items_from_dir(
+        personal_skills_dir, "personal"
+    )
     return jsonify(
         {
             "protocol": "anthropic-agent-skills",

@@ -1,8 +1,12 @@
 def test_sentiment_analysis_run_and_events(client):
-    r = client.post("/api/v1/sentiment/ingest", json={"title": "测试", "summary": "渠道库存存在下滑压力", "source_type": "manual"})
+    r = client.post(
+        "/api/v1/sentiment/ingest", json={"title": "测试", "summary": "渠道库存存在下滑压力", "source_type": "manual"}
+    )
     assert r.status_code == 200
 
-    run = client.post("/api/v1/sentiment/analysis/run", json={"time_window": "24h", "use_llm": True, "keywords": ["渠道"]})
+    run = client.post(
+        "/api/v1/sentiment/analysis/run", json={"time_window": "24h", "use_llm": True, "keywords": ["渠道"]}
+    )
     assert run.status_code == 200
     jr = run.get_json()
     assert jr["status"] == "queued"
@@ -36,7 +40,9 @@ def test_cron_jobs_and_run_once(client):
     assert j.status_code == 200
     assert "items" in j.get_json()
 
-    r = client.post("/api/v1/cron/jobs/run-once", json={"job_id": "job.sentiment.collect", "params": {"time_window": "24h"}})
+    r = client.post(
+        "/api/v1/cron/jobs/run-once", json={"job_id": "job.sentiment.collect", "params": {"time_window": "24h"}}
+    )
     assert r.status_code == 200
     assert r.get_json()["status"] == "queued"
 
@@ -60,4 +66,3 @@ def test_copaw_agents_and_run(client):
     assert "elapsed_ms" in jr
     assert "response_preview" in jr
     assert "result" in jr
-

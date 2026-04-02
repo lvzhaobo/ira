@@ -5658,3 +5658,446 @@ a.ira-btn {
   line-height: 1.55;
   color: #78350f;
 }
+
+/* —— Landing Page（浅色 + Hero） —— */
+.ira-landing {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.ira-landing-hero {
+  position: relative;
+  border-radius: var(--ira-radius);
+  overflow: hidden;
+  border: 1px solid var(--ira-border);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f5fc 48%, #e8eef8 100%);
+  box-shadow: var(--ira-shadow-md);
+}
+
+.ira-landing-hero__bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 70% at 100% 0%, rgba(0, 64, 153, 0.09), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(231, 37, 32, 0.05), transparent 50%);
+  pointer-events: none;
+}
+
+.ira-landing-hero__inner {
+  position: relative;
+  padding: 2.25rem 2rem 2rem;
+  max-width: 42rem;
+}
+
+@media (max-width: 640px) {
+  .ira-landing-hero__inner {
+    padding: 1.5rem 1.15rem 1.35rem;
+  }
+}
+
+.ira-landing-hero__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ira-primary);
+  opacity: 0.9;
+}
+
+.ira-landing-hero__title {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.65rem, 4vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ira-text);
+  letter-spacing: -0.02em;
+}
+
+.ira-landing-hero__lead {
+  margin: 0 0 1.35rem;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--ira-text-muted);
+}
+
+.ira-landing-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.ira-landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--ira-radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ira-landing-btn--primary {
+  background: var(--ira-primary);
+  color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 64, 153, 0.22);
+}
+
+.ira-landing-btn--primary:hover {
+  background: var(--ira-primary-hover);
+  color: #fff;
+}
+
+.ira-landing-btn--ghost {
+  background: #fff;
+  color: var(--ira-primary);
+  border: 1px solid var(--ira-border-strong);
+}
+
+.ira-landing-btn--ghost:hover {
+  background: var(--ira-primary-soft);
+  border-color: var(--ira-primary);
+}
+
+.ira-landing-hero__note {
+  margin: 1.25rem 0 0;
+  font-size: 0.72rem;
+  color: var(--ira-text-subtle);
+  line-height: 1.45;
+}
+
+.ira-landing-features {
+  margin-top: 2rem;
+}
+
+.ira-landing-features__heading {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ira-text);
+}
+
+.ira-landing-features__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .ira-landing-features__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ira-landing-card {
+  margin: 0;
+  padding: 1.1rem 1.15rem;
+  background: var(--ira-surface);
+  border: 1px solid var(--ira-border);
+  border-radius: var(--ira-radius-sm);
+  box-shadow: var(--ira-shadow);
+}
+
+.ira-landing-card__title {
+  margin: 0 0 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ira-text);
+}
+
+.ira-landing-card__desc {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--ira-text-muted);
+}
+
+.ira-landing-card__link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ira-primary);
+  text-decoration: none;
+}
+
+.ira-landing-card__link:hover {
+  text-decoration: underline;
+}
+
+/* —— 官网壳（MarketingLayout） —— */
+.ira-site {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 48%, #f5f7fa 100%);
+  color: var(--ira-text);
+  font-family: var(--ira-font);
+}
+
+.ira-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--ira-border);
+  box-shadow: var(--ira-shadow);
+}
+
+.ira-site-header__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ira-site-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--ira-text);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.ira-site-logo__mark {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ira-primary) 0%, #1a5fb4 100%);
+  box-shadow: 0 2px 8px rgba(0, 64, 153, 0.25);
+}
+
+.ira-site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ira-site-header__link {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ira-text-muted);
+  text-decoration: none;
+  border-radius: var(--ira-radius-sm);
+}
+
+.ira-site-header__link:hover {
+  color: var(--ira-primary);
+  background: var(--ira-primary-soft);
+}
+
+.ira-site-header__cta {
+  margin-left: 0.35rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--ira-radius-sm);
+  background: var(--ira-primary);
+  box-shadow: 0 2px 8px rgba(0, 64, 153, 0.22);
+}
+
+.ira-site-header__cta:hover {
+  background: var(--ira-primary-hover);
+}
+
+.ira-site-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ira-site-footer {
+  border-top: 1px solid var(--ira-border);
+  background: var(--ira-surface);
+  margin-top: auto;
+}
+
+.ira-site-footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--ira-text-muted);
+}
+
+.ira-site-footer__muted {
+  color: var(--ira-text-subtle);
+}
+
+/* —— 登录页 —— */
+.ira-login {
+  min-height: calc(100vh - 8rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.ira-login__card {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.75rem 1.85rem;
+  background: var(--ira-surface);
+  border: 1px solid var(--ira-border);
+  border-radius: var(--ira-radius);
+  box-shadow: var(--ira-shadow-md);
+}
+
+.ira-login__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--ira-text);
+}
+
+.ira-login__lead {
+  margin: 0 0 1.1rem;
+  font-size: 0.88rem;
+  color: var(--ira-text-muted);
+  line-height: 1.5;
+}
+
+.ira-login__hint {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ira-text-muted);
+  background: var(--ira-primary-soft);
+  border: 1px solid var(--ira-border);
+  border-radius: var(--ira-radius-sm);
+}
+
+.ira-login__hint strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--ira-text);
+  font-size: 0.82rem;
+}
+
+.ira-login__dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+  align-items: baseline;
+}
+
+.ira-login__dl dt {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ira-text-subtle);
+}
+
+.ira-login__dl dd {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+.ira-login__code {
+  padding: 0.15rem 0.4rem;
+  background: var(--ira-bg-elevated);
+  border: 1px solid var(--ira-border);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.ira-login__hint-sub {
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ira-text-subtle);
+}
+
+.ira-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ira-login__label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ira-text);
+}
+
+.ira-login__err {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ira-accent);
+}
+
+.ira-login__submit {
+  margin-top: 0.25rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: var(--ira-radius-sm);
+  background: var(--ira-primary);
+  cursor: pointer;
+}
+
+.ira-login__submit:hover:not(:disabled) {
+  background: var(--ira-primary-hover);
+}
+
+.ira-login__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ira-login__back {
+  margin: 1.25rem 0 0;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.ira-login__back a {
+  color: var(--ira-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ira-login__back a:hover {
+  text-decoration: underline;
+}
+
+/* —— 控制台顶栏退出 —— */
+.ira-console-logout {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ira-text-muted);
+  background: transparent;
+  border: 1px solid var(--ira-border);
+  border-radius: var(--ira-radius-sm);
+  cursor: pointer;
+}
+
+.ira-console-logout:hover {
+  color: var(--ira-accent);
+  border-color: var(--ira-accent-soft);
+  background: var(--ira-accent-soft);
+}

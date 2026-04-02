@@ -1,4 +1,5 @@
 """Seed data/ JSON files for local dev. Run from repo root: python scripts/seed_data.py"""
+
 from __future__ import annotations
 
 import json

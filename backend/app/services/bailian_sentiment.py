@@ -6,7 +6,6 @@ import re
 from typing import Any
 
 import requests
-
 from app.services.bailian_qa import bailian_config, is_bailian_enabled
 
 
@@ -47,7 +46,9 @@ def _extract_json(text: str) -> dict[str, Any]:
     return json.loads(text)
 
 
-def chat_sentiment_analysis(alerts: list[dict[str, Any]], time_window: str, keywords: list[str]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def chat_sentiment_analysis(
+    alerts: list[dict[str, Any]], time_window: str, keywords: list[str]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """
     返回 clusters, usage_meta
     """
@@ -100,4 +101,3 @@ def chat_sentiment_analysis(alerts: list[dict[str, Any]], time_window: str, keyw
     parsed = _extract_json(str(msg))
     clusters = parsed.get("clusters") or []
     return clusters, {"llm_used": True, "usage_meta": data.get("usage") or {}, "model": cfg["model"]}
-

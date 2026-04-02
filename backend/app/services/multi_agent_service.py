@@ -1,4 +1,5 @@
 """Build multi-agent discussion mock."""
+
 from __future__ import annotations
 
 from app.trace_util import new_trace_id
@@ -91,13 +92,55 @@ def run_multi_agent(symbol: str, mock: bool = True) -> dict:
         "agents": agents,
         "discussion": discussion,
         "messages": [
-            {"t": "10:00:01.120", "from": "BFF", "to": "编排Agent", "kind": "request", "body": f"start_pipeline(symbol={symbol!r}, mode=parallel_then_merge)"},
-            {"t": "10:00:01.145", "from": "编排Agent", "to": "*", "kind": "broadcast", "body": "fan_out: [industry, quant, risk] round=1"},
-            {"t": "10:00:02.880", "from": "行业研究 Agent", "to": "编排Agent", "kind": "result", "body": "artifact v1: 行业段落（定性）"},
-            {"t": "10:00:03.102", "from": "量化估值 Agent", "to": "编排Agent", "kind": "result", "body": "artifact v1: 估值与假设（定量）"},
-            {"t": "10:00:03.340", "from": "风控合规 Agent", "to": "编排Agent", "kind": "result", "body": "artifact v1: 规则扫描 PASS"},
-            {"t": "10:00:04.010", "from": "编排Agent", "to": "量化估值 Agent", "kind": "delegate", "body": "reply_to=industry: 请基于行业结论核对盈利敏感项"},
-            {"t": "10:00:05.400", "from": "编排Agent", "to": "merge", "kind": "merge", "body": "merge_trace 已生成，进入合规闸门"},
+            {
+                "t": "10:00:01.120",
+                "from": "BFF",
+                "to": "编排Agent",
+                "kind": "request",
+                "body": f"start_pipeline(symbol={symbol!r}, mode=parallel_then_merge)",
+            },
+            {
+                "t": "10:00:01.145",
+                "from": "编排Agent",
+                "to": "*",
+                "kind": "broadcast",
+                "body": "fan_out: [industry, quant, risk] round=1",
+            },
+            {
+                "t": "10:00:02.880",
+                "from": "行业研究 Agent",
+                "to": "编排Agent",
+                "kind": "result",
+                "body": "artifact v1: 行业段落（定性）",
+            },
+            {
+                "t": "10:00:03.102",
+                "from": "量化估值 Agent",
+                "to": "编排Agent",
+                "kind": "result",
+                "body": "artifact v1: 估值与假设（定量）",
+            },
+            {
+                "t": "10:00:03.340",
+                "from": "风控合规 Agent",
+                "to": "编排Agent",
+                "kind": "result",
+                "body": "artifact v1: 规则扫描 PASS",
+            },
+            {
+                "t": "10:00:04.010",
+                "from": "编排Agent",
+                "to": "量化估值 Agent",
+                "kind": "delegate",
+                "body": "reply_to=industry: 请基于行业结论核对盈利敏感项",
+            },
+            {
+                "t": "10:00:05.400",
+                "from": "编排Agent",
+                "to": "merge",
+                "kind": "merge",
+                "body": "merge_trace 已生成，进入合规闸门",
+            },
         ],
         "merged_text": merged,
         "merge_trace": new_trace_id("merge"),

@@ -1,0 +1,37 @@
+# 在 ECS 上执行本仓库 scripts/deploy.sh（服务器需已 git clone 并完成首次环境配置）
+# 配置说明：docs/DEPLOY-GITHUB-ACTIONS.md
+
+name: Deploy to ECS
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "要部署的分支（服务器上将 git checkout / pull 此分支）"
+        required: true
+        default: "main"
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH 远程部署
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          # 非 22 端口时在仓库 Secrets 中增加 ECS_SSH_PORT，并取消下一行注释
+          # port: ${{ secrets.ECS_SSH_PORT }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.ECS_APP_PATH }}"
+            export DEPLOY_BRANCH="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || 'main' }}"
+            export DEPLOY_BACKEND_SERVICE="${{ secrets.ECS_SYSTEMD_SERVICE }}"
+            export DEPLOY_NGINX_RELOAD=0
+            chmod +x scripts/deploy.sh
+            bash scripts/deploy.sh

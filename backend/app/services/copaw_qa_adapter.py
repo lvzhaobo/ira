@@ -145,4 +145,3 @@ def copaw_qa_ask_or_none(
     if isinstance(data.get("compliance"), dict):
         out["compliance"] = data["compliance"]
     return out
-

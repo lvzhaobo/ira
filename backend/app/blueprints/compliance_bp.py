@@ -1,11 +1,10 @@
 from pathlib import Path
 
-from flask import Blueprint, current_app, g, jsonify, request
-
 from app.errors import error_response
 from app.json_store import read_json, write_json
 from app.services.compliance_service import scan_text
 from app.trace_util import new_trace_id
+from flask import Blueprint, current_app, g, jsonify, request
 
 bp = Blueprint("compliance", __name__)
 

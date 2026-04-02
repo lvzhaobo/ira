@@ -6,6 +6,7 @@
   IRA_BAILIAN_MODEL  可选，默认 qwen-plus
   IRA_BAILIAN_BASE_URL 可选，默认兼容模式 endpoint
 """
+
 from __future__ import annotations
 
 import os

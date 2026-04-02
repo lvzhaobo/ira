@@ -1,9 +1,8 @@
 from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify, request
-
 from app.json_store import read_json, write_json
 from app.trace_util import new_trace_id
+from flask import Blueprint, current_app, jsonify, request
 
 bp = Blueprint("lineage", __name__)
 

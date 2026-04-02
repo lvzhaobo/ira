@@ -228,10 +228,17 @@ def _schemas() -> dict:
             "properties": {
                 "default_route": {"type": "string", "example": "/workbench"},
                 "show_workshop_panel": {"type": "boolean"},
-                "reports_default_filter_stage": {"type": "string", "enum": ["all", "编制中", "内审中", "合规审核", "待签章", "已定稿"]},
+                "reports_default_filter_stage": {
+                    "type": "string",
+                    "enum": ["all", "编制中", "内审中", "合规审核", "待签章", "已定稿"],
+                },
                 "updated_at": {"type": "string"},
             },
-            "example": {"default_route": "/reports", "show_workshop_panel": False, "reports_default_filter_stage": "合规审核"},
+            "example": {
+                "default_route": "/reports",
+                "show_workshop_panel": False,
+                "reports_default_filter_stage": "合规审核",
+            },
         },
     }
 
@@ -340,7 +347,10 @@ def _paths() -> dict:
                                 "hit_ops": _ex_ref("ComplianceScanRequest"),
                                 "pass": {
                                     "summary": "无命中（示例）",
-                                    "value": {"text": "本材料仅供内部研究使用，不构成投资建议。", "context_trace_id": None},
+                                    "value": {
+                                        "text": "本材料仅供内部研究使用，不构成投资建议。",
+                                        "context_trace_id": None,
+                                    },
                                 },
                             },
                         }
@@ -361,7 +371,14 @@ def _paths() -> dict:
             "get": {
                 "tags": ["lineage"],
                 "summary": "按 trace_id 取单条血缘记录",
-                "parameters": [{"name": "trace_id", "in": "path", "required": True, "schema": {"type": "string", "example": "tr_qa_demo_001"}}],
+                "parameters": [
+                    {
+                        "name": "trace_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string", "example": "tr_qa_demo_001"},
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "记录",
@@ -427,7 +444,17 @@ def _paths() -> dict:
                 "tags": ["research"],
                 "summary": "上传研报进入知识库（multipart）",
                 "requestBody": {
-                    "content": {"multipart/form-data": {"schema": {"type": "object", "properties": {"file": {"type": "string", "format": "binary"}, "session_id": {"type": "string"}}}}}
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {"type": "string", "format": "binary"},
+                                    "session_id": {"type": "string"},
+                                },
+                            }
+                        }
+                    }
                 },
                 "responses": {"200": {"description": "doc_id / trace_id"}},
             }
@@ -441,7 +468,10 @@ def _paths() -> dict:
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "properties": {"symbol": {"type": "string"}, "mock": {"type": "boolean", "default": True}},
+                                "properties": {
+                                    "symbol": {"type": "string"},
+                                    "mock": {"type": "boolean", "default": True},
+                                },
                             },
                             "examples": {
                                 "maotai": {"summary": "贵州茅台", "value": {"symbol": "600519.SH", "mock": True}},
@@ -648,7 +678,14 @@ def _paths() -> dict:
             "get": {
                 "tags": ["reports"],
                 "summary": "单条报告草稿详情",
-                "parameters": [{"name": "draft_id", "in": "path", "required": True, "schema": {"type": "string", "example": "rep-2026-041"}}],
+                "parameters": [
+                    {
+                        "name": "draft_id",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string", "example": "rep-2026-041"},
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "ReportDraft",

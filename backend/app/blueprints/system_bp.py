@@ -1,11 +1,10 @@
 from datetime import datetime, timezone
 from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify, request
-
 from app.json_store import read_json, write_json
 from app.services.bailian_qa import bailian_config, is_bailian_enabled
 from app.services.copaw_qa_adapter import copaw_bridge_status
+from flask import Blueprint, current_app, jsonify, request
 
 bp = Blueprint("system", __name__)
 

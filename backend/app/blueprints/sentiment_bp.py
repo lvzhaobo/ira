@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
-from time import perf_counter
 from pathlib import Path
-
-from flask import Blueprint, current_app, jsonify, request
+from time import perf_counter
 
 from app.json_store import read_json, write_json
-from app.services.compliance_service import scan_text
 from app.services.bailian_sentiment import chat_sentiment_analysis
+from app.services.compliance_service import scan_text
 from app.trace_util import new_trace_id
+from flask import Blueprint, current_app, jsonify, request
 
 bp = Blueprint("sentiment", __name__)
 
@@ -120,9 +119,7 @@ def sentiment_analysis_run():
             risk = (
                 "high"
                 if any(x in summary for x in ("处罚", "违规", "立案"))
-                else "medium"
-                if any(x in summary for x in ("下滑", "波动", "压力"))
-                else "low"
+                else "medium" if any(x in summary for x in ("下滑", "波动", "压力")) else "low"
             )
             event_rows.append(
                 {
@@ -210,7 +207,9 @@ def sentiment_analysis_run():
     runs = read_json(_data("sentiment_pipeline_runs.json"), {"items": []})
     runs["items"].insert(0, run_item)
     write_json(_data("sentiment_pipeline_runs.json"), runs)
-    return jsonify({"run_id": run_id, "status": "queued", "trace_id": tid, "llm_used": llm_used, "llm_model": llm_model})
+    return jsonify(
+        {"run_id": run_id, "status": "queued", "trace_id": tid, "llm_used": llm_used, "llm_model": llm_model}
+    )
 
 
 @bp.route("/sentiment/pipeline/runs", methods=["GET"])
@@ -264,7 +263,9 @@ def sentiment_report_generate():
         },
     )
     write_json(_data("report_drafts.json"), drafts)
-    return jsonify({"report_id": rid, "report_title": title, "status": "draft", "trace_id": tid, "link": f"/reports?focus={rid}"})
+    return jsonify(
+        {"report_id": rid, "report_title": title, "status": "draft", "trace_id": tid, "link": f"/reports?focus={rid}"}
+    )
 
 
 @bp.route("/sentiment/push/run", methods=["POST"])
@@ -287,7 +288,10 @@ def sentiment_push_run():
         rules_data = read_json(_data("rules.json"), {"rules": []})
         hits = scan_text(payload, rules_data.get("rules", []))
         if hits:
-            return jsonify({"push_batch_id": pbid, "status": "blocked", "trace_id": tid, "blocked": True, "hits": hits}), 200
+            return (
+                jsonify({"push_batch_id": pbid, "status": "blocked", "trace_id": tid, "blocked": True, "hits": hits}),
+                200,
+            )
 
     hist = read_json(_data("notify_history.json"), {"items": []})
     results = []
@@ -316,10 +320,34 @@ def cron_jobs_get():
         _data("cron_jobs.json"),
         {
             "items": [
-                {"job_id": "job.sentiment.collect", "enabled": True, "schedule": "managed-by-copaw-console", "last_run_status": "success", "last_run_at": _now_iso()},
-                {"job_id": "job.sentiment.analyze", "enabled": True, "schedule": "managed-by-copaw-console", "last_run_status": "success", "last_run_at": _now_iso()},
-                {"job_id": "job.sentiment.report", "enabled": True, "schedule": "managed-by-copaw-console", "last_run_status": "success", "last_run_at": _now_iso()},
-                {"job_id": "job.sentiment.push", "enabled": True, "schedule": "managed-by-copaw-console", "last_run_status": "success", "last_run_at": _now_iso()},
+                {
+                    "job_id": "job.sentiment.collect",
+                    "enabled": True,
+                    "schedule": "managed-by-copaw-console",
+                    "last_run_status": "success",
+                    "last_run_at": _now_iso(),
+                },
+                {
+                    "job_id": "job.sentiment.analyze",
+                    "enabled": True,
+                    "schedule": "managed-by-copaw-console",
+                    "last_run_status": "success",
+                    "last_run_at": _now_iso(),
+                },
+                {
+                    "job_id": "job.sentiment.report",
+                    "enabled": True,
+                    "schedule": "managed-by-copaw-console",
+                    "last_run_status": "success",
+                    "last_run_at": _now_iso(),
+                },
+                {
+                    "job_id": "job.sentiment.push",
+                    "enabled": True,
+                    "schedule": "managed-by-copaw-console",
+                    "last_run_status": "success",
+                    "last_run_at": _now_iso(),
+                },
             ]
         },
     )
@@ -338,7 +366,14 @@ def cron_jobs_run_once():
     runs = read_json(_data("cron_runs.json"), {"items": []})
     runs["items"].insert(
         0,
-        {"run_id": run_id, "job_id": job_id, "status": "queued", "trace_id": tid, "started_at": _now_iso(), "params": body.get("params", {})},
+        {
+            "run_id": run_id,
+            "job_id": job_id,
+            "status": "queued",
+            "trace_id": tid,
+            "started_at": _now_iso(),
+            "params": body.get("params", {}),
+        },
     )
     write_json(_data("cron_runs.json"), runs)
     return jsonify({"run_id": run_id, "status": "queued", "trace_id": tid})
@@ -346,11 +381,41 @@ def cron_jobs_run_once():
 
 def _mock_kpis():
     return [
-        {"id": "vol", "label": "24h 全网声量（条）", "value": "12,847", "sub": "已去重", "delta": "+6.2%", "trend": "up", "accent": "neutral"},
-        {"id": "neg", "label": "负面信息占比", "value": "11.3%", "sub": "含弱负面", "delta": "-0.8pt", "trend": "down", "accent": "ok"},
+        {
+            "id": "vol",
+            "label": "24h 全网声量（条）",
+            "value": "12,847",
+            "sub": "已去重",
+            "delta": "+6.2%",
+            "trend": "up",
+            "accent": "neutral",
+        },
+        {
+            "id": "neg",
+            "label": "负面信息占比",
+            "value": "11.3%",
+            "sub": "含弱负面",
+            "delta": "-0.8pt",
+            "trend": "down",
+            "accent": "ok",
+        },
         {"id": "alert", "label": "待处置预警", "value": "7", "sub": "高 2 · 中 3 · 低 2", "accent": "risk"},
-        {"id": "cover", "label": "覆盖 A 股标的", "value": "186", "sub": "含港股通 42", "delta": "+3", "trend": "up", "accent": "neutral"},
-        {"id": "interactive", "label": "互动平台待阅", "value": "23", "sub": "上证e互动 / 深证互动易", "accent": "neutral"},
+        {
+            "id": "cover",
+            "label": "覆盖 A 股标的",
+            "value": "186",
+            "sub": "含港股通 42",
+            "delta": "+3",
+            "trend": "up",
+            "accent": "neutral",
+        },
+        {
+            "id": "interactive",
+            "label": "互动平台待阅",
+            "value": "23",
+            "sub": "上证e互动 / 深证互动易",
+            "accent": "neutral",
+        },
         {"id": "compliance", "label": "合规敏感命中", "value": "4", "sub": "已推送合规复核队列", "accent": "risk"},
     ]
 
@@ -462,12 +527,66 @@ def _mock_hot_topics():
 
 def _mock_stock_sentiment():
     return [
-        {"code": "300750", "name": "宁德时代", "score": 42, "change24h": -8, "buzz": 126, "positionTag": "前十大重仓", "funds": ["南方新能源主题", "南方产业升级混合"], "risk": "watch"},
-        {"code": "600519", "name": "贵州茅台", "score": 68, "change24h": 3, "buzz": 89, "positionTag": "核心池", "funds": ["南方品质优选", "南方消费精选"], "risk": "normal"},
-        {"code": "688012", "name": "中微公司", "score": 55, "change24h": -5, "buzz": 64, "positionTag": "科技成长", "funds": ["南方科技创新混合"], "risk": "watch"},
-        {"code": "000858", "name": "五粮液", "score": 61, "change24h": 1, "buzz": 52, "positionTag": "消费", "funds": ["南方消费升级"], "risk": "normal"},
-        {"code": "601318", "name": "中国平安", "score": 58, "change24h": -2, "buzz": 71, "positionTag": "金融", "funds": ["南方金融主题"], "risk": "normal"},
-        {"code": "002371", "name": "北方华创", "score": 48, "change24h": -12, "buzz": 58, "positionTag": "半导体设备", "funds": ["南方信息创新混合"], "risk": "high"},
+        {
+            "code": "300750",
+            "name": "宁德时代",
+            "score": 42,
+            "change24h": -8,
+            "buzz": 126,
+            "positionTag": "前十大重仓",
+            "funds": ["南方新能源主题", "南方产业升级混合"],
+            "risk": "watch",
+        },
+        {
+            "code": "600519",
+            "name": "贵州茅台",
+            "score": 68,
+            "change24h": 3,
+            "buzz": 89,
+            "positionTag": "核心池",
+            "funds": ["南方品质优选", "南方消费精选"],
+            "risk": "normal",
+        },
+        {
+            "code": "688012",
+            "name": "中微公司",
+            "score": 55,
+            "change24h": -5,
+            "buzz": 64,
+            "positionTag": "科技成长",
+            "funds": ["南方科技创新混合"],
+            "risk": "watch",
+        },
+        {
+            "code": "000858",
+            "name": "五粮液",
+            "score": 61,
+            "change24h": 1,
+            "buzz": 52,
+            "positionTag": "消费",
+            "funds": ["南方消费升级"],
+            "risk": "normal",
+        },
+        {
+            "code": "601318",
+            "name": "中国平安",
+            "score": 58,
+            "change24h": -2,
+            "buzz": 71,
+            "positionTag": "金融",
+            "funds": ["南方金融主题"],
+            "risk": "normal",
+        },
+        {
+            "code": "002371",
+            "name": "北方华创",
+            "score": 48,
+            "change24h": -12,
+            "buzz": 58,
+            "positionTag": "半导体设备",
+            "funds": ["南方信息创新混合"],
+            "risk": "high",
+        },
     ]
 
 
@@ -546,7 +665,11 @@ def sentiment_alerts_for_ui():
         level = "high" if risk_level == "high" else "medium" if risk_level == "medium" else "low"
         impact_scope = ev.get("impact_scope") or ""
         suggested_actions = ev.get("suggested_actions") or []
-        summary = impact_scope or ("；".join(suggested_actions[:3]) if isinstance(suggested_actions, list) and suggested_actions else "") or "舆情事件摘要（演示）"
+        summary = (
+            impact_scope
+            or ("；".join(suggested_actions[:3]) if isinstance(suggested_actions, list) and suggested_actions else "")
+            or "舆情事件摘要（演示）"
+        )
         title = ev.get("cluster_title") or "未命名事件"
         tags = ev.get("risk_tags") or []
         items.append(
@@ -611,7 +734,11 @@ def _rule_cluster_by_alerts(items: list[dict]):
                 "sentiment": sentiment,
                 "risk_tags": [it.get("source_name", "舆情")] if it.get("source_name") else [],
                 "impact_scope": "影响范围待确认，建议先核验原始披露口径。",
-                "suggested_actions": ["核验原文出处与发布时间", "确认影响范围（产品/持仓/渠道）", "同步研究结论与合规口径"],
+                "suggested_actions": [
+                    "核验原文出处与发布时间",
+                    "确认影响范围（产品/持仓/渠道）",
+                    "同步研究结论与合规口径",
+                ],
             }
         )
     return rows
@@ -670,7 +797,9 @@ def sentiment_copaw_agent_run():
         clusters = _rule_cluster_by_alerts(picked)
 
     top = clusters[0] if clusters else {}
-    brief_lines = [f"- {c.get('cluster_title', '未命名事件')}（风险：{c.get('risk_level', 'low')}）" for c in clusters[:3]]
+    brief_lines = [
+        f"- {c.get('cluster_title', '未命名事件')}（风险：{c.get('risk_level', 'low')}）" for c in clusters[:3]
+    ]
     result = {
         "title": top.get("cluster_title") or "舆情分析结果",
         "risk_level": top.get("risk_level") or "low",
@@ -719,4 +848,3 @@ def sentiment_copaw_agent_run():
             "result": result,
         }
     )
-

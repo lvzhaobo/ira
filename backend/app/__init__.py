@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from flask import Flask, g, request
-
 from app.config import get_data_dir
 from app.trace_util import new_trace_id
+from flask import Flask, g, request
+from flask_cors import CORS
 
 
 def _load_env_file():
@@ -21,6 +21,19 @@ def _load_env_file():
 def create_app(test_config=None):
     _load_env_file()
     app = Flask(__name__)
+
+    # 配置 CORS（允许跨域请求）
+    CORS(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": ["*"],  # 生产环境应改为具体域名，如 ["http://ira.vin"]
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization", "X-Trace-Id"],
+            }
+        },
+    )
+
     app.config["DATA_DIR"] = str(get_data_dir())
     if test_config:
         app.config.update(test_config)
@@ -35,19 +48,21 @@ def create_app(test_config=None):
             resp.headers["X-Trace-Id"] = g.trace_id
         return resp
 
-    from app.blueprints.system_bp import bp as system_bp
-    from app.blueprints.dashboard_bp import bp as dashboard_bp
+    from app.blueprints.auth_bp import bp as auth_bp
     from app.blueprints.compliance_bp import bp as compliance_bp
+    from app.blueprints.dashboard_bp import bp as dashboard_bp
+    from app.blueprints.docs_bp import bp as docs_bp
+    from app.blueprints.kb_bp import bp as kb_bp
     from app.blueprints.lineage_bp import bp as lineage_bp
+    from app.blueprints.notify_bp import bp as notify_bp
+    from app.blueprints.reports_bp import bp as reports_bp
     from app.blueprints.research_bp import bp as research_bp
     from app.blueprints.sentiment_bp import bp as sentiment_bp
-    from app.blueprints.notify_bp import bp as notify_bp
-    from app.blueprints.kb_bp import bp as kb_bp
-    from app.blueprints.reports_bp import bp as reports_bp
-    from app.blueprints.docs_bp import bp as docs_bp
     from app.blueprints.skills_bp import bp as skills_bp
+    from app.blueprints.system_bp import bp as system_bp
 
     app.register_blueprint(docs_bp, url_prefix="/api")
+    app.register_blueprint(auth_bp, url_prefix="/api/v1")
     app.register_blueprint(system_bp, url_prefix="/api/v1")
     app.register_blueprint(dashboard_bp, url_prefix="/api/v1")
     app.register_blueprint(compliance_bp, url_prefix="/api/v1")

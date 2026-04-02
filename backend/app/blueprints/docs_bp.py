@@ -1,8 +1,7 @@
 """Swagger UI + OpenAPI 规范（同源 /api/docs，规范 /api/v1/openapi.json）。"""
 
-from flask import Blueprint, Response, jsonify
-
 from app.openapi_spec import build_openapi_spec
+from flask import Blueprint, Response, jsonify
 
 bp = Blueprint("docs", __name__)
 

@@ -1,4 +1,5 @@
 """Minimal rule scan for workshop prototype."""
+
 from __future__ import annotations
 
 import re

@@ -2,8 +2,6 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
-from flask import Blueprint, current_app, g, jsonify, request
-
 from app.blueprints.lineage_bp import append_trace_record
 from app.errors import error_response
 from app.json_store import read_json, write_json
@@ -11,6 +9,7 @@ from app.services.bailian_qa import bailian_config, chat_research_qa, is_bailian
 from app.services.copaw_qa_adapter import copaw_qa_ask_or_none
 from app.services.multi_agent_service import run_multi_agent
 from app.trace_util import new_trace_id
+from flask import Blueprint, current_app, g, jsonify, request
 
 bp = Blueprint("research", __name__)
 
