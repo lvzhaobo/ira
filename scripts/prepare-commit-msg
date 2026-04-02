@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# prepare-commit-msg 钩子 - 自动生成 commit message 模板
+# 安装：复制到 .git/hooks/prepare-commit-msg
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# 只在普通提交时生成（不是 merge、squash 等）
+if [ "$COMMIT_SOURCE" = "message" ] || [ "$COMMIT_SOURCE" = "merge" ]; then
+    exit 0
+fi
+
+# 获取变更统计
+STAT=$(git diff --cached --stat 2>/dev/null)
+
+if [ -z "$STAT" ]; then
+    exit 0
+fi
+
+# 分析变更类型
+TYPE="chore"
+SCOPE=""
+
+if echo "$STAT" | grep -q "frontend/"; then
+    SCOPE="frontend"
+    TYPE="feat"
+elif echo "$STAT" | grep -q "backend/"; then
+    SCOPE="backend"
+    TYPE="feat"
+elif echo "$STAT" | grep -q "\.github/"; then
+    SCOPE="ci"
+    TYPE="ci"
+fi
+
+# 生成模板
+if [ -n "$SCOPE" ]; then
+    TEMPLATE="${TYPE}(${SCOPE}): "
+else
+    TEMPLATE="${TYPE}: "
+fi
+
+# 如果文件为空，写入模板
+if [ ! -s "$COMMIT_MSG_FILE" ]; then
+    echo "$TEMPLATE" > "$COMMIT_MSG_FILE"
+    echo "" >> "$COMMIT_MSG_FILE"
+    echo "# ─── 变更统计 ───" >> "$COMMIT_MSG_FILE"
+    echo "$STAT" | sed 's/^/# /' >> "$COMMIT_MSG_FILE"
+fi

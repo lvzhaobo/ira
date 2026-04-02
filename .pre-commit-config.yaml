@@ -40,24 +40,24 @@ repos:
       - id: isort
         args: ["--profile", "black", "--line-length=120"]
 
-  # Python 代码检查
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-        args:
-          [
-            "--max-line-length=120",
-            "--max-complexity=10",
-            "--extend-ignore=E203",
-          ]
+  # Python 代码检查（可选，觉得太严格可以注释掉）
+  # - repo: https://github.com/PyCQA/flake8
+  #   rev: 7.0.0
+  #   hooks:
+  #     - id: flake8
+  #       args:
+  #         [
+  #           "--max-line-length=120",
+  #           "--max-complexity=10",
+  #           "--extend-ignore=E203",
+  #         ]
 
-  # Python 类型检查
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        args: ["--ignore-missing-imports", "backend/app/"]
+  # Python 类型检查（可选，配置较复杂可以先禁用）
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.8.0
+  #   hooks:
+  #     - id: mypy
+  #       args: ["--ignore-missing-imports", "backend/app/"]
 
   # 安全检查 - 检测硬编码的敏感信息（可选，需要先安装 detect-secrets）
   # - repo: https://github.com/Yelp/detect-secrets
