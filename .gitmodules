@@ -1,0 +1,3 @@
+[submodule "copaw"]
+	path = copaw
+	url = https://github.com/agentscope-ai/copaw.git
