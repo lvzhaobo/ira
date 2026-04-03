@@ -1,0 +1,28 @@
+[Unit]
+Description=IRA Backend Flask Application
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/workshop/ira/backend
+Environment="PATH=/home/workshop/ira/backend/venv/bin"
+Environment="IRA_DATA_DIR=/home/workshop/ira/data/"
+ExecStart=/home/workshop/ira/backend/venv/bin/gunicorn --bind 0.0.0.0:5000 --workers 4 --timeout 120 wsgi:app
+
+# 自动重启配置
+Restart=always
+RestartSec=5
+
+# 资源限制（可选）
+# LimitNOFILE=65535
+# MemoryMax=1G
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ira-backend
+
+[Install]
+WantedBy=multi-user.target

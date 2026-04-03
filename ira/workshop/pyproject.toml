@@ -1,0 +1,27 @@
+# Black 配置文件
+# Python 代码格式化工具配置
+
+[tool.black]
+# 每行最大字符数
+line-length = 120
+# Python 目标版本
+target-version = ['py311', 'py312']
+# 包含的文件
+include = '\.pyi?$'
+# 排除的目录
+extend-exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | node_modules
+)/
+'''

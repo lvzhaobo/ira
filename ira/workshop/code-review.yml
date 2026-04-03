@@ -1,0 +1,158 @@
+# GitHub Actions 代码审查工作流
+# 在 Pull Request 和 push 到 main 分支时自动运行代码质量检查
+
+name: Code Review
+
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, master]
+
+jobs:
+  # Python 代码质量检查
+  python-lint:
+    name: Python Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Check code formatting with Black
+        working-directory: backend
+        run: |
+          black --check --diff app/ tests/ || true
+
+      - name: Check imports with isort
+        working-directory: backend
+        run: |
+          isort --check-only --diff app/ tests/ || true
+
+      - name: Lint with flake8
+        working-directory: backend
+        run: |
+          # 停止构建如果出现严重错误
+          flake8 app/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # 显示所有警告但不阻止构建
+          flake8 app/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+
+      - name: Type checking with mypy
+        working-directory: backend
+        run: |
+          mypy --ignore-missing-imports app/ || true
+
+  # 前端代码质量检查
+  frontend-lint:
+    name: Frontend Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: frontend
+        run: |
+          npm run lint || true
+
+      - name: Type check with TypeScript
+        working-directory: frontend
+        run: |
+          npx tsc --noEmit || true
+
+      - name: Check formatting with Prettier
+        working-directory: frontend
+        run: |
+          npx prettier --check "src/**/*.{ts,tsx,css}" || true
+
+  # 安全检查
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install safety
+        run: pip install safety
+
+      - name: Check Python dependencies for vulnerabilities
+        working-directory: backend
+        run: |
+          safety check -r requirements.txt || true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check npm dependencies for vulnerabilities
+        working-directory: frontend
+        run: |
+          npm audit --audit-level=high || true
+
+  # 代码复杂度分析
+  code-complexity:
+    name: Code Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install radon
+        run: pip install radon
+
+      - name: Analyze Python code complexity
+        working-directory: backend
+        run: |
+          echo "=== Cyclomatic Complexity ==="
+          radon cc app/ -a -nc || true
+          echo ""
+          echo "=== Maintainability Index ==="
+          radon mi app/ || true
