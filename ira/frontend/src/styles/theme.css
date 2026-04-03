@@ -5659,7 +5659,334 @@ a.ira-btn {
   color: #78350f;
 }
 
-/* —— Landing Page（浅色 + Hero） —— */
+/* —— Landing Page（100% 宽度 + Hero 轮播） —— */
+.ira-landing-full {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero 区域 - 100% 宽度 */
+.ira-landing-hero-full {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  background: #000;
+}
+
+.ira-landing-hero__slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.ira-landing-hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  z-index: 1;
+}
+
+.ira-landing-hero__slide.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.ira-landing-hero__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ira-landing-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+.ira-landing-hero__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  padding: 0 5%;
+}
+
+.ira-landing-hero__container {
+  max-width: 680px;
+  animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.ira-landing-hero__eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ira-landing-hero__title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ira-landing-hero__subtitle {
+  margin: 0 0 1rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ira-landing-hero__lead {
+  margin: 0 0 2rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ira-landing-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.ira-landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--ira-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.ira-landing-btn--primary {
+  background: var(--ira-primary);
+  color: #fff;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 64, 153, 0.4);
+}
+
+.ira-landing-btn--primary:hover {
+  background: var(--ira-primary-hover);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 64, 153, 0.5);
+}
+
+.ira-landing-btn--ghost {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.ira-landing-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #fff;
+  transform: translateY(-2px);
+}
+
+/* 轮播导航按钮 */
+.ira-landing-hero__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ira-landing-hero__nav:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.ira-landing-hero__nav--prev {
+  left: 2rem;
+}
+
+.ira-landing-hero__nav--next {
+  right: 2rem;
+}
+
+/* 轮播指示器 */
+.ira-landing-hero__indicators {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.ira-landing-hero__indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.ira-landing-hero__indicator:hover {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.ira-landing-hero__indicator.active {
+  background: #fff;
+  border-color: #fff;
+  width: 32px;
+  border-radius: 6px;
+}
+
+/* 特性区域 - 100% 宽度 */
+.ira-landing-features-full {
+  width: 100%;
+  padding: 4rem 5%;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.ira-landing-features__container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ira-landing-features__heading {
+  margin: 0 0 2rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ira-text);
+  text-align: center;
+}
+
+.ira-landing-features__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .ira-landing-hero-full {
+    height: 500px;
+  }
+
+  .ira-landing-hero__content {
+    padding: 0 1.5rem;
+  }
+
+  .ira-landing-hero__container {
+    max-width: 100%;
+  }
+
+  .ira-landing-hero__nav {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .ira-landing-hero__nav--prev {
+    left: 1rem;
+  }
+
+  .ira-landing-hero__nav--next {
+    right: 1rem;
+  }
+
+  .ira-landing-features-full {
+    padding: 3rem 1.5rem;
+  }
+
+  .ira-landing-features__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ira-landing-hero-full {
+    height: 450px;
+  }
+
+  .ira-landing-hero__title {
+    font-size: 1.75rem;
+  }
+
+  .ira-landing-hero__subtitle {
+    font-size: 1rem;
+  }
+
+  .ira-landing-hero__lead {
+    font-size: 0.9rem;
+  }
+
+  .ira-landing-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ira-landing-btn {
+    width: 100%;
+  }
+}
+
+/* 保留旧的样式以兼容 */
 .ira-landing {
   max-width: 1040px;
   margin: 0 auto;
@@ -5695,105 +6022,8 @@ a.ira-btn {
   }
 }
 
-.ira-landing-hero__eyebrow {
-  margin: 0 0 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ira-primary);
-  opacity: 0.9;
-}
-
-.ira-landing-hero__title {
-  margin: 0 0 0.65rem;
-  font-size: clamp(1.65rem, 4vw, 2.15rem);
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--ira-text);
-  letter-spacing: -0.02em;
-}
-
-.ira-landing-hero__lead {
-  margin: 0 0 1.35rem;
-  font-size: 0.98rem;
-  line-height: 1.65;
-  color: var(--ira-text-muted);
-}
-
-.ira-landing-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  align-items: center;
-}
-
-.ira-landing-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.55rem 1.15rem;
-  border-radius: var(--ira-radius-sm);
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.ira-landing-btn--primary {
-  background: var(--ira-primary);
-  color: #fff;
-  border: 1px solid transparent;
-  box-shadow: 0 2px 8px rgba(0, 64, 153, 0.22);
-}
-
-.ira-landing-btn--primary:hover {
-  background: var(--ira-primary-hover);
-  color: #fff;
-}
-
-.ira-landing-btn--ghost {
-  background: #fff;
-  color: var(--ira-primary);
-  border: 1px solid var(--ira-border-strong);
-}
-
-.ira-landing-btn--ghost:hover {
-  background: var(--ira-primary-soft);
-  border-color: var(--ira-primary);
-}
-
-.ira-landing-hero__note {
-  margin: 1.25rem 0 0;
-  font-size: 0.72rem;
-  color: var(--ira-text-subtle);
-  line-height: 1.45;
-}
-
 .ira-landing-features {
   margin-top: 2rem;
-}
-
-.ira-landing-features__heading {
-  margin: 0 0 1rem;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--ira-text);
-}
-
-.ira-landing-features__grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-@media (max-width: 900px) {
-  .ira-landing-features__grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .ira-landing-card {
@@ -6033,7 +6263,7 @@ a.ira-btn {
 
 .ira-login__hint {
   margin: 0 0 1.25rem;
-  padding: 0.85rem 1rem;
+  padding: 0.85rem 1rem; 
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--ira-text-muted);
