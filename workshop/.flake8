@@ -1,0 +1,30 @@
+# flake8 配置文件
+# Python 代码静态检查工具配置
+
+[flake8]
+# 最大行长度
+max-line-length = 120
+# 最大圈复杂度
+max-complexity = 10
+# 忽略的错误代码
+# E203: 切片空格（与 black 冲突）
+# W503: 换行符位置（与 black 冲突）
+extend-ignore = E203, W503
+# 排除的目录
+exclude = 
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    node_modules,
+    *.egg-info,
+    .mypy_cache,
+    .pytest_cache
+# 显示源代码
+show-source = true
+# 统计信息
+statistics = true
+# 计数
+count = true

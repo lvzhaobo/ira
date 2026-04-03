@@ -1,0 +1,26 @@
+# isort 配置文件
+# Python import 排序工具配置
+
+[tool.isort]
+# 使用 black 兼容的配置
+profile = "black"
+# 每行最大字符数
+line_length = 120
+# 多行输出模式
+multi_line_output = 3
+# 包含尾随逗号
+include_trailing_comma = true
+# 强制网格包裹
+force_grid_wrap = 0
+# 使用括号
+use_parentheses = true
+# 确保空格
+ensure_newline_before_comments = true
+# 排序方式
+force_sort_within_sections = true
+# 按长度排序
+length_sort = false
+# 分组导入
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+# 跳过目录
+skip_glob = ["*/migrations/*", "*/node_modules/*", "*/.venv/*", "*/venv/*"]
