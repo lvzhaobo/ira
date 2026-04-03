@@ -1,0 +1,24 @@
+# Frontend
+ira/frontend/node_modules/
+ira/frontend/dist/
+ira/frontend/.env
+ira/frontend/.env.*
+!ira/frontend/.env.example
+
+# Backend
+ira/backend/**/__pycache__/
+ira/backend/.pytest_cache/
+
+# Data
+data/*.json
+data/uploads/
+!data/.gitkeep
+
+# Environment
+.env
+.venv/
+.tmp/
+
+# Modules practice (练习模块)
+modules-practice/**/node_modules/
+modules-practice/**/__pycache__/
