@@ -73,4 +73,5 @@ repos:
     hooks:
       - id: prettier
         types_or: [markdown, yaml, json]
-        exclude: ^ira/frontend/node_modules/|^ira/frontend/dist/|^modules-practice/
+        # 排除：前端依赖、构建输出、练习模块、CoPaw spec 文档（保持原样）
+        exclude: ^ira/frontend/node_modules/|^ira/frontend/dist/|^modules-practice/|^specs/
