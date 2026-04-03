@@ -1,0 +1,92 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="IRA-微服务架构" id="ira-microservices">
+    <mxGraphModel dx="1422" dy="793" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- API Gateway -->
+        <mxCell id="gateway" value="API Gateway&#xa;nginx:8000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="700" y="50" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Auth Service -->
+        <mxCell id="auth" value="Auth Service&#xa;Flask:5001" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="200" y="200" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Sentiment Service -->
+        <mxCell id="sentiment" value="Sentiment Service&#xa;Flask+GPU:5005" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="400" y="200" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Research Service -->
+        <mxCell id="research" value="Research Service&#xa;CoPaw Multi-Agent:5004" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="600" y="200" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Dashboard Service -->
+        <mxCell id="dashboard" value="Dashboard Service&#xa;Flask:5002" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="800" y="200" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Skills Service -->
+        <mxCell id="skills" value="Skills Service&#xa;Flask:5006" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="200" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Redis -->
+        <mxCell id="redis" value="Redis&#xa;Cache &amp; Session" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="500" y="350" width="80" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- PostgreSQL -->
+        <mxCell id="postgres" value="PostgreSQL&#xa;Database" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#cce5ff;strokeColor=#36393d;" vertex="1" parent="1">
+          <mxGeometry x="650" y="350" width="80" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- 阿里云百炼 API -->
+        <mxCell id="aliyun-api" value="阿里云百炼 API&#xa;DashScope" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffffc0;strokeColor=#ff9900;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="200" width="100" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Frontend -->
+        <mxCell id="frontend" value="Frontend&#xa;React + Vite&#xa;ira.vin:5175" style="triangle;whiteSpace=wrap;html=1;direction=north;fillColor=#e6f7ff;strokeColor=#0066cc;" vertex="1" parent="1">
+          <mxGeometry x="700" y="-100" width="120" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="arrow1" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="frontend" target="gateway"/>
+
+        <mxCell id="arrow2" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="gateway">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="760" y="180" as="sourcePoint"/>
+            <mxPoint x="760" y="200" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="auth" target="redis"/>
+        <mxCell id="arrow4" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="research" target="postgres"/>
+        <mxCell id="arrow5" value="" style="endArrow=classic;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="aliyun-api" target="sentiment"/>
+
+        <!-- Labels -->
+        <mxCell id="label1" value="HTTP/HTTPS" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;" vertex="1" parent="1">
+          <mxGeometry x="770" y="-30" width="80" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="label2" value="路由转发" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;" vertex="1" parent="1">
+          <mxGeometry x="770" y="150" width="60" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="label3" value="JWT Token" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;" vertex="1" parent="1">
+          <mxGeometry x="320" y="300" width="70" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="label4" value="AI API 调用" style="text;html=1;resizable=0;points=[];autosize=1;align=left;verticalAlign=top;spacingTop=-4;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="240" width="70" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

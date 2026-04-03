@@ -37,7 +37,7 @@ export default function Login() {
   // 检查后端服务状态
   useEffect(() => {
     let cancelled = false;
-    
+
     const checkBackend = async () => {
       try {
         await getJson<{ status: string }>("/system/health");
@@ -57,7 +57,7 @@ export default function Login() {
 
   useEffect(() => {
     if (backendStatus === "offline") return; // 服务离线时不加载配置
-    
+
     getJson<{ username: string; password: string }>("/auth/public-config")
       .then((c) => {
         setDemoUser(c.username);

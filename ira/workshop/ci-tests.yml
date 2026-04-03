@@ -14,11 +14,11 @@ jobs:
   backend-tests:
     name: Backend Tests (Python)
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         python-version: ['3.11', '3.12']
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
   frontend-tests:
     name: Frontend Tests & Build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     needs: [backend-tests, frontend-tests]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
