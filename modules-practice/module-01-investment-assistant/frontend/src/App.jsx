@@ -37,7 +37,7 @@ function App() {
     try {
       const sessionsData = await api.getSessions();
       setSessions(sessionsData);
-      
+
       // 如果有会话，默认选中第一个
       if (sessionsData.length > 0 && !currentSession) {
         setCurrentSession(sessionsData[0]);
@@ -69,13 +69,13 @@ function App() {
 
   const handleDeleteSession = async (sessionId, e) => {
     e.stopPropagation();
-    
+
     if (!confirm('确定删除此会话？')) return;
-    
+
     try {
       await api.deleteSession(sessionId);
       setSessions(sessions.filter(s => s.session_id !== sessionId));
-      
+
       if (currentSession?.session_id === sessionId) {
         setCurrentSession(null);
         setRecords([]);
@@ -93,7 +93,7 @@ function App() {
 
     try {
       const result = await api.ask(input.trim(), currentSession.session_id);
-      
+
       // 添加到记录
       setRecords([...records, {
         query: input.trim(),
@@ -102,9 +102,9 @@ function App() {
         model: result.model,
         timestamp: new Date().toISOString(),
       }]);
-      
+
       setInput('');
-      
+
       // 刷新会话列表（更新标题）
       loadSessions();
     } catch (err) {
@@ -130,7 +130,7 @@ function App() {
       {/* 头部 */}
       <header className="header">
         <div className="header-left">
-          <button 
+          <button
             className="sidebar-toggle"
             onClick={() => setSidebarVisible(!sidebarVisible)}
           >
@@ -150,7 +150,7 @@ function App() {
             <div className="sidebar-header">
               <h2>历史会话</h2>
             </div>
-            
+
             <button className="new-session-btn" onClick={handleCreateSession}>
               + 新建会话
             </button>
