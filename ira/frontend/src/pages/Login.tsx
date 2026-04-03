@@ -26,6 +26,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [demoUser, setDemoUser] = useState("demo");
   const [demoPassword, setDemoPassword] = useState("ira.vin");
+  const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -33,7 +34,30 @@ export default function Login() {
     }
   }, [isAuthenticated, navigate, redirectTo]);
 
+  // 检查后端服务状态
   useEffect(() => {
+    let cancelled = false;
+    
+    const checkBackend = async () => {
+      try {
+        await getJson<{ status: string }>("/system/health");
+        if (!cancelled) {
+          setBackendStatus("online");
+        }
+      } catch {
+        if (!cancelled) {
+          setBackendStatus("offline");
+        }
+      }
+    };
+
+    checkBackend();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (backendStatus === "offline") return; // 服务离线时不加载配置
+    
     getJson<{ username: string; password: string }>("/auth/public-config")
       .then((c) => {
         setDemoUser(c.username);
@@ -43,7 +67,7 @@ export default function Login() {
       .catch(() => {
         /* 离线时使用页面内默认 */
       });
-  }, []);
+  }, [backendStatus]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,8 +77,13 @@ export default function Login() {
       await postJson<{ ok: boolean }>("/auth/login", { username: username.trim(), password });
       login(username.trim());
       navigate(redirectTo, { replace: true });
-    } catch {
-      setErr("账号或密码错误，请重试。");
+    } catch (error) {
+      // 区分服务离线和认证失败
+      if (backendStatus === "offline") {
+        setErr("后端服务未启动，请联系管理员。");
+      } else {
+        setErr("账号或密码错误，请重试。");
+      }
     } finally {
       setLoading(false);
     }
@@ -65,6 +94,28 @@ export default function Login() {
       <div className="ira-login__card">
         <h1 className="ira-login__title">控制台登录</h1>
         <p className="ira-login__lead">登录后进入投研智能工作台（内部演示环境）</p>
+
+        {/* 后端服务状态指示器 */}
+        <div className="ira-login__status" role="status">
+          {backendStatus === "checking" && (
+            <span className="ira-login__status-checking">
+              <span className="ira-login__status-dot ira-login__status-dot--checking"></span>
+              正在检查服务状态…
+            </span>
+          )}
+          {backendStatus === "online" && (
+            <span className="ira-login__status-online">
+              <span className="ira-login__status-dot ira-login__status-dot--online"></span>
+              后端服务正常运行
+            </span>
+          )}
+          {backendStatus === "offline" && (
+            <span className="ira-login__status-offline">
+              <span className="ira-login__status-dot ira-login__status-dot--offline"></span>
+              后端服务未启动，请联系管理员
+            </span>
+          )}
+        </div>
 
         <div className="ira-login__hint" role="note">
           <strong>演示账号（与 config/auth_login.json 一致）</strong>
