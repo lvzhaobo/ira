@@ -22,3 +22,9 @@ data/uploads/
 # Modules practice (练习模块)
 modules-practice/**/node_modules/
 modules-practice/**/__pycache__/
+modules-practice/**/.pytest_cache/
+modules-practice/**/.env
+!modules-practice/**/.env.example
+modules-practice/**/dist/
+modules-practice/**/*.db
+modules-practice/**/logs/
