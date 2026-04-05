@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识库与问答系统</title>
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .card { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .json-display {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+      max-height: 400px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .status-badge { font-size: 12px; }
+    .toast-container { z-index: 1080; }
+    .evidence-item {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .evidence-item .doc-id {
+      font-weight: 500;
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast 容器 -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="toastSuccess" class="toast align-items-center text-bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastSuccessBody"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+    <div id="toastError" class="toast align-items-center text-bg-danger border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastErrorBody"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4">
+    <!-- Header -->
+    <h1 class="fs-4 fw-semibold text-center mb-4">知识库与问答系统</h1>
+
+    <!-- BFF 配置栏 -->
+    <div class="card mb-3">
+      <div class="card-body py-2">
+        <div class="row align-items-center g-2">
+          <div class="col-auto">
+            <label for="bffBaseUrl" class="form-label mb-0 fw-semibold small">BFF 基地址：</label>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control form-control-sm" id="bffBaseUrl" value="" placeholder="例如：http://localhost:8000">
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-secondary btn-sm" onclick="saveBaseUrl()">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主体内容：双列布局 -->
+    <div class="row g-3">
+      <!-- 左侧：文档管理 -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0 fs-5 fw-semibold">文档管理</h5>
+          </div>
+          <div class="card-body">
+            <!-- 上传表单 -->
+            <div class="mb-3">
+              <label class="form-label">上传文档</label>
+              <div class="input-group">
+                <input type="file" class="form-control" id="fileInput" accept=".pdf,.txt,.md,.doc,.docx">
+                <button class="btn btn-primary" onclick="uploadDocument()" id="uploadBtn">上传</button>
+              </div>
+              <div class="form-text">支持 PDF、TXT、MD、DOC、DOCX 格式</div>
+            </div>
+
+            <!-- 上传提示区域 -->
+            <div id="uploadAlert" class="d-none"></div>
+
+            <!-- 操作栏 -->
+            <div class="d-flex gap-2 mb-3">
+              <button class="btn btn-secondary btn-sm" onclick="refreshDocumentList()" id="refreshBtn">刷新列表</button>
+            </div>
+
+            <!-- 文档列表 -->
+            <div class="table-responsive">
+              <table class="table table-striped table-hover mb-0" id="docTable" style="display: none;">
+                <thead>
+                  <tr>
+                    <th>文档 ID</th>
+                    <th>标题</th>
+                    <th>大小</th>
+                    <th>状态</th>
+                    <th>入库时间</th>
+                  </tr>
+                </thead>
+                <tbody id="docTableBody"></tbody>
+              </table>
+            </div>
+            <div id="docListPlaceholder">
+              <div class="text-center text-muted py-4">点击"刷新列表"获取文档</div>
+            </div>
+            <div id="docListError" class="d-none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧：问答区 -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0 fs-5 fw-semibold">问答</h5>
+          </div>
+          <div class="card-body">
+            <!-- 问题输入 -->
+            <div class="mb-3">
+              <label for="questionInput" class="form-label">问题内容</label>
+              <textarea class="form-control" id="questionInput" rows="3" placeholder="请输入您要查询的问题"></textarea>
+              <div class="form-text">输入您要查询的问题</div>
+            </div>
+            <button class="btn btn-primary" onclick="submitQuestion()" id="askBtn">提问</button>
+
+            <!-- 问答错误提示 -->
+            <div id="qaAlert" class="d-none mt-3"></div>
+
+            <!-- 回答展示 -->
+            <div id="answerDisplay" class="mt-3" style="display: none;">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h6 class="fw-semibold text-muted mb-2">回答：</h6>
+                  <div id="answerText" class="mb-3" style="line-height: 1.6;"></div>
+
+                  <h6 class="fw-semibold text-muted mb-2">证据引用：</h6>
+                  <div id="evidenceList" class="mb-3"></div>
+
+                  <!-- 合规信息 -->
+                  <div id="complianceInfo" class="d-none mb-3"></div>
+
+                  <h6 class="fw-semibold text-muted mb-2">原始响应（JSON）：</h6>
+                  <div id="jsonResponse" class="json-display border"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ============================================================
+    // Toast / Alert 辅助
+    // ============================================================
+    function showToast(type, message) {
+      const id = type === 'success' ? 'toastSuccess' : 'toastError';
+      const bodyId = type === 'success' ? 'toastSuccessBody' : 'toastErrorBody';
+      document.getElementById(bodyId).textContent = message;
+      const toast = new bootstrap.Toast(document.getElementById(id), { delay: 4000 });
+      toast.show();
+    }
+
+    function showAlert(containerId, type, message) {
+      const container = document.getElementById(containerId);
+      container.className = `alert alert-${type} alert-dismissible fade show`;
+      container.innerHTML = `${escapeHtml(message)}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    }
+
+    function hideAlert(containerId) {
+      const container = document.getElementById(containerId);
+      container.className = 'd-none';
+      container.innerHTML = '';
+    }
+
+    // ============================================================
+    // BFF 配置
+    // ============================================================
+    function getBffBaseUrl() {
+      const stored = localStorage.getItem('BFF_BASE_URL');
+      if (stored) return stored;
+      return 'http://localhost:8000';
+    }
+
+    function saveBaseUrl() {
+      const input = document.getElementById('bffBaseUrl');
+      const url = input.value.trim();
+      if (!url) {
+        showToast('error', '请输入 BFF 基地址');
+        return;
+      }
+      localStorage.setItem('BFF_BASE_URL', url);
+      showToast('success', '已保存 BFF 基地址：' + url);
+    }
+
+    function initBaseUrl() {
+      document.getElementById('bffBaseUrl').value = getBffBaseUrl();
+    }
+
+    // ============================================================
+    // API 调用
+    // ============================================================
+    async function apiCall(path, options = {}) {
+      const baseUrl = getBffBaseUrl();
+      const url = `${baseUrl}/api/v1${path}`;
+
+      const defaultOptions = {
+        headers: { 'Accept': 'application/json' }
+      };
+
+      if (!(options.body instanceof FormData)) {
+        defaultOptions.headers['Content-Type'] = 'application/json';
+      }
+
+      const config = {
+        ...defaultOptions,
+        ...options,
+        headers: { ...defaultOptions.headers, ...options.headers }
+      };
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.detail || `HTTP ${response.status}: ${response.statusText}`);
+      }
+      return data;
+    }
+
+    // ============================================================
+    // 文档列表
+    // ============================================================
+    async function refreshDocumentList() {
+      const btn = document.getElementById('refreshBtn');
+      const table = document.getElementById('docTable');
+      const tbody = document.getElementById('docTableBody');
+      const placeholder = document.getElementById('docListPlaceholder');
+      const errorContainer = document.getElementById('docListError');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>加载中...';
+      hideAlert('docListError');
+      errorContainer.className = 'd-none';
+
+      try {
+        const data = await apiCall('/kb/documents');
+
+        if (!data.items || data.items.length === 0) {
+          table.style.display = 'none';
+          placeholder.innerHTML = '<div class="text-center text-muted py-4">暂无文档，请上传</div>';
+          placeholder.style.display = 'block';
+          return;
+        }
+
+        placeholder.style.display = 'none';
+        table.style.display = 'table';
+        tbody.innerHTML = data.items.map(doc => `
+          <tr>
+            <td><code class="small">${escapeHtml(doc.doc_id)}</code></td>
+            <td>${escapeHtml(doc.title || doc.doc_id)}</td>
+            <td class="small">${formatBytes(doc.bytes)}</td>
+            <td>${renderStatusBadge(doc.status)}</td>
+            <td class="small">${formatDate(doc.ingested_at)}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        table.style.display = 'none';
+        placeholder.style.display = 'none';
+        errorContainer.className = 'alert alert-danger';
+        errorContainer.textContent = '获取列表失败：' + error.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '刷新列表';
+      }
+    }
+
+    function renderStatusBadge(status) {
+      const map = {
+        ready:    'bg-success',
+        indexing: 'bg-primary',
+        error:    'bg-danger',
+      };
+      const cls = map[status] || 'bg-secondary';
+      return `<span class="badge ${cls} status-badge">${escapeHtml(status)}</span>`;
+    }
+
+    // ============================================================
+    // 上传文档
+    // ============================================================
+    async function uploadDocument() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        showAlert('uploadAlert', 'warning', '请先选择文件');
+        return;
+      }
+
+      hideAlert('uploadAlert');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', file.name);
+
+      const btn = document.getElementById('uploadBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>上传中...';
+
+      try {
+        const data = await apiCall('/research/qa/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        showToast('success', `上传成功！doc_id: ${data.doc_id}`);
+        showAlert('uploadAlert', 'success', `上传成功 - doc_id: ${data.doc_id}，trace_id: ${data.trace_id}`);
+        fileInput.value = '';
+        refreshDocumentList();
+      } catch (error) {
+        showAlert('uploadAlert', 'danger', '上传失败：' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '上传';
+      }
+    }
+
+    // ============================================================
+    // 问答
+    // ============================================================
+    async function submitQuestion() {
+      const input = document.getElementById('questionInput');
+      const query = input.value.trim();
+
+      if (!query) {
+        showAlert('qaAlert', 'warning', '请输入问题');
+        return;
+      }
+
+      hideAlert('qaAlert');
+
+      const btn = document.getElementById('askBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>提问中...';
+
+      try {
+        const data = await apiCall('/research/qa/ask', {
+          method: 'POST',
+          body: JSON.stringify({
+            query: query,
+            session_id: null,
+            spec_version: null
+          })
+        });
+        displayAnswer(data);
+      } catch (error) {
+        document.getElementById('answerDisplay').style.display = 'none';
+        showAlert('qaAlert', 'danger', '提问失败：' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '提问';
+      }
+    }
+
+    function displayAnswer(data) {
+      const display = document.getElementById('answerDisplay');
+      const answerText = document.getElementById('answerText');
+      const evidenceList = document.getElementById('evidenceList');
+      const jsonResponse = document.getElementById('jsonResponse');
+      const complianceInfo = document.getElementById('complianceInfo');
+
+      display.style.display = 'block';
+      answerText.textContent = data.answer || '';
+
+      // 证据引用
+      if (data.evidence_refs && data.evidence_refs.length > 0) {
+        evidenceList.innerHTML = data.evidence_refs.map(ref => `
+          <div class="evidence-item">
+            <div class="doc-id">doc_id: ${escapeHtml(ref.doc_id)}</div>
+            <div class="small text-muted">
+              页码: ${ref.page} | 位置: ${escapeHtml(ref.ref)} | 相关度: ${ref.retrieval_score}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        evidenceList.innerHTML = '<div class="text-center text-muted py-2 small">无证据引用（业务拒答）</div>';
+      }
+
+      // 合规信息
+      if (data.compliance && data.compliance.decline_reason) {
+        complianceInfo.className = 'alert alert-warning small mb-3';
+        complianceInfo.textContent = '拒答原因：' + data.compliance.decline_reason;
+      } else {
+        complianceInfo.className = 'd-none mb-3';
+      }
+
+      // JSON 原始响应
+      jsonResponse.textContent = JSON.stringify(data, null, 2);
+    }
+
+    // ============================================================
+    // 辅助函数
+    // ============================================================
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleString('zh-CN');
+    }
+
+    // 初始化
+    window.onload = function () {
+      initBaseUrl();
+    };
+  </script>
+</body>
+</html>

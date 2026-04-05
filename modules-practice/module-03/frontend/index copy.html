@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识库与问答 - 最小联调演示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #1a1a1a;
+    }
+
+    .config-bar {
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .config-bar label {
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .config-bar input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      color: #1a1a1a;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background: #1890ff;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #40a9ff;
+    }
+
+    .btn-primary:disabled {
+      background: #d9d9d9;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e6e6e6;
+    }
+
+    .upload-section {
+      margin-bottom: 15px;
+    }
+
+    .upload-section input[type="file"] {
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .document-list {
+      min-height: 200px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .error-state {
+      background: #fff2f0;
+      border: 1px solid #ffccc7;
+      border-radius: 4px;
+      padding: 12px;
+      color: #cf1322;
+      margin-bottom: 15px;
+    }
+
+    .document-item {
+      padding: 12px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .document-item:hover {
+      border-color: #1890ff;
+    }
+
+    .document-item .title {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .document-item .meta {
+      font-size: 12px;
+      color: #666;
+      display: flex;
+      gap: 15px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-ready {
+      background: #f6ffed;
+      color: #52c41a;
+    }
+
+    .status-indexing {
+      background: #e6f7ff;
+      color: #1890ff;
+    }
+
+    .status-error {
+      background: #fff2f0;
+      color: #ff4d4f;
+    }
+
+    .qa-section .question-input {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+
+    .answer-display {
+      margin-top: 15px;
+      padding: 15px;
+      background: #fafafa;
+      border-radius: 6px;
+      border: 1px solid #eee;
+    }
+
+    .answer-display h4 {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .answer-text {
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    .evidence-list {
+      margin-top: 10px;
+    }
+
+    .evidence-item {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .evidence-item .doc-id {
+      font-weight: 500;
+      color: #1890ff;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+    }
+
+    .json-display {
+      background: #f5f5f5;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>知识库与问答 - 最小联调演示</h1>
+
+    <div class="config-bar">
+      <label for="bffBaseUrl">BFF 基地址：</label>
+      <input type="text" id="bffBaseUrl" value="" placeholder="例如：http://localhost:8000">
+      <button class="btn btn-secondary" onclick="saveBaseUrl()">保存</button>
+    </div>
+
+    <div class="main-content">
+      <!-- 左侧：文档列表与上传 -->
+      <div class="panel">
+        <h2>文档列表</h2>
+
+        <div class="upload-section">
+          <input type="file" id="fileInput" accept=".pdf,.txt,.md,.doc,.docx">
+          <button class="btn btn-primary" onclick="uploadDocument()">上传文档</button>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-secondary" onclick="refreshDocumentList()">刷新列表</button>
+        </div>
+
+        <div id="documentList" class="document-list">
+          <div class="empty-state">点击"刷新列表"获取文档</div>
+        </div>
+      </div>
+
+      <!-- 右侧：问答 -->
+      <div class="panel qa-section">
+        <h2>问答</h2>
+
+        <textarea id="questionInput" class="question-input" placeholder="请输入您的问题..."></textarea>
+        <button class="btn btn-primary" onclick="submitQuestion()" id="askBtn">提问</button>
+
+        <div id="answerDisplay" style="display: none;">
+          <div class="answer-display">
+            <h4>回答：</h4>
+            <div id="answerText" class="answer-text"></div>
+
+            <h4>证据引用：</h4>
+            <div id="evidenceList" class="evidence-list"></div>
+
+            <h4>原始响应（JSON）：</h4>
+            <div id="jsonResponse" class="json-display"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 从 localStorage 加载 BFF_BASE_URL，或使用默认值
+    function getBffBaseUrl() {
+      const stored = localStorage.getItem('BFF_BASE_URL');
+      if (stored) return stored;
+
+      // 默认值（可根据实际部署情况修改）
+      return 'http://localhost:8000';
+    }
+
+    function saveBaseUrl() {
+      const input = document.getElementById('bffBaseUrl');
+      const url = input.value.trim();
+      if (!url) {
+        alert('请输入 BFF 基地址');
+        return;
+      }
+      localStorage.setItem('BFF_BASE_URL', url);
+      alert('已保存 BFF 基地址：' + url);
+    }
+
+    function initBaseUrl() {
+      const input = document.getElementById('bffBaseUrl');
+      input.value = getBffBaseUrl();
+    }
+
+    // API 调用辅助函数
+    async function apiCall(path, options = {}) {
+      const baseUrl = getBffBaseUrl();
+      const url = `${baseUrl}/api/v1${path}`;
+
+      const defaultOptions = {
+        headers: {
+          'Accept': 'application/json',
+        }
+      };
+
+      // 如果不是 FormData，设置 Content-Type
+      if (!(options.body instanceof FormData)) {
+        defaultOptions.headers['Content-Type'] = 'application/json';
+      }
+
+      const config = {
+        ...defaultOptions,
+        ...options,
+        headers: {
+          ...defaultOptions.headers,
+          ...options.headers
+        }
+      };
+
+      try {
+        const response = await fetch(url, config);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('API 调用失败:', error);
+        throw error;
+      }
+    }
+
+    // 获取文档列表
+    async function refreshDocumentList() {
+      const container = document.getElementById('documentList');
+      container.innerHTML = '<div class="loading">加载中...</div>';
+
+      try {
+        const data = await apiCall('/kb/documents');
+
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = '<div class="empty-state">暂无文档</div>';
+          return;
+        }
+
+        container.innerHTML = data.items.map(doc => `
+          <div class="document-item">
+            <div class="title">${escapeHtml(doc.title || doc.doc_id)}</div>
+            <div class="meta">
+              <span>ID: ${escapeHtml(doc.doc_id)}</span>
+              <span>文件: ${escapeHtml(doc.source_filename)}</span>
+              <span>大小: ${formatBytes(doc.bytes)}</span>
+              <span class="status-badge status-${doc.status}">${doc.status}</span>
+              <span>入库时间: ${formatDate(doc.ingested_at)}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        container.innerHTML = `<div class="error-state">获取列表失败：${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    // 上传文档
+    async function uploadDocument() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert('请先选择文件');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // 可选：使用文件名作为 title
+      formData.append('title', file.name);
+
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = '上传中...';
+
+      try {
+        const data = await apiCall('/research/qa/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        alert(`上传成功！\ndoc_id: ${data.doc_id}\ntrace_id: ${data.trace_id}`);
+
+        // 清空文件选择
+        fileInput.value = '';
+
+        // 自动刷新列表
+        refreshDocumentList();
+      } catch (error) {
+        alert(`上传失败：${error.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '上传文档';
+      }
+    }
+
+    // 提交问题
+    async function submitQuestion() {
+      const input = document.getElementById('questionInput');
+      const query = input.value.trim();
+
+      if (!query) {
+        alert('请输入问题');
+        return;
+      }
+
+      const btn = document.getElementById('askBtn');
+      btn.disabled = true;
+      btn.textContent = '提问中...';
+
+      try {
+        const data = await apiCall('/research/qa/ask', {
+          method: 'POST',
+          body: JSON.stringify({
+            query: query,
+            session_id: null,
+            spec_version: null
+          })
+        });
+
+        displayAnswer(data);
+      } catch (error) {
+        const display = document.getElementById('answerDisplay');
+        const answerText = document.getElementById('answerText');
+        const evidenceList = document.getElementById('evidenceList');
+        const jsonResponse = document.getElementById('jsonResponse');
+
+        display.style.display = 'block';
+        answerText.innerHTML = `<div class="error-state">提问失败：${escapeHtml(error.message)}</div>`;
+        evidenceList.innerHTML = '';
+        jsonResponse.textContent = '';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '提问';
+      }
+    }
+
+    // 展示回答
+    function displayAnswer(data) {
+      const display = document.getElementById('answerDisplay');
+      const answerText = document.getElementById('answerText');
+      const evidenceList = document.getElementById('evidenceList');
+      const jsonResponse = document.getElementById('jsonResponse');
+
+      display.style.display = 'block';
+
+      // 显示回答文本
+      answerText.textContent = data.answer || '';
+
+      // 显示证据引用
+      if (data.evidence_refs && data.evidence_refs.length > 0) {
+        evidenceList.innerHTML = data.evidence_refs.map(ref => `
+          <div class="evidence-item">
+            <div class="doc-id">doc_id: ${escapeHtml(ref.doc_id)}</div>
+            <div>页码: ${ref.page}</div>
+            <div>位置: ${escapeHtml(ref.ref)}</div>
+            <div>相关度: ${ref.retrieval_score}</div>
+          </div>
+        `).join('');
+      } else {
+        evidenceList.innerHTML = '<div class="empty-state">无证据引用（业务拒答）</div>';
+      }
+
+      // 显示完整 JSON 响应
+      jsonResponse.textContent = JSON.stringify(data, null, 2);
+
+      // 显示合规信息
+      if (data.compliance && data.compliance.decline_reason) {
+        evidenceList.innerHTML += `<div class="evidence-item" style="background: #fff2f0; border-color: #ffccc7;"><div>拒答原因：${escapeHtml(data.compliance.decline_reason)}</div></div>`;
+      }
+    }
+
+    // 辅助函数：转义 HTML
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 辅助函数：格式化文件大小
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // 辅助函数：格式化日期
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleString('zh-CN');
+    }
+
+    // 初始化
+    window.onload = function() {
+      initBaseUrl();
+    };
+  </script>
+</body>
+</html>

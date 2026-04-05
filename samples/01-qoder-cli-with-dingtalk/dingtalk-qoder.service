@@ -1,0 +1,25 @@
+[Unit]
+Description=DingTalk Qoder CLI Bridge Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/dingtalk-qoder-bridge
+ExecStart=/usr/bin/node src/server.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dingtalk-qoder
+
+# 环境变量
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/dingtalk-qoder-bridge/.env
+
+# 安全设置
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
