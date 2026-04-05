@@ -1,0 +1,146 @@
+# AI 代码审查工作流 - 使用 Qoder CLI
+# 在 Pull Request 时自动运行 AI 代码审查，提供智能改进建议
+
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, master]
+
+# 权限配置：需要读取代码和写入 PR 评论
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ai-code-review:
+    name: Qoder AI Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤 1: 检出代码
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整 Git 历史，用于对比改动
+
+      # 步骤 2: 设置 Node.js 环境（Qoder CLI 通过 npm 安装）
+      - name: 🔧 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 步骤 3: 安装 Qoder CLI
+      - name: 📦 安装 Qoder CLI
+        run: npm install -g @qoder-ai/qodercli
+
+      # 步骤 4: 验证安装
+      - name: ✅ 验证 Qoder CLI
+        run: qodercli --version
+
+      # 步骤 5: 获取 PR 的改动文件列表
+      - name: 📋 获取 PR 改动
+        id: changes
+        run: |
+          # 获取 PR 中修改的文件列表
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt
+          
+          # 统计改动文件数量
+          FILE_COUNT=$(wc -l < changed_files.txt)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+          
+          # 显示改动文件
+          echo "改动的文件："
+          cat changed_files.txt
+
+      # 步骤 6: 执行 AI 代码审查
+      - name: 🔍 执行 AI 代码审查
+        if: steps.changes.outputs.file_count > 0
+        env:
+          QODER_PERSONAL_ACCESS_TOKEN: ${{ secrets.QODER_PERSONAL_ACCESS_TOKEN }}
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          CHANGED_FILES=$(cat changed_files.txt)
+          
+          REVIEW_PROMPT="请对当前 Pull Request 的代码改动进行全面的代码审查。PR 标题：$PR_TITLE，作者：$PR_AUTHOR。审查要求：1)检查代码质量和最佳实践 2)识别潜在的 Bug 和安全问题 3)评估代码可读性和可维护性 4)检查性能问题 5)提供具体的改进建议 6)关注 Python 和 JavaScript/TypeScript 代码规范。改动文件：$CHANGED_FILES。请以 Markdown 格式输出审查报告，包含：总体评价、发现的问题（按严重程度分类：Critical/Warning/Suggestion）、具体的代码改进建议、代码示例（如有必要）"
+          
+          qodercli -p "$REVIEW_PROMPT" --output-format json --max-turns=15 > review_result.json 2>&1 || true
+
+      # 步骤 7: 提取审查结果
+      - name: 📊 提取审查结果
+        id: review
+        if: steps.changes.outputs.file_count > 0
+        run: |
+          # 尝试从 JSON 中提取结果
+          if [ -f review_result.json ]; then
+            # 提取最后一行作为最终输出（Print 模式的结果）
+            REVIEW_CONTENT=$(cat review_result.json | tail -n 20)
+            
+            # 保存到文件供后续步骤使用
+            echo "$REVIEW_CONTENT" > review_content.txt
+            
+            # 输出到日志
+            echo "=== AI 代码审查结果 ==="
+            echo "$REVIEW_CONTENT"
+          else
+            echo "未生成审查结果文件"
+            echo "审查未生成结果" > review_content.txt
+          fi
+
+      # 步骤 8: 在 PR 中发布审查评论
+      - name: 💬 发布审查评论
+        if: steps.changes.outputs.file_count > 0
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let reviewContent = '审查结果未生成';
+            try {
+              reviewContent = fs.readFileSync('review_content.txt', 'utf8');
+            } catch (error) {
+              console.error('读取审查结果失败:', error.message);
+            }
+            const comment = '## 🤖 AI Code Review Report\n\n> 由 [Qoder CLI](https://docs.qoder.com/zh/cli/quick-start) 自动生成\n\n' + reviewContent + '\n\n---\n*此审查由 AI 自动生成，请结合实际情况评估建议*';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+            console.log('✅ 审查评论已发布到 PR #' + context.issue.number);
+
+      # 步骤 9: 上传审查结果作为 artifact
+      - name: 📦 上传审查结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-code-review-${{ github.event.pull_request.number }}
+          path: |
+            review_result.json
+            review_content.txt
+            changed_files.txt
+          retention-days: 30
+
+      # 步骤 10: 设置检查状态
+      - name: ✅ 设置检查状态
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const conclusion = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'AI Code Review',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: 'Qoder AI Code Review',
+                summary: conclusion === 'success' ? '✅ AI 代码审查已完成，请查看评论了解详情' : '⚠️ AI 代码审查执行失败，请检查日志'
+              }
+            });
