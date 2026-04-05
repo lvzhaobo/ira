@@ -39,7 +39,7 @@ interface AnalysisState {
 }
 
 export const useAnalysisStore = create<AnalysisState>((set, get) => ({
-  // 初始状态
+  // 初始状�?
   currentTask: null,
   isAnalyzing: false,
   
@@ -64,8 +64,8 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       const task = response.data;
       set({ currentTask: task });
       
-      // 开始轮询任务状态
-      get().pollTaskStatus(task.taskId);
+      // 开始轮询任务状�?
+      get().pollTaskStatus(task.id.toString());
     } catch (error) {
       console.error('启动分析任务失败:', error);
       set({ isAnalyzing: false });
@@ -98,7 +98,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
         // 继续轮询
         setTimeout(poll, 2000);
       } catch (error) {
-        console.error('轮询任务状态失败:', error);
+        console.error('轮询任务状态失�?', error);
         set({ isAnalyzing: false });
       }
     };
@@ -119,9 +119,14 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     set({ isLoadingHistory: true });
     try {
       const response = await getAnalysisTasks();
-      set({ historyRecords: response.data });
+      // 后端返回格式: { code: 0, data: { list: [], total: 0 } }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = response.data as any;
+      const records = data?.list || data || [];
+      set({ historyRecords: Array.isArray(records) ? records : [] });
     } catch (error) {
       console.error('加载历史记录失败:', error);
+      set({ historyRecords: [] });
     } finally {
       set({ isLoadingHistory: false });
     }
@@ -140,3 +145,4 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     set({ selectedDimensions: dimensions });
   },
 }));
+

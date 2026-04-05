@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Progress, Timeline, Tag, Space, Divider, Alert } from 'antd';
 import { 
@@ -18,14 +18,15 @@ const Analysis: React.FC = () => {
   const { currentFund } = useFundStore();
 
   useEffect(() => {
-    if (fundCode && currentFund) {
-      startAnalysis(fundCode, currentFund.fundName);
+    if (fundCode) {
+      // 直接使用fundCode启动分析,不需要等待currentFund
+      startAnalysis(fundCode, '');
     }
-  }, [fundCode, currentFund]);
+  }, [fundCode]);
 
   const handleCancel = () => {
     if (currentTask) {
-      cancelTask(currentTask.taskId);
+      cancelTask(currentTask.id.toString());
       navigate(`/fund/${fundCode}`);
     }
   };
@@ -95,7 +96,7 @@ const Analysis: React.FC = () => {
       >
         {currentFund && (
           <Alert
-            message={`正在分析: ${currentFund.fundName} (${currentFund.fundCode})`}
+            message={`正在分析: ${currentFund.name} (${currentFund.code})`}
             type="info"
             style={{ marginBottom: '24px' }}
           />

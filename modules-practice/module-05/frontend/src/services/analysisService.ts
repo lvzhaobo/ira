@@ -6,8 +6,8 @@ export const createAnalysisTask = (
   fundCode: string,
   dimensions: AnalysisDimension[] = ['performance', 'risk', 'holding', 'manager', 'market']
 ) => {
-  return request.post<AnalysisTask>('/analysis/create', {
-    fundCode,
+  return request.post<AnalysisTask>('/analysis/start', {
+    fund_code: fundCode,
     dimensions,
   });
 };
@@ -31,5 +31,5 @@ export const cancelAnalysisTask = (taskId: string) => {
 
 // 获取分析结果
 export const getAnalysisResult = (taskId: string) => {
-  return request.get<AnalysisTask>(`/analysis/${taskId}/result`);
+  return request.get<AnalysisTask>(`/analysis/${taskId}/results`);
 };
