@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Spin, Button } from 'antd';
+import { Card, Descriptions, Spin, Button, Tag, Statistic, Row, Col } from 'antd';
 import { ArrowLeftOutlined, RocketOutlined } from '@ant-design/icons';
 import { useFundStore } from '@/stores/fundStore';
 import { useAnalysisStore } from '@/stores/analysisStore';
+import dayjs from 'dayjs';
 
 const FundDetail: React.FC = () => {
   const { fundCode } = useParams<{ fundCode: string }>();
@@ -21,6 +22,23 @@ const FundDetail: React.FC = () => {
     if (currentFund && fundCode) {
       navigate(`/analysis/${fundCode}`);
     }
+  };
+
+  const getTypeColor = (type: string) => {
+    const colorMap: Record<string, string> = {
+      '股票型': 'blue',
+      '混合型': 'green',
+      '债券型': 'orange',
+      '指数型': 'purple',
+      'QDII': 'red',
+    };
+    return colorMap[type] || 'default';
+  };
+
+  const formatScale = (scale: number) => {
+    if (!scale) return '-';
+    const billion = scale / 100000000;
+    return `${billion.toFixed(2)}亿元`;
   };
 
   if (isLoadingFund) {
@@ -56,9 +74,14 @@ const FundDetail: React.FC = () => {
       <Card
         title={
           <div>
-            <h2 style={{ margin: 0 }}>{currentFund.fundName}</h2>
-            <p style={{ margin: '4px 0 0', color: '#666' }}>
-              基金代码: {currentFund.fundCode}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h2 style={{ margin: 0 }}>{currentFund.name}</h2>
+              <Tag color={getTypeColor(currentFund.fund_type)} style={{ fontSize: '14px' }}>
+                {currentFund.fund_type}
+              </Tag>
+            </div>
+            <p style={{ margin: '8px 0 0', color: '#666', fontSize: '14px' }}>
+              基金代码: {currentFund.code}
             </p>
           </div>
         }
@@ -74,40 +97,66 @@ const FundDetail: React.FC = () => {
         }
         style={{ marginBottom: '16px' }}
       >
-        <Descriptions column={2} size="small">
+        {/* 净值信息 */}
+        {currentFund.latest_nav && (
+          <Row gutter={16} style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+            <Col span={6}>
+              <Statistic
+                title="最新净值"
+                value={currentFund.latest_nav.nav}
+                precision={4}
+                valueStyle={{ color: '#1890ff', fontSize: '24px' }}
+              />
+            </Col>
+            <Col span={6}>
+              <Statistic
+                title="累计净值"
+                value={currentFund.latest_nav.accum_nav}
+                precision={4}
+              />
+            </Col>
+            <Col span={6}>
+              <Statistic
+                title="日收益率"
+                value={currentFund.latest_nav.daily_return}
+                precision={4}
+                suffix="%"
+                valueStyle={{ 
+                  color: currentFund.latest_nav.daily_return >= 0 ? '#f5222d' : '#52c41a' 
+                }}
+              />
+            </Col>
+            <Col span={6}>
+              <Statistic
+                title="净值日期"
+                value={dayjs(currentFund.latest_nav.date).format('YYYY-MM-DD')}
+              />
+            </Col>
+          </Row>
+        )}
+
+        <Descriptions column={2} size="small" bordered>
           <Descriptions.Item label="基金类型">
-            {currentFund.fundType}
-          </Descriptions.Item>
-          <Descriptions.Item label="最新净值">
-            <span style={{ color: '#1890ff', fontSize: '18px', fontWeight: 'bold' }}>
-              {currentFund.nav}
-            </span>
-          </Descriptions.Item>
-          <Descriptions.Item label="净值日期">
-            {currentFund.navDate}
-          </Descriptions.Item>
-          <Descriptions.Item label="日增长率">
-            <span
-              style={{
-                color: currentFund.dailyGrowth >= 0 ? '#f5222d' : '#52c41a',
-                fontWeight: 'bold',
-              }}
-            >
-              {currentFund.dailyGrowth >= 0 ? '+' : ''}
-              {currentFund.dailyGrowth}%
-            </span>
+            <Tag color={getTypeColor(currentFund.fund_type)}>
+              {currentFund.fund_type}
+            </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="基金经理">
-            {currentFund.manager}
-          </Descriptions.Item>
-          <Descriptions.Item label="基金公司">
-            {currentFund.fundCompany}
+            {currentFund.manager_name || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="基金规模">
-            {currentFund.scale} 亿元
+            {formatScale(currentFund.scale || 0)}
           </Descriptions.Item>
           <Descriptions.Item label="成立日期">
-            {currentFund.成立Date}
+            {currentFund.establish_date ? dayjs(currentFund.establish_date).format('YYYY-MM-DD') : '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="状态">
+            <Tag color={currentFund.status === 'active' ? 'green' : 'default'}>
+              {currentFund.status === 'active' ? '运作中' : '已暂停'}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="更新时间">
+            {currentFund.updated_at ? dayjs(currentFund.updated_at).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
         </Descriptions>
       </Card>

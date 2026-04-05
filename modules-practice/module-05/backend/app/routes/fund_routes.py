@@ -25,6 +25,56 @@ def handle_errors(f):
     return wrapper
 
 
+@fund_bp.route('/list', methods=['GET'])
+@handle_errors
+def get_fund_list():
+    """获取基金列表（分页）
+    
+    Query Parameters:
+        page: 页码（默认1）
+        page_size: 每页数量（默认20）
+        fund_type: 基金类型筛选
+    """
+    page = request.args.get('page', 1, type=int)
+    page_size = request.args.get('page_size', 20, type=int)
+    fund_type = request.args.get('fund_type', '').strip()
+    
+    # 参数验证
+    if page < 1:
+        page = 1
+    if page_size < 1 or page_size > 100:
+        page_size = 20
+    
+    # 构建查询
+    query = Fund.query.filter_by(status='active')
+    
+    if fund_type:
+        query = query.filter_by(fund_type=fund_type)
+    
+    # 分页查询
+    pagination = query.order_by(Fund.code).paginate(
+        page=page,
+        per_page=page_size,
+        error_out=False
+    )
+    
+    funds = [fund.to_dict() for fund in pagination.items]
+    
+    logger.info(f"获取基金列表: page={page}, page_size={page_size}, total={pagination.total}")
+    
+    return jsonify({
+        'code': 0,
+        'message': 'success',
+        'data': {
+            'list': funds,
+            'total': pagination.total,
+            'page': page,
+            'page_size': page_size,
+            'pages': pagination.pages
+        }
+    })
+
+
 @fund_bp.route('/search', methods=['GET'])
 @handle_errors
 def search_funds():

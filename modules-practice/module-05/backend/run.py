@@ -50,6 +50,32 @@ def index():
     }
 
 
+@app.route('/api/docs')
+def api_docs():
+    """API文档 - 列出所有可用接口"""
+    rules = []
+    for rule in app.url_map.iter_rules():
+        if rule.endpoint == 'static':
+            continue
+        methods = sorted(rule.methods - {'HEAD', 'OPTIONS'})
+        if methods:
+            rules.append({
+                'endpoint': rule.endpoint,
+                'methods': methods,
+                'url': str(rule)
+            })
+    rules.sort(key=lambda x: x['url'])
+    return {
+        'code': 0,
+        'message': 'API文档',
+        'data': {
+            'name': '多Agent基金投研平台 API',
+            'version': '1.0.0',
+            'endpoints': rules
+        }
+    }
+
+
 @app.route('/health')
 def health_check():
     """健康检查"""

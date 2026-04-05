@@ -1,16 +1,23 @@
 import { request } from './api';
-import type { FundBasicInfo, FundSearchResult, FundNavHistory, FundHolding, FundManager } from '@/types/fund';
+import type { FundBasicInfo, FundSearchResult, FundNavHistory, FundHolding, FundManager, FundListResponse } from '@/types/fund';
+
+// 获取基金列表（分页）
+export const getFundList = (page: number = 1, page_size: number = 20, fund_type?: string) => {
+  return request.get<FundListResponse>('/fund/list', {
+    params: { page, page_size, fund_type },
+  });
+};
 
 // 搜索基金
-export const searchFunds = (keyword: string) => {
-  return request.get<FundSearchResult[]>('/fund/search', {
-    params: { keyword },
+export const searchFunds = (keyword: string, page: number = 1, page_size: number = 10) => {
+  return request.get<FundListResponse>('/fund/search', {
+    params: { keyword, page, page_size },
   });
 };
 
 // 获取基金基本信息
 export const getFundBasicInfo = (fundCode: string) => {
-  return request.get<FundBasicInfo>(`/fund/${fundCode}/basic`);
+  return request.get<FundBasicInfo>(`/fund/${fundCode}`);
 };
 
 // 获取基金净值历史

@@ -1,45 +1,70 @@
 // 基金基本信息
 export interface FundBasicInfo {
-  fundCode: string;           // 基金代码
-  fundName: string;           // 基金名称
-  fundType: string;           // 基金类型
-  nav: number;                // 最新净值
-  navDate: string;            // 净值日期
-  dailyGrowth: number;        // 日增长率
-  manager: string;            // 基金经理
-  fundCompany: string;        // 基金公司
-  scale: number;              // 基金规模（亿元）
- 成立Date: string;            // 成立日期
+  id: number;
+  code: string;
+  name: string;
+  fund_type: string;
+  manager_name?: string;
+  establish_date?: string;
+  scale?: number;
+  status: string;
+  updated_at?: string;
+  latest_nav?: {
+    date: string;
+    nav: number;
+    accum_nav: number;
+    daily_return: number;
+  };
 }
 
 // 基金搜索结果
 export interface FundSearchResult {
-  fundCode: string;
-  fundName: string;
-  fundType: string;
+  id: number;
+  code: string;
+  name: string;
+  fund_type: string;
+}
+
+// 基金列表响应（分页）
+export interface FundListResponse {
+  list: FundSearchResult[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
 }
 
 // 基金净值历史
 export interface FundNavHistory {
+  id: number;
+  fund_code: string;
   date: string;
   nav: number;
-  accumulatedNav: number;
-  dailyGrowth: number;
+  accum_nav: number;
+  daily_return: number;
 }
 
 // 基金持仓
 export interface FundHolding {
-  stockCode: string;
-  stockName: string;
-  proportion: number;         // 持仓比例
-  change: number;             // 较上期变化
+  id: number;
+  fund_code: string;
+  stock_code: string;
+  stock_name: string;
+  holding_ratio: number;
+  holding_shares: number;
+  market_value: number;
+  report_date: string;
 }
 
 // 基金经理信息
 export interface FundManager {
+  id: number;
   name: string;
-  tenure: number;             // 任职年限
-  returnRate: number;         // 任职回报率
-  manageFunds: number;        // 管理基金数
-  biography: string;          // 简介
+  gender: string;
+  education: string;
+  experience_years: number;
+  biography: string;
+  start_date: string;
+  total_scale: number;
+  status: string;
 }

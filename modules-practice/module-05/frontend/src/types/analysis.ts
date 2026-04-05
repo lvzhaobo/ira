@@ -98,17 +98,28 @@ export type AnalysisResult =
   | ManagerAnalysis
   | MarketAnalysis;
 
-// 分析任务
+// 分析任务（匹配后端返回格式）
 export interface AnalysisTask {
-  taskId: string;
-  fundCode: string;
-  fundName: string;
-  status: AnalysisTaskStatus;
-  progress: number;           // 进度 0-100
-  currentAgent?: string;      // 当前执行的Agent
-  results: AnalysisResult[];
-  messages: AgentMessage[];
-  createdAt: string;
+  id: number;              // 后端返回的任务ID
+  fund_code: string;       // 基金代码
+  task_name?: string;      // 任务名称
+  task_type?: string;      // 任务类型
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  progress: number;        // 进度 0-100
+  params?: string;
+  error_message?: string;
+  started_at?: string;
+  completed_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  // 以下字段为前端使用
+  taskId?: string;
+  fundCode?: string;
+  fundName?: string;
+  currentAgent?: string;
+  results?: AnalysisResult[];
+  messages?: AgentMessage[];
+  createdAt?: string;
   completedAt?: string;
 }
 
