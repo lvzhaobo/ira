@@ -1,0 +1,35 @@
+/* 工作坊主题：深蓝主色 + 红色强调（无机构名称） */
+:root {
+  --color-primary: #003d82;
+  --color-primary-hover: #0050a8;
+  --color-primary-muted: #e8eef5;
+  --color-accent-red: #c41230;
+  --color-accent-red-hover: #9e0e26;
+  --color-surface: #f4f6f9;
+  --color-card: #ffffff;
+  --color-text: #1a1d24;
+  --color-text-muted: #5c6370;
+  --color-border: #d4dae3;
+  --font-sans: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

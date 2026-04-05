@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ira.vin · 数据源 Mock 门户（工作坊）</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; background: #0f1419; color: #e6edf3; min-height: 100vh; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem; }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.5rem; }
+    .sub { color: #8b949e; font-size: 0.875rem; margin-bottom: 2rem; line-height: 1.5; }
+    .cards { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+    a.card {
+      display: block; text-decoration: none; color: inherit; border-radius: 12px; padding: 1.25rem;
+      border: 1px solid #30363d; transition: transform 0.15s, border-color 0.15s; background: #161b22;
+    }
+    a.card:hover { transform: translateY(-2px); border-color: #58a6ff; }
+    .card h2 { font-size: 1rem; margin: 0 0 0.5rem; }
+    .card p { margin: 0; font-size: 0.8rem; color: #8b949e; line-height: 1.45; }
+    .tag { display: inline-block; font-size: 0.65rem; padding: 0.15rem 0.45rem; border-radius: 4px; margin-top: 0.75rem; font-weight: 600; }
+    .sina .tag { background: #c41e3a; color: #fff; }
+    .em .tag { background: #ff6600; color: #fff; }
+    .wind .tag { background: #238636; color: #fff; }
+    footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #30363d; font-size: 0.75rem; color: #6e7681; }
+    code { background: #21262d; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.8em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ira.vin · 数据源 Mock 门户</h1>
+    <p class="sub">以下为<strong>虚构页面与演示数据</strong>，形态参考常见财经门户与终端，供 Glue 适配器联调；非任何商业站点镜像，不构成投资建议。</p>
+    <div class="cards">
+      <a class="card sina" href="{{ url_for('page_sina_finance') }}">
+        <h2>模拟 · 门户财经资讯</h2>
+        <p>顶部导航 + 资讯列表，数据来自 <code>GET …/sina/finance/news/list.json</code></p>
+        <span class="tag">列表 JSON</span>
+      </a>
+      <a class="card em" href="{{ url_for('page_eastmoney_flash') }}">
+        <h2>模拟 · 快讯瀑布流</h2>
+        <p>橙色顶栏 + 时间轴快讯，数据来自 <code>GET …/eastmoney/api/news/flash</code></p>
+        <span class="tag">快讯 JSON</span>
+      </a>
+      <a class="card wind" href="{{ url_for('page_wind_terminal') }}">
+        <h2>模拟 · 终端行情快照</h2>
+        <p>深色终端风 + 代码查询，数据来自 <code>GET …/wind/market/snapshot</code></p>
+        <span class="tag">快照 JSON</span>
+      </a>
+    </div>
+    <footer>
+      OpenAPI 形态见仓库 <code>samples/ira-vin-mocks/SPEC.md</code>。部署在同一域名下时，页面内 <code>fetch</code> 使用相对路径即可对接 Mock API。
+    </footer>
+  </div>
+</body>
+</html>

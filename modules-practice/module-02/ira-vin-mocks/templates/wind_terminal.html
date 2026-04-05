@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>模拟 · 行情终端（ira.vin Mock）</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Consolas", "Cascadia Code", "PingFang SC", monospace; background: #1e1e1e; color: #d4d4d4; min-height: 100vh; font-size: 13px; }
+    .titlebar { background: #252526; padding: 8px 12px; border-bottom: 1px solid #3c3c3c; display: flex; align-items: center; justify-content: space-between; }
+    .titlebar strong { color: #4ec9b0; font-size: 12px; letter-spacing: 0.05em; }
+    .toolbar { padding: 10px 12px; background: #2d2d30; border-bottom: 1px solid #3c3c3c; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    input[type="text"] {
+      background: #3c3c3c; border: 1px solid #555; color: #fff; padding: 6px 10px; border-radius: 4px; width: 160px; font-family: inherit;
+    }
+    button {
+      background: #0e639c; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-family: inherit;
+    }
+    button:hover { background: #1177bb; }
+    .panel { margin: 12px; padding: 16px; background: #252526; border: 1px solid #3c3c3c; border-radius: 6px; max-width: 720px; }
+    .panel h3 { margin: 0 0 12px; color: #569cd6; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 12px; }
+    .k { color: #9cdcfe; }
+    .v { color: #ce9178; }
+    .up { color: #f14c4c; }
+    .down { color: #6a9955; }
+    .json { margin-top: 16px; padding: 12px; background: #1e1e1e; border-radius: 4px; overflow: auto; font-size: 11px; color: #b5cea8; white-space: pre-wrap; word-break: break-all; }
+    .back { color: #569cd6; text-decoration: none; margin-left: 12px; font-size: 12px; }
+    .back:hover { text-decoration: underline; }
+    .err { color: #f14c4c; }
+    .api { margin-top: 12px; font-size: 11px; color: #858585; }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <strong>MOCK TERMINAL · Market Snapshot</strong>
+    <a class="back" href="{{ url_for('portal_index') }}">← Portal</a>
+  </div>
+  <div class="toolbar">
+    <label style="color:#858585">windCode</label>
+    <input type="text" id="code" value="600519.SH" placeholder="600519.SH" />
+    <button type="button" id="go">WSD / 查询</button>
+    <span style="color:#858585;font-size:11px">演示：GET /mock/v1/wind/market/snapshot</span>
+  </div>
+  <div class="panel">
+    <h3>Snapshot</h3>
+    <div id="snap" class="kv"></div>
+    <div class="api">请求 URL：<span id="reqUrl" style="color:#dcdcaa"></span></div>
+    <div id="raw" class="json" style="display:none"></div>
+    <button type="button" id="toggleRaw" style="margin-top:12px;background:#3c3c3c">显示原始 JSON</button>
+  </div>
+  <script>
+    function load() {
+      var code = document.getElementById("code").value.trim() || "600519.SH";
+      var path = "/mock/v1/wind/market/snapshot?windCode=" + encodeURIComponent(code);
+      var url = location.origin + path;
+      document.getElementById("reqUrl").textContent = url;
+      document.getElementById("snap").innerHTML = "<span class='err'>加载中…</span>";
+      fetch(path).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.errorCode !== 0 || !j.snap) {
+          document.getElementById("snap").innerHTML = "<span class='err'>errorCode ≠ 0 或无 snap</span>";
+          return;
+        }
+        var s = j.snap;
+        var pct = (s.changePct * 100).toFixed(2) + "%";
+        var pctCls = s.changePct >= 0 ? "up" : "down";
+        document.getElementById("snap").innerHTML =
+          "<span class='k'>requestId</span><span class='v'>" + (j.requestId || "") + "</span>" +
+          "<span class='k'>windCode</span><span class='v'>" + (s.windCode || "") + "</span>" +
+          "<span class='k'>securityName</span><span class='v'>" + (s.securityName || "") + "</span>" +
+          "<span class='k'>last</span><span class='v'>" + (s.last != null ? s.last : "") + "</span>" +
+          "<span class='k'>changePct</span><span class='v " + pctCls + "'>" + pct + "</span>" +
+          "<span class='k'>updateTime</span><span class='v'>" + (s.updateTime || "") + "</span>";
+        document.getElementById("raw").textContent = JSON.stringify(j, null, 2);
+      }).catch(function () {
+        document.getElementById("snap").innerHTML = "<span class='err'>请求失败</span>";
+      });
+    }
+    document.getElementById("go").addEventListener("click", load);
+    document.getElementById("toggleRaw").addEventListener("click", function () {
+      var r = document.getElementById("raw");
+      r.style.display = r.style.display === "none" ? "block" : "none";
+    });
+    load();
+  </script>
+</body>
+</html>

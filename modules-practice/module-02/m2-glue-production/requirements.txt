@@ -1,0 +1,20 @@
+# M2 Glue Coding 生产依赖
+# 
+# 【来源】扩展自 m2-glue-reference/requirements.txt
+# 【说明】添加 Flask 和 requests 用于 API 和 HTTP 请求
+
+# 测试（抄自 m2-glue-reference）
+pytest>=8.0
+
+# Web 框架（新增）
+Flask>=3.0
+
+# HTTP 客户端（新增，用于 Provider 请求）
+requests>=2.31
+
+# 数据库（S1 阶段启用）
+# psycopg2-binary>=2.9
+# SQLAlchemy>=2.0
+
+# 异步任务（S1 阶段启用）
+# celery>=5.3

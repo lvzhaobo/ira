@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>模拟 · 快讯（ira.vin Mock）</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #f7f8fa; }
+    .header {
+      background: linear-gradient(90deg, #ff6600 0%, #ff8533 100%);
+      color: #fff; padding: 0 14px; box-shadow: 0 2px 8px rgba(255,102,0,.25);
+    }
+    .header-inner { max-width: 1000px; margin: 0 auto; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-weight: 800; font-size: 18px; letter-spacing: 1px; }
+    .subnav { font-size: 13px; opacity: 0.95; display: flex; gap: 16px; }
+    .wrap { max-width: 1000px; margin: 16px auto; padding: 0 14px; }
+    .flash-list { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .flash-item { padding: 14px 16px; border-left: 3px solid #ff6600; margin: 0 0 1px; border-bottom: 1px solid #f0f0f0; }
+    .flash-item:last-child { border-bottom: none; }
+    .time { font-size: 12px; color: #ff6600; font-weight: 600; margin-bottom: 6px; }
+    .title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 6px; line-height: 1.45; }
+    .digest { font-size: 13px; color: #666; line-height: 1.5; }
+    .col { display: inline-block; font-size: 11px; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; margin-top: 8px; }
+    .api { margin-top: 20px; padding: 12px; background: #fff; border-radius: 8px; font-size: 12px; color: #666; }
+    .api code { display: block; margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 4px; word-break: break-all; }
+    .back { display: inline-block; margin-bottom: 12px; color: #ff6600; font-size: 13px; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .err { color: #c62828; padding: 20px; }
+    .loading { padding: 40px; text-align: center; color: #999; }
+    .tip { font-size: 12px; color: #999; padding: 8px 14px; background: #fff8e1; border-bottom: 1px solid #ffe082; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <span class="brand">MOCK 快讯</span>
+      <div class="subnav"><span>行情</span><span>自选</span><span>资讯</span></div>
+    </div>
+  </div>
+  <div class="tip">演示数据 · 不构成投资建议 · art_code 可作 M2 external_ref 后缀</div>
+  <div class="wrap">
+    <a class="back" href="{{ url_for('portal_index') }}">← 返回 Mock 门户</a>
+    <div id="list" class="flash-list"><div class="loading">加载快讯…</div></div>
+    <div class="api">
+      <strong>JSON 来源</strong>
+      <code id="apiUrl"></code>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var path = "/mock/v1/eastmoney/api/news/flash";
+      document.getElementById("apiUrl").textContent = location.origin + path;
+      fetch(path).then(function (r) { return r.json(); }).then(function (j) {
+        var el = document.getElementById("list");
+        if (!j.success || !j.data) {
+          el.innerHTML = "<div class='err'>接口异常</div>";
+          return;
+        }
+        el.innerHTML = j.data.map(function (it) {
+          return "<div class='flash-item'><div class='time'>" + (it.show_time || "") + "</div>" +
+            "<div class='title'>" + (it.title || "") + "</div>" +
+            "<div class='digest'>" + (it.digest || "") + "</div>" +
+            "<span class='col'>" + (it.column || "") + "</span> · <span style='font-size:11px;color:#999'>" + (it.art_code || "") + "</span></div>";
+        }).join("") || "<div class='err'>暂无数据</div>";
+      }).catch(function () {
+        document.getElementById("list").innerHTML = "<div class='err'>加载失败</div>";
+      });
+    })();
+  </script>
+</body>
+</html>
