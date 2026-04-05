@@ -1,0 +1,35 @@
+{"level":"warn","message":"未配置钉钉签名密钥,跳过签名验证","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"收到消息 - 发送者: 0320536821524266, 会话: ","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"conversationId":"","level":"info","message":"发送消息分析:","senderId":"0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"单聊消息发送成功, 用户: 0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"用户 0320536821524266 请求执行Qoder CLI: hi","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"任务已注册: task-1775412436540-38e3f28c","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"开始执行Qoder CLI任务 [task-1775412436540-38e3f28c]: hi","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"[execPromise] 执行命令: qodercli -p \"hi\" --max-turns 15 --yolo -w /opt/qoder-workspace...","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:16"}
+{"level":"info","message":"[execPromise] 成功","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:22"}
+{"level":"info","message":"任务 [task-1775412436540-38e3f28c] 执行完成,耗时: 6253ms","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:22"}
+{"level":"info","message":"任务 task-1775412436540-38e3f28c 已完成","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:22"}
+{"level":"info","message":"Qoder CLI执行完成,任务ID: task-1775412436540-38e3f28c","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:22"}
+{"conversationId":"","level":"info","message":"发送消息分析:","senderId":"0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:22"}
+{"level":"info","message":"单聊消息发送成功, 用户: 0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:07:23"}
+{"level":"warn","message":"未配置钉钉签名密钥,跳过签名验证","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:40"}
+{"level":"info","message":"收到消息 - 发送者: 0320536821524266, 会话: cidUyDI4RDKP3VB1aQUbsD06nyy3fcEYXrdNad9RrsuICo=","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:40"}
+{"conversationId":"cidUyDI4RDKP3VB1aQUbsD06nyy3fcEYXrdNad9RrsuICo=","conversationType":"1","level":"info","message":"发送消息分析:","senderId":"0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:40"}
+{"level":"info","message":"单聊消息发送成功, 用户: 0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:41"}
+{"conversationId":"cidUyDI4RDKP3VB1aQUbsD06nyy3fcEYXrdNad9RrsuICo=","conversationType":"1","level":"info","message":"发送消息分析:","senderId":"0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:41"}
+{"level":"info","message":"单聊消息发送成功, 用户: 0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:41"}
+{"level":"error","message":"任务执行失败: undefined","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:41"}
+{"level":"warn","message":"未配置钉钉签名密钥,跳过签名验证","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"收到消息 - 发送者: 0320536821524266, 会话: cidUyDI4RDKP3VB1aQUbsD06nyy3fcEYXrdNad9RrsuICo=","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"conversationId":"cidUyDI4RDKP3VB1aQUbsD06nyy3fcEYXrdNad9RrsuICo=","conversationType":"1","level":"info","message":"发送消息分析:","senderId":"0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"单聊消息发送成功, 用户: 0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"用户 0320536821524266 请求执行Qoder CLI: 查看当前系统CPU使用率","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"任务已注册: task-1775412725651-bd0569cf","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"开始执行Qoder CLI任务 [task-1775412725651-bd0569cf]: 查看当前系统CPU使用率","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"[execPromise] 执行命令: qodercli -p \"查看当前系统CPU使用率\" --max-turns 15 --yolo -w /opt/qoder-workspace...","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:05"}
+{"level":"info","message":"[execPromise] 成功","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:17"}
+{"level":"info","message":"任务 [task-1775412725651-bd0569cf] 执行完成,耗时: 12117ms","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:17"}
+{"level":"info","message":"任务 task-1775412725651-bd0569cf 已完成","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:17"}
+{"level":"info","message":"Qoder CLI执行完成,任务ID: task-1775412725651-bd0569cf","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:17"}
+{"conversationId":"cidUyDI4RDKP3VB1aQUbsD06nyy3fcEYXrdNad9RrsuICo=","conversationType":"1","level":"info","message":"发送消息分析:","senderId":"0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:17"}
+{"level":"info","message":"单聊消息发送成功, 用户: 0320536821524266","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:12:18"}

@@ -1,0 +1,107 @@
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 00:48:25"}
+{"level":"error","message":"未配置钉钉消息发送方式，请配置企业内部应用(DINGTALK_APP_KEY/DINGTALK_APP_SECRET)或自定义Webhook(DINGTALK_WEBHOOK)","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:03:41"}
+{"level":"error","message":"未配置钉钉消息发送方式，请配置企业内部应用(DINGTALK_APP_KEY/DINGTALK_APP_SECRET)或自定义Webhook(DINGTALK_WEBHOOK)","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:03:41"}
+{"level":"error","message":"未配置钉钉消息发送方式，请配置企业内部应用(DINGTALK_APP_KEY/DINGTALK_APP_SECRET)或自定义Webhook(DINGTALK_WEBHOOK)","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:03:45"}
+{"level":"error","message":"未配置钉钉消息发送方式，请配置企业内部应用(DINGTALK_APP_KEY/DINGTALK_APP_SECRET)或自定义Webhook(DINGTALK_WEBHOOK)","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:03:45"}
+{"level":"error","message":"发送群聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:14:24"}
+{"level":"error","message":"发送群聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:19:05"}
+{"level":"error","message":"发送群聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:19:46"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:20:40"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:21:30"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:22:52"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:23:35"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:24:27"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:25:21"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:25:21"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:25:28"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:25:28"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:25:31"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:25:31"}
+{"level":"error","message":"发送群聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:34:55"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:34:55"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:35:25"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:35:25"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:35:57"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:35:57"}
+{"level":"error","message":"发送单聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:36:19"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:36:19"}
+{"level":"error","message":"Test error message","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:36:37"}
+{"level":"error","message":"发送群聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:38:13"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:38:13"}
+{"level":"error","message":"发送群聊消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:38:14"}
+{"level":"error","message":"发送钉钉消息异常:","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:38:14"}
+{"level":"error","message":"任务 [task-1775410977544-8869cf77] 执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:42:57"}
+{"level":"error","message":"任务 task-1775410977544-8869cf77 失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:42:57"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:42:57"}
+{"level":"error","message":"任务执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:42:57"}
+{"level":"error","message":"任务 [task-1775411013730-2044c385] 执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:33"}
+{"level":"error","message":"任务 task-1775411013730-2044c385 失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:33"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:33"}
+{"level":"error","message":"任务执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:33"}
+{"level":"error","message":"任务 [task-1775411030896-cc893080] 执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:50"}
+{"level":"error","message":"任务 task-1775411030896-cc893080 失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:50"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:50"}
+{"level":"error","message":"任务执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:43:51"}
+{"level":"error","message":"任务 [task-1775411041541-4e5b0955] 执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:44:01"}
+{"level":"error","message":"任务 task-1775411041541-4e5b0955 失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:44:01"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:44:01"}
+{"level":"error","message":"任务执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:44:01"}
+{"level":"error","message":"任务 [task-1775411242493-4f3fae7a] 执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:47:22"}
+{"level":"error","message":"任务 task-1775411242493-4f3fae7a 失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:47:22"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:47:22"}
+{"level":"error","message":"任务执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:47:22"}
+{"level":"error","message":"任务 [task-1775411352118-7ecb90b1] 执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:49:12"}
+{"level":"error","message":"任务 task-1775411352118-7ecb90b1 失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:49:12"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:49:12"}
+{"level":"error","message":"任务执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:49:12"}
+{"level":"error","message":"任务 [task-1775411637755-4c39a577] 执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:53:57"}
+{"level":"error","message":"任务 task-1775411637755-4c39a577 失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:53:57"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:53:57"}
+{"level":"error","message":"任务执行失败: spawn /bin/sh ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:53:58"}
+{"level":"error","message":"任务 [task-1775411709140-06dce4df] 执行失败: spawn qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:55:09"}
+{"level":"error","message":"任务 task-1775411709140-06dce4df 失败: spawn qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:55:09"}
+{"level":"error","message":"Qoder CLI执行失败: spawn qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:55:09"}
+{"level":"error","message":"任务执行失败: spawn qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:55:09"}
+{"level":"error","message":"任务 [task-1775411779952-ae1bf3e5] 执行失败: spawn /usr/local/bin/qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:56:19"}
+{"level":"error","message":"任务 task-1775411779952-ae1bf3e5 失败: spawn /usr/local/bin/qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:56:19"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /usr/local/bin/qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:56:19"}
+{"level":"error","message":"任务执行失败: spawn /usr/local/bin/qodercli ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:56:20"}
+{"level":"error","message":"任务 [task-1775411898629-8123b696] 执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:58:18"}
+{"level":"error","message":"任务 task-1775411898629-8123b696 失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:58:18"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:58:18"}
+{"level":"error","message":"任务执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:58:18"}
+{"level":"error","message":"任务 [task-1775411983376-c687158d] 执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:59:43"}
+{"level":"error","message":"任务 task-1775411983376-c687158d 失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:59:43"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:59:43"}
+{"level":"error","message":"任务执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 01:59:43"}
+{"level":"error","message":"execPromise: 子进程错误: spawn /bin/bash ENOENT, code=ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:00:57"}
+{"level":"error","message":"任务 [task-1775412057749-f49ea9d3] 执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:00:57"}
+{"level":"error","message":"任务 task-1775412057749-f49ea9d3 失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:00:57"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:00:57"}
+{"level":"error","message":"任务执行失败: spawn /bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:00:58"}
+{"level":"error","message":"execPromise: 子进程错误: spawn /usr/bin/bash ENOENT, code=ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:01:51"}
+{"level":"error","message":"任务 [task-1775412111412-1952eb0b] 执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:01:51"}
+{"level":"error","message":"任务 task-1775412111412-1952eb0b 失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:01:51"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:01:51"}
+{"level":"error","message":"任务执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:01:51"}
+{"level":"error","message":"execPromise: 子进程错误: spawn /usr/bin/bash ENOENT, code=ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:03:19"}
+{"level":"error","message":"任务 [task-1775412199762-85960082] 执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:03:19"}
+{"level":"error","message":"任务 task-1775412199762-85960082 失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:03:19"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:03:19"}
+{"level":"error","message":"任务执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:03:20"}
+{"level":"error","message":"execPromise: 子进程错误: spawn /usr/bin/bash ENOENT, code=ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:04:32"}
+{"level":"error","message":"任务 [task-1775412272594-bd119dcd] 执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:04:32"}
+{"level":"error","message":"任务 task-1775412272594-bd119dcd 失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:04:32"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:04:32"}
+{"level":"error","message":"任务执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:04:32"}
+{"level":"error","message":"execPromise: 子进程错误: spawn /usr/bin/bash ENOENT, code=ENOENT, errno=-2","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:05:08"}
+{"level":"error","message":"任务 [task-1775412308279-892c96ef] 执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:05:08"}
+{"level":"error","message":"任务 task-1775412308279-892c96ef 失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:05:08"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:05:08"}
+{"level":"error","message":"任务执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:05:08"}
+{"level":"error","message":"[execPromise] 错误: spawn /usr/bin/bash ENOENT, code=ENOENT, errno=-2","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:06:12"}
+{"level":"error","message":"任务 [task-1775412372604-6bb9f4b7] 执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:06:12"}
+{"level":"error","message":"任务 task-1775412372604-6bb9f4b7 失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:06:12"}
+{"level":"error","message":"Qoder CLI执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:06:12"}
+{"level":"error","message":"任务执行失败: spawn /usr/bin/bash ENOENT","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:06:12"}
+{"level":"error","message":"任务执行失败: undefined","service":"dingtalk-qoder-bridge","timestamp":"2026-04-06 02:11:41"}
