@@ -1,7 +1,9 @@
-# 在 ECS 上执行本仓库 scripts/deploy.sh（服务器需已 git clone 并完成首次环境配置）
+# 手动部署到生产环境
 # 配置说明：docs/DEPLOY-GITHUB-ACTIONS.md
+# 注意：此文件已迁移到仓库根目录的 .github/workflows/deploy-prod.yml
+# 此文件保留作为参考，实际使用的是根目录的版本
 
-name: Deploy to ECS
+name: Deploy to ECS (Deprecated)
 
 on:
   workflow_dispatch:
@@ -10,28 +12,12 @@ on:
         description: "要部署的分支（服务器上将 git checkout / pull 此分支）"
         required: true
         default: "main"
-  push:
-    branches:
-      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH 远程部署
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.ECS_HOST }}
-          username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
-          # 非 22 端口时在仓库 Secrets 中增加 ECS_SSH_PORT，并取消下一行注释
-          # port: ${{ secrets.ECS_SSH_PORT }}
-          script_stop: true
-          script: |
-            set -e
-            cd "${{ secrets.ECS_APP_PATH }}"
-            export DEPLOY_BRANCH="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || 'main' }}"
-            export DEPLOY_BACKEND_SERVICE="${{ secrets.ECS_SYSTEMD_SERVICE }}"
-            export DEPLOY_NGINX_RELOAD=0
-            chmod +x scripts/deploy.sh
-            bash scripts/deploy.sh
+      - name: ⚠️ 提示
+        run: |
+          echo "此工作流已弃用，请使用仓库根目录的 .github/workflows/deploy-prod.yml"
+          echo "访问：https://github.com/lvzhaobo/ira/actions"
