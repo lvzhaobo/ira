@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>模拟 · 财经资讯（ira.vin Mock）</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f5f5; color: #333; }
+    .top { background: linear-gradient(180deg, #8b0000 0%, #6b0000 100%); color: #fff; padding: 0 12px; }
+    .top-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; height: 48px; gap: 1.5rem; font-size: 14px; }
+    .logo { font-weight: 700; letter-spacing: 0.05em; }
+    .nav { display: flex; gap: 1rem; opacity: 0.95; }
+    .nav span { cursor: default; padding: 4px 0; border-bottom: 2px solid #ffb74d; }
+    .banner { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 10px 12px; font-size: 12px; color: #c62828; }
+    .main { max-width: 1000px; margin: 16px auto; padding: 0 12px; display: grid; grid-template-columns: 1fr 260px; gap: 16px; }
+    @media (max-width: 768px) { .main { grid-template-columns: 1fr; } }
+    .feed { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); overflow: hidden; }
+    .feed h2 { margin: 0; padding: 12px 14px; font-size: 16px; border-bottom: 1px solid #eee; background: #fafafa; }
+    .item { padding: 14px 14px; border-bottom: 1px solid #f0f0f0; }
+    .item:last-child { border-bottom: none; }
+    .item h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: #1a1a1a; line-height: 1.4; }
+    .item h3 a { color: #0d47a1; text-decoration: none; }
+    .item h3 a:hover { text-decoration: underline; color: #c62828; }
+    .meta { font-size: 12px; color: #999; margin-bottom: 6px; }
+    .summary { font-size: 13px; color: #555; line-height: 1.5; }
+    .side { background: #fff; border-radius: 4px; padding: 12px; font-size: 12px; color: #666; box-shadow: 0 1px 3px rgba(0,0,0,.08); height: fit-content; }
+    .side code { display: block; background: #f5f5f5; padding: 8px; border-radius: 4px; word-break: break-all; margin-top: 8px; font-size: 11px; }
+    .err { color: #c62828; padding: 14px; }
+    .back { display: inline-block; margin: 12px; font-size: 13px; color: #0d47a1; }
+    .loading { padding: 24px; text-align: center; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div class="top-inner">
+      <span class="logo">MOCK 财经</span>
+      <div class="nav"><span>首页</span><span>股票</span><span>基金</span><span>债券</span></div>
+    </div>
+  </div>
+  <div class="banner">演示环境 · 数据均为虚构 · 与真实行情无关</div>
+  <a class="back" href="{{ url_for('portal_index') }}">← 返回 Mock 门户</a>
+  <div class="main">
+    <div class="feed">
+      <h2>财经资讯</h2>
+      <div id="list"><div class="loading">加载中…</div></div>
+    </div>
+    <div class="side">
+      <strong>对接说明</strong>
+      <p>本列表由浏览器请求以下 JSON 渲染：</p>
+      <code id="apiUrl"></code>
+      <p style="margin-top:12px">M2 适配器可解析 <code>result.data.items[]</code>。</p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var path = "/mock/v1/sina/finance/news/list.json?page=1";
+      document.getElementById("apiUrl").textContent = location.origin + path;
+      fetch(path).then(function (r) { return r.json(); }).then(function (j) {
+        var el = document.getElementById("list");
+        if (!j.result || j.result.status.code !== 0) {
+          el.innerHTML = "<div class='err'>接口异常</div>";
+          return;
+        }
+        var items = j.result.data.items || [];
+        el.innerHTML = items.map(function (it) {
+          return "<div class='item'><div class='meta'>" + (it.ctime || "") + " · " + (it.channel || "") + " · id:" + (it.id || "") + "</div>" +
+            "<h3><a href='" + (it.url || "#") + "' target='_blank' rel='noopener'>" + (it.title || "") + "</a></h3>" +
+            "<div class='summary'>" + (it.summary || "") + "</div></div>";
+        }).join("") || "<div class='err'>暂无数据</div>";
+      }).catch(function () {
+        document.getElementById("list").innerHTML = "<div class='err'>网络错误，请确认与 API 同域部署</div>";
+      });
+    })();
+  </script>
+</body>
+</html>

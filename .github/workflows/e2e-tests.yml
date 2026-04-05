@@ -1,0 +1,65 @@
+# E2E 端到端测试工作流 - 使用 Playwright
+# 在 push 和 PR 时自动运行浏览器自动化测试
+
+name: E2E Tests
+
+# 环境变量：启用 Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# 触发条件
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [main, master]
+
+# 权限配置
+permissions:
+  contents: read
+  checks: write
+
+# 工作流程
+jobs:
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # 步骤 1: 检出代码
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      # 步骤 2: 设置 Node.js 环境
+      - name: 🔧 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # 步骤 3: 安装依赖
+      - name: 📦 安装依赖
+        run: npm ci
+
+      # 步骤 4: 安装 Playwright 浏览器
+      - name: 🌐 安装 Playwright 浏览器
+        run: npx playwright install --with-deps
+
+      # 步骤 5: 运行 E2E 测试
+      - name: 🧪 运行 E2E 测试
+        run: npx playwright test
+
+      # 步骤 6: 上传测试报告
+      - name: 📊 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30

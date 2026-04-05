@@ -1,0 +1,88 @@
+# 手动部署到生产环境
+# 通过 GitHub Actions 页面手动触发，可选择部署分支
+
+name: Deploy to Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "要部署的分支（服务器上将 git checkout / pull 此分支）"
+        required: true
+        default: "main"
+        type: choice
+        options:
+          - main
+          - develop
+          - staging
+      confirm:
+        description: "确认部署到生产环境？（输入 yes 继续）"
+        required: true
+        default: "no"
+
+# 权限配置
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy-prod:
+    name: 部署到生产环境
+    runs-on: ubuntu-latest
+    environment: production  # 生产环境保护（可选）
+
+    # 安全检查：必须输入 yes 才执行
+    if: github.event.inputs.confirm == 'yes'
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: ⚠️ 部署确认
+        run: |
+          echo "========================================="
+          echo "🚀 即将部署到生产环境"
+          echo "========================================="
+          echo "分支: ${{ github.event.inputs.branch }}"
+          echo "触发者: ${{ github.actor }}"
+          echo "时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "========================================="
+
+      - name: 🚀 SSH 远程部署
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          # 如果使用非 22 端口，取消注释并配置 ECS_SSH_PORT
+          # port: ${{ secrets.ECS_SSH_PORT }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.ECS_APP_PATH }}"
+            export DEPLOY_BRANCH="${{ github.event.inputs.branch }}"
+            export DEPLOY_BACKEND_SERVICE="${{ secrets.ECS_SYSTEMD_SERVICE }}"
+            export DEPLOY_NGINX_RELOAD=0
+            chmod +x scripts/deploy.sh
+            bash scripts/deploy.sh
+
+      - name: ✅ 部署成功
+        if: success()
+        run: |
+          echo "========================================="
+          echo "✅ 生产环境部署成功！"
+          echo "========================================="
+          echo "分支: ${{ github.event.inputs.branch }}"
+          echo "服务器: ${{ secrets.ECS_HOST }}"
+          echo "========================================="
+
+      - name: ❌ 部署失败
+        if: failure()
+        run: |
+          echo "========================================="
+          echo "❌ 生产环境部署失败！"
+          echo "========================================="
+          echo "请检查日志并手动回滚"
+          echo "服务器: ${{ secrets.ECS_HOST }}"
+          echo "========================================="
+          exit 1
