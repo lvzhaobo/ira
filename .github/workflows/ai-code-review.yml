@@ -3,15 +3,20 @@
 
 name: AI Code Review
 
+# 环境变量：启用 Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main, master]
 
-# 权限配置：需要读取代码和写入 PR 评论
+# 权限配置：需要读取代码、写入 PR 评论和创建检查
 permissions:
   contents: read
   pull-requests: write
+  checks: write
 
 jobs:
   ai-code-review:
@@ -29,7 +34,7 @@ jobs:
       - name: 🔧 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       # 步骤 3: 安装 Qoder CLI
       - name: 📦 安装 Qoder CLI
