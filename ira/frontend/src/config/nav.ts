@@ -7,6 +7,10 @@ export type NavItem = {
   short: string;
   /** 需开启「显示研报问答①（MVP）」才出现在侧栏 */
   requireMvpNav?: boolean;
+  /** 非 Workshop 五大主线能力：侧栏与页头标为「扩展」 */
+  secondary?: boolean;
+  /** 与 `modules-practice/module-0x` 对照，侧栏展示短标（如 M2） */
+  workshopModule?: string;
 };
 
 export type NavSection = {
@@ -17,45 +21,50 @@ export type NavSection = {
 
 export const NAV_SECTIONS: NavSection[] = [
   {
-    id: "home",
+    id: "overview",
     title: "总览",
     items: [{ to: "/workbench", label: "工作台", short: "工" }],
   },
   {
-    id: "intelligence",
-    title: "投研智能",
+    id: "core",
+    title: "主线模块（M1~M5）",
     items: [
-      { to: "/research-qa-change", label: "研报问答", short: "研" },
-      { to: "/research-qa", label: "研报问答①", short: "研①", requireMvpNav: true },
-      { to: "/compliance", label: "合规扫描", short: "规" },
-      { to: "/lineage", label: "数据血缘", short: "血缘" },
-      { to: "/stock-analysis", label: "个股覆盖", short: "个股" },
-      { to: "/multi-agent-stock", label: "多Agent", short: "多" },
+      { to: "/research-qa-change", label: "研报问答", short: "研", workshopModule: "M1" },
+      { to: "/stock-analysis", label: "个股覆盖", short: "个股", workshopModule: "M2" },
+      { to: "/knowledge", label: "知识库", short: "库", workshopModule: "M3" },
+      { to: "/messages", label: "消息推送", short: "推", workshopModule: "M4" },
+      { to: "/multi-agent-stock", label: "多Agent", short: "多", workshopModule: "M5" },
     ],
   },
   {
-    id: "tools",
-    title: "市场与运营",
-    items: [{ to: "/sentiment", label: "舆情", short: "舆" }],
-  },
-  {
-    id: "knowledge",
-    title: "知识与触达",
+    id: "extended",
+    title: "扩展与演示",
     items: [
-      { to: "/knowledge", label: "知识库", short: "库" },
-      { to: "/skills", label: "SKILL", short: "技" },
-      { to: "/messages", label: "推送", short: "推" },
-    ],
-  },
-  {
-    id: "admin",
-    title: "登记与系统",
-    items: [
-      { to: "/reports", label: "报告", short: "报" },
-      { to: "/settings", label: "设置", short: "设" },
+      {
+        to: "/research-qa",
+        label: "研报问答①",
+        short: "研①",
+        requireMvpNav: true,
+        secondary: true,
+      },
+      { to: "/lineage", label: "数据血缘", short: "血缘", secondary: true, workshopModule: "M2" },
+      { to: "/skills", label: "SKILL", short: "技", secondary: true },
+      { to: "/compliance", label: "合规扫描", short: "规", secondary: true },
+      { to: "/sentiment", label: "舆情分析", short: "舆", secondary: true },
+      { to: "/reports", label: "报告", short: "报", secondary: true },
+      { to: "/settings", label: "设置", short: "设", secondary: true },
     ],
   },
 ];
+
+const SECONDARY_PATHS = new Set(
+  NAV_SECTIONS.flatMap((s) => s.items).filter((i) => i.secondary).map((i) => i.to),
+);
+
+/** 是否属于「扩展与演示」路由（页头打标用） */
+export function isSecondaryNavPath(pathname: string): boolean {
+  return SECONDARY_PATHS.has(pathname);
+}
 
 export function filterNavItems(items: NavItem[], showMvpNav: boolean): NavItem[] {
   return items.filter((it) => !it.requireMvpNav || showMvpNav);

@@ -6,7 +6,9 @@ from app.blueprints.lineage_bp import append_trace_record
 from app.errors import error_response
 from app.json_store import read_json, write_json
 from app.services.bailian_qa import bailian_config, chat_research_qa, is_bailian_enabled
+from app.services.copaw_multi_agent_adapter import copaw_multi_agent_run_or_none
 from app.services.copaw_qa_adapter import copaw_qa_ask_or_none
+from app.services.market_data_hub import latest_snapshot
 from app.services.multi_agent_service import run_multi_agent
 from app.trace_util import new_trace_id
 from flask import Blueprint, current_app, g, jsonify, request
@@ -20,6 +22,19 @@ def _data(name: str):
 
 def _now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def _load_multi_agent_runs() -> dict:
+    return read_json(_data("multi_agent_runs.json"), {"runs": []})
+
+
+def _save_multi_agent_runs(payload: dict) -> None:
+    write_json(_data("multi_agent_runs.json"), payload)
+
+
+def _find_run_index(payload: dict, trace_id: str) -> int | None:
+    runs = payload.get("runs", [])
+    return next((i for i, r in enumerate(runs) if r.get("trace_id") == trace_id), None)
 
 
 def _kb_evidence_refs_and_block() -> tuple[list, str]:
@@ -100,20 +115,18 @@ def research_qa_ask():
         elif use_live:
             ans, err, usage_wrap = chat_research_qa(query, evidence_block)
             if err:
-                return error_response(
-                    "UPSTREAM_LLM_ERROR",
-                    f"百炼模型调用失败：{err}",
-                    502,
-                )
-            answer = ans or ""
-            cfg = bailian_config()
-            model_meta = {
-                "model_id": cfg["model"],
-                "prompt_version": "ira-bailian-openai-compatible",
-                "temperature": float(os.environ.get("IRA_BAILIAN_TEMPERATURE", "0.2")),
-            }
-            if usage_wrap.get("raw_usage"):
-                model_meta["usage"] = usage_wrap["raw_usage"]
+                # 线上或课堂演示都优先“可用性”：上游失败直接降级到离线占位，而非返回 502。
+                answer = ""
+            else:
+                answer = ans or ""
+                cfg = bailian_config()
+                model_meta = {
+                    "model_id": cfg["model"],
+                    "prompt_version": "ira-bailian-openai-compatible",
+                    "temperature": float(os.environ.get("IRA_BAILIAN_TEMPERATURE", "0.2")),
+                }
+                if usage_wrap.get("raw_usage"):
+                    model_meta["usage"] = usage_wrap["raw_usage"]
 
     if not answer:
         answer = (
@@ -197,9 +210,16 @@ def research_stock_analysis():
     symbol = body.get("symbol", "")
     mock = bool(body.get("mock", True))
     tid = g.trace_id
+    snap = None if mock else latest_snapshot(symbol)
+    market_snapshot_id = snap.get("snapshot_id") if isinstance(snap, dict) else None
+    source_name = snap.get("source_name") if isinstance(snap, dict) else None
+    quote = (snap or {}).get("quote", {})
+    last_price = quote.get("last")
+    pe_ttm = quote.get("pe_ttm")
     content = (
         f"【模拟草稿】{symbol} · as_of {_now()}\n\n"
-        "## 摘要\n示例段落；实际由行情与研报摘要拼接。\n\n"
+        f"## 摘要\n示例段落；行情来源：{source_name or '本地 Mock 回退'}。"
+        f"{f' 收盘价 {last_price}，PE(TTM) {pe_ttm}。' if last_price is not None and pe_ttm is not None else ''}\n\n"
         "## 结论（演示）\n"
         "内部流程：评级与目标价以研究所正式发布稿为准；本稿仅 Workshop 占位，用于 trace 与合规演练。\n\n"
         "**免责声明**：本输出为辅助草稿，不构成投资建议。"
@@ -210,10 +230,23 @@ def research_stock_analysis():
         "content_format": "markdown",
         "content": content,
         "as_of": _now(),
+        "market_snapshot_id": market_snapshot_id,
         "sources": [
-            {"source_id": "wind", "name": "Wind", "as_of": _now(), "mock": mock},
+            {
+                "source_id": snap.get("source_id") if isinstance(snap, dict) else "wind",
+                "name": source_name or "Wind",
+                "as_of": _now(),
+                "mock": not bool(snap),
+            },
         ],
-        "tool_trace": [{"tool": "wind.get_quote", "mock": mock, "as_of": _now()}],
+        "tool_trace": [
+            {
+                "tool": "market_hub.latest_snapshot" if snap else "wind.get_quote",
+                "mock": not bool(snap),
+                "as_of": _now(),
+                "market_snapshot_id": market_snapshot_id,
+            }
+        ],
         "disclaimer_applied": True,
     }
     append_trace_record(
@@ -222,6 +255,7 @@ def research_stock_analysis():
             "artifact_type": "stock_draft",
             "session_id": None,
             "summary": f"{symbol} 分析草稿",
+            "market_snapshot_id": market_snapshot_id,
             "tool_trace": resp["tool_trace"],
             "model": {"model_id": "demo-llm", "prompt_version": "ira-stock-v1", "temperature": 0.1},
             "compliance": {"ruleset_version": "rules-v1.0.0", "filtered": False, "decline_reason": None},
@@ -245,19 +279,122 @@ def research_stock_multi_agent_run():
     body = request.get_json(force=True, silent=True) or {}
     symbol = body.get("symbol", "600519.SH")
     mock = bool(body.get("mock", True))
-    out = run_multi_agent(symbol, mock=mock)
+    req_snapshot_id = body.get("market_snapshot_id")
+    snap = None if mock else latest_snapshot(symbol)
+    market_snapshot_id = req_snapshot_id or (snap.get("snapshot_id") if isinstance(snap, dict) else None)
+    copaw_out = copaw_multi_agent_run_or_none(
+        symbol=symbol,
+        trace_id=g.trace_id,
+        market_snapshot_id=market_snapshot_id,
+        mock=mock,
+    )
+    if copaw_out:
+        out = copaw_out
+        execution_source = "copaw"
+    else:
+        out = run_multi_agent(symbol, mock=mock)
+        execution_source = "local_mock"
+    out["market_snapshot_id"] = market_snapshot_id
+    out["execution_source"] = execution_source
     tid = g.trace_id
-    runs = read_json(_data("multi_agent_runs.json"), {"runs": []})
-    runs["runs"].insert(0, {"trace_id": tid, "symbol": symbol, "result": out})
-    write_json(_data("multi_agent_runs.json"), runs)
+    runs = _load_multi_agent_runs()
+    created_at = _now()
+    runs["runs"].insert(
+        0,
+        {
+            "trace_id": tid,
+            "symbol": symbol,
+            "market_snapshot_id": market_snapshot_id,
+            "execution_source": execution_source,
+            "review_status": "pending",
+            "review_comment": None,
+            "reviewer": None,
+            "created_at": created_at,
+            "updated_at": created_at,
+            "result": out,
+        },
+    )
+    _save_multi_agent_runs(runs)
     append_trace_record(
         {
             "trace_id": tid,
             "artifact_type": "multi_agent",
             "parent_trace_id": out["orchestration_trace"],
             "summary": f"{symbol} multi-agent",
+            "market_snapshot_id": market_snapshot_id,
+            "meta": {"execution_source": execution_source},
             "created_at": _now(),
         }
     )
     out["trace_id"] = tid
+    out["review_status"] = "pending"
     return jsonify(out)
+
+
+@bp.route("/research/stock/multi-agent/runs", methods=["GET"])
+def research_stock_multi_agent_runs():
+    symbol = (request.args.get("symbol") or "").strip().upper()
+    status = (request.args.get("review_status") or "").strip().lower()
+    limit = int(request.args.get("limit") or 20)
+    data = _load_multi_agent_runs()
+    items = data.get("runs", [])
+    if symbol:
+        items = [r for r in items if str(r.get("symbol", "")).upper() == symbol]
+    if status in ("pending", "approved", "rejected"):
+        items = [r for r in items if str(r.get("review_status") or "pending").lower() == status]
+    out = []
+    for r in items[: max(1, limit)]:
+        out.append(
+            {
+                "trace_id": r.get("trace_id"),
+                "symbol": r.get("symbol"),
+                "market_snapshot_id": r.get("market_snapshot_id"),
+                "execution_source": r.get("execution_source"),
+                "review_status": r.get("review_status", "pending"),
+                "review_comment": r.get("review_comment"),
+                "reviewer": r.get("reviewer"),
+                "created_at": r.get("created_at"),
+                "updated_at": r.get("updated_at"),
+            }
+        )
+    return jsonify({"items": out})
+
+
+@bp.route("/research/stock/multi-agent/runs/<trace_id>/review", methods=["PATCH"])
+def research_stock_multi_agent_review(trace_id: str):
+    body = request.get_json(force=True, silent=True) or {}
+    review_status = str(body.get("review_status") or "").strip().lower()
+    if review_status not in ("approved", "rejected", "pending"):
+        return error_response("VALIDATION_ERROR", "review_status must be approved/rejected/pending", 422)
+    reviewer = (body.get("reviewer") or "").strip() or "workshop-reviewer"
+    comment = body.get("review_comment")
+    data = _load_multi_agent_runs()
+    idx = _find_run_index(data, trace_id)
+    if idx is None:
+        return error_response("NOT_FOUND", f"run not found: {trace_id}", 404)
+    row = data["runs"][idx]
+    row["review_status"] = review_status
+    row["review_comment"] = comment
+    row["reviewer"] = reviewer
+    row["updated_at"] = _now()
+    _save_multi_agent_runs(data)
+    append_trace_record(
+        {
+            "trace_id": new_trace_id("rev"),
+            "artifact_type": "multi_agent_review",
+            "parent_trace_id": trace_id,
+            "summary": f"multi-agent review -> {review_status}",
+            "market_snapshot_id": row.get("market_snapshot_id"),
+            "meta": {"reviewer": reviewer, "review_comment": comment},
+            "created_at": _now(),
+        }
+    )
+    return jsonify(
+        {
+            "trace_id": trace_id,
+            "review_status": row["review_status"],
+            "review_comment": row.get("review_comment"),
+            "reviewer": row.get("reviewer"),
+            "updated_at": row.get("updated_at"),
+        }
+    )

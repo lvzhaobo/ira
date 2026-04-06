@@ -42,6 +42,7 @@ type RunResponse = {
   compliance?: { ruleset_version?: string; filtered?: boolean; decline_reason?: string | null };
   merge_trace?: string;
   trace_id?: string;
+  execution_source?: "copaw" | "local_mock" | string;
 };
 
 const SPEAKER_COLOR: Record<string, string> = {
@@ -67,6 +68,7 @@ export default function MultiAgent() {
   const [compliance, setCompliance] = useState<RunResponse["compliance"] | null>(null);
   const [mergeTrace, setMergeTrace] = useState<string | null>(null);
   const [traceId, setTraceId] = useState<string | null>(null);
+  const [executionSource, setExecutionSource] = useState<string | null>(null);
   const [ran, setRan] = useState(false);
   /** DAG 动画阶段：0–5 与 SVG 节点对应；仅在 loading 时递增 */
   const [dagPhase, setDagPhase] = useState(-1);
@@ -104,6 +106,7 @@ export default function MultiAgent() {
       setCompliance(res.compliance ?? null);
       setMergeTrace(res.merge_trace ?? null);
       setTraceId(res.trace_id ?? null);
+      setExecutionSource(res.execution_source ?? null);
       setRan(true);
     } catch {
       setErr("请求失败：请确认后端已启动（/api/v1/research/stock/multi-agent/run）。");
@@ -122,6 +125,7 @@ export default function MultiAgent() {
     setCompliance(null);
     setMergeTrace(null);
     setTraceId(null);
+    setExecutionSource(null);
     setErr(null);
   }
 
@@ -154,6 +158,13 @@ export default function MultiAgent() {
           {traceId && (
             <p className="ira-magent__trace">
               本次请求 trace_id：<code>{traceId}</code>
+              {executionSource && (
+                <>
+                  {" "}
+                  · 运行来源：
+                  <strong>{executionSource === "copaw" ? "CoPaw 多Agent" : "本地编排回退"}</strong>
+                </>
+              )}
               {mergeTrace && (
                 <>
                   {" "}

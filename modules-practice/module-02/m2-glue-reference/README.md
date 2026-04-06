@@ -2,7 +2,7 @@
 
 本目录 **不是** 生产代码，而是工作坊用的 **形状对齐** 骨架，便于 CoPaw / 人工编码时对照：
 
-- 正式契约：**`docs-5modules/02-模块-GlueCoding-多源数据/09-API接口规格.md`**、**`10-数据模型与存储规格.md`**、**`06-功能规格说明.md`**。
+- 正式契约（见 `specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/`）：**`09-API接口规格.md`**、**`10-数据模型与存储规格.md`**、**`06-功能规格说明.md`**。
 - 此处仅包含：**Provider 接口**、**Mock 源**、**同步任务状态机**（与 `09` 中 `SyncJob.status` 一致）。
 
 ## 用法
@@ -10,7 +10,7 @@
 ### Python（契约参考 + 单测）
 
 ```bash
-cd samples/m2-glue-reference
+cd modules-practice/module-02/m2-glue-reference
 pip install -r requirements.txt
 python -m pytest -q
 ```
@@ -20,7 +20,7 @@ python -m pytest -q
 深蓝主色 + 红色强调，**不含任何机构客户名称**；页面与 M2 `06` 运维台叙事一致，默认不请求后端。
 
 ```bash
-cd samples/m2-glue-reference/frontend
+cd modules-practice/module-02/m2-glue-reference/frontend
 npm install
 npm run dev
 ```

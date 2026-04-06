@@ -39,7 +39,8 @@ python -m pytest tests -q
 
 ## 文档
 
-- 方案与任务清单：`../投研助手-5天Workshop-产品原型实现方案-Vue-Flask-JSON.md`、`../投研助手-Workshop-任务清单.md`
-- 构建与问题记录：`docs/WORKSHOP-BUILD-LOG.md`（若存在）
+- **全仓库导航与五天学习路径**：仓库根目录 `../AGENTS.md`
 - **ECS 部署与 GitHub Actions**：`docs/DEPLOY-GITHUB-ACTIONS.md`
-- **本机双路径说明**（`ira/ira` vs `sample/.../ira-workshop`）：`docs/WORKSPACE-双路径说明.md`
+- **模块练习与 CoPaw 规格**：`../modules-practice/`、`../specs/`（各子目录 README / docs 为准）
+
+> 若你手边另有「5 天方案 / 任务清单」等课件，请以教研材料为准；本仓库内未强制包含同名 Markdown 文件。

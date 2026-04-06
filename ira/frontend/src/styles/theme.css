@@ -244,6 +244,53 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
+.ira-navlink__full {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.ira-navlink__label {
+  min-width: 0;
+  flex: 1;
+}
+
+.ira-navlink__badges {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.ira-navlink__mod {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 0.12rem 0.3rem;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+}
+
+.ira-navlink__badge {
+  flex-shrink: 0;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.12rem 0.28rem;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid var(--ira-border);
+}
+
+.ira-navlink--secondary {
+  color: var(--ira-text-subtle);
+}
+
 .ira-navlink__short {
   display: none;
   text-align: center;
@@ -408,6 +455,19 @@
   background: #ecfdf5;
   color: #047857;
   border: 1px solid #34d399;
+}
+
+.ira-tag--extended {
+  background: #f5f3ff;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
+}
+
+.ira-tag--workshop-mod {
+  background: #e0f2fe;
+  color: #0c4a6e;
+  border: 1px solid #38bdf8;
+  font-weight: 700;
 }
 
 .ira-tag-note {
@@ -5400,6 +5460,38 @@ a.ira-btn {
   gap: 0.55rem;
 }
 
+.ira-wb-grid--core {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .ira-wb-grid--core {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+.ira-wb-subsection {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--ira-border);
+}
+
+.ira-wb-subsection__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ira-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.ira-wb-subsection__note {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--ira-text-subtle);
+  max-width: 52rem;
+}
+
 .ira-wb-card {
   display: flex;
   flex-direction: column;
@@ -5439,6 +5531,20 @@ a.ira-btn {
   font-size: 0.7rem;
   line-height: 1.45;
   color: var(--ira-text-muted);
+}
+
+.ira-wb-card--secondary {
+  background: #f8fafc;
+  border-style: dashed;
+}
+
+.ira-wb-card--secondary:hover {
+  border-style: solid;
+}
+
+.ira-wb-card--secondary .ira-wb-card__tag {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 .ira-wb-split {

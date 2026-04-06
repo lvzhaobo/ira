@@ -1,5 +1,7 @@
 import { useLocation } from "react-router-dom";
+import { isSecondaryNavPath } from "../config/nav";
 import { resolvePageMode, tagLabel, type PageTagKind } from "../config/pageModes";
+import { workshopModuleCode, workshopModuleTitleHint } from "../config/workshopModuleTags";
 
 function tagClass(kind: PageTagKind): string {
   switch (kind) {
@@ -15,6 +17,8 @@ function tagClass(kind: PageTagKind): string {
       return "ira-tag ira-tag--mock-warn";
     case "liveLlm":
       return "ira-tag ira-tag--live-llm";
+    case "extended":
+      return "ira-tag ira-tag--extended";
     default:
       return "ira-tag ira-tag--demo";
   }
@@ -35,9 +39,19 @@ export default function PageShell({
 }) {
   const { pathname } = useLocation();
   const mode = resolvePageMode(pathname);
-  const tags = extraTags?.length
+  const baseTags = extraTags?.length
     ? extraTags.map((x) => ({ kind: x.kind, label: x.label ?? tagLabel(x.kind) }))
     : mode.tags.map((k) => ({ kind: k, label: tagLabel(k) }));
+  const extLabel = tagLabel("extended");
+  let tags =
+    isSecondaryNavPath(pathname) && !baseTags.some((t) => t.label === extLabel)
+      ? [...baseTags, { kind: "extended" as PageTagKind, label: extLabel }]
+      : baseTags;
+  const wm = workshopModuleCode(pathname);
+  const wmHint = workshopModuleTitleHint(pathname);
+  if (wm && !tags.some((t) => t.label === wm)) {
+    tags = [...tags, { kind: "placeholder" as PageTagKind, label: wm }];
+  }
   const displayNote =
     note === null ? null : note !== undefined ? note : extraTags?.length ? null : mode.note;
   const tagTitle = typeof displayNote === "string" ? displayNote : mode.note;
@@ -48,11 +62,18 @@ export default function PageShell({
         <h1>{title}</h1>
         <div>
           <div className="ira-tags">
-            {tags.map((t) => (
-              <span key={`${t.kind}-${t.label}`} className={tagClass(t.kind)} title={tagTitle}>
-                {t.label}
-              </span>
-            ))}
+            {tags.map((t) => {
+              const isWm = wm && t.label === wm;
+              return (
+                <span
+                  key={`${t.kind}-${t.label}`}
+                  className={isWm ? "ira-tag ira-tag--workshop-mod" : tagClass(t.kind)}
+                  title={isWm ? wmHint ?? tagTitle : tagTitle}
+                >
+                  {isWm ? `${t.label} · Glue` : t.label}
+                </span>
+              );
+            })}
           </div>
           {displayNote ? (
             <p className="ira-tag-note" style={{ margin: "0.35rem 0 0" }}>

@@ -14,6 +14,10 @@ import Sentiment from "./pages/Sentiment";
 import StockAnalysis from "./pages/StockAnalysis";
 import Knowledge from "./pages/Knowledge";
 import Messages from "./pages/Messages";
+import NotifyChannels from "./pages/NotifyChannels";
+import NotifyTemplatesRules from "./pages/NotifyTemplatesRules";
+import NotifyDispatch from "./pages/NotifyDispatch";
+import NotifyHistory from "./pages/NotifyHistory";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Skills from "./pages/Skills";
@@ -45,6 +49,10 @@ export default function App() {
           <Route path="/knowledge" element={<Knowledge />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/messages/channels" element={<NotifyChannels />} />
+          <Route path="/messages/rules" element={<NotifyTemplatesRules />} />
+          <Route path="/messages/dispatch" element={<NotifyDispatch />} />
+          <Route path="/messages/history" element={<NotifyHistory />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/workbench" replace />} />

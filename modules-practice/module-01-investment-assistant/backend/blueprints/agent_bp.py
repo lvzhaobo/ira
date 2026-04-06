@@ -1,6 +1,6 @@
 import uuid
 
-from agent import CoPawAgent
+from agent import CoPawAgent, describe_capabilities
 from flask import Blueprint, jsonify, request
 from storage import Storage
 
@@ -8,6 +8,23 @@ agent_bp = Blueprint("agent", __name__)
 
 # 全局实例
 agent = CoPawAgent()
+
+
+@agent_bp.route("/capabilities", methods=["GET"])
+def capabilities():
+    """与 ira `GET /api/v1/system/health` 中的 research_qa_llm 语义对照，便于 M1 前端展示。"""
+    caps = describe_capabilities()
+    live = bool(caps.get("bailian_configured") or caps.get("copaw_configured"))
+    return (
+        jsonify(
+            {
+                **caps,
+                "llm_live": live,
+                "provider": "copaw" if caps.get("copaw_configured") else ("dashscope" if caps.get("bailian_configured") else None),
+            }
+        ),
+        200,
+    )
 storage = None  # 将在请求中通过 app.config 初始化
 
 
@@ -63,8 +80,8 @@ def ask():
     session_id = data["session_id"]
 
     try:
-        # 调用 Agent
-        result = agent.ask(query)
+        # 调用 Agent（与 ira 一致：可选 CoPaw → 百炼 → 演示降级）
+        result = agent.ask(query, session_id=session_id)
 
         # 存储问答记录
         storage = get_storage()
@@ -75,6 +92,7 @@ def ask():
             llm_used=result["llm_used"],
             model=result["model"],
             response_time_ms=result["response_time_ms"],
+            answer_source=result.get("answer_source"),
         )
 
         return jsonify(result), 200
