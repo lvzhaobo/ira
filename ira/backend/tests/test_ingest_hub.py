@@ -8,6 +8,9 @@ def test_ingest_minimal_flow(client):
     items = s.get_json()["items"]
     assert len(items) >= 1
     source_id = items[0]["id"]
+    d = client.get(f"/api/v1/ingest/sources/{source_id}")
+    assert d.status_code == 200
+    assert d.get_json()["id"] == source_id
 
     j = client.post(f"/api/v1/ingest/sources/{source_id}/sync", json={"symbol": "600519.SH"})
     assert j.status_code == 201
@@ -18,6 +21,28 @@ def test_ingest_minimal_flow(client):
     g = client.get(f"/api/v1/ingest/jobs/{job['job_id']}")
     assert g.status_code == 200
     assert g.get_json()["market_snapshot_id"] == job["market_snapshot_id"]
+
+
+def test_ingest_jobs_api_with_idempotency(client):
+    source_id = client.get("/api/v1/ingest/sources").get_json()["items"][0]["id"]
+    r1 = client.post(
+        "/api/v1/ingest/jobs",
+        json={"sourceId": source_id, "symbol": "600519.SH", "mode": "incremental", "idempotencyKey": "idem-1"},
+    )
+    assert r1.status_code == 201
+    first_job = r1.get_json()
+    assert first_job["status"] in ("queued", "running", "success")
+
+    r2 = client.post(
+        "/api/v1/ingest/jobs",
+        json={"sourceId": source_id, "symbol": "600519.SH", "mode": "incremental", "idempotencyKey": "idem-1"},
+    )
+    assert r2.status_code == 409
+    assert r2.get_json()["error"]["code"] == "M2_IDEMPOTENCY_REPLAY"
+
+    r3 = client.get("/api/v1/ingest/jobs?limit=5")
+    assert r3.status_code == 200
+    assert len(r3.get_json()["items"]) >= 1
 
 
 def test_stock_analysis_prefers_hub_snapshot(client):
