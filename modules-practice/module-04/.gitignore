@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+env/
+venv/
+.venv/
+
+# SQLite（本地库勿提交）
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
+node_modules/
+frontend/build/
+frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# start.sh 开发模式日志与 PID
+logs/
+
+# 环境变量（含密钥）
+.env
+.env.local
+.env.*.local
+
+# IDE（个人设置；团队共享的 tasks.json 仍提交）
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 测试与覆盖率
+.pytest_cache/
+.coverage
+htmlcov/
