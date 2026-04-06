@@ -11,11 +11,25 @@ env:
 on:
   push:
     branches: [main, master]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
+    paths:
+      # 只有这些目录变更时才运行E2E测试
+      - 'ira/frontend/**'
+      - 'modules-practice/**/frontend/**'
+      - 'demo/static/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'playwright.config.*'
+      - 'tests/e2e/**'
   pull_request:
     branches: [main, master]
+    paths:
+      - 'ira/frontend/**'
+      - 'modules-practice/**/frontend/**'
+      - 'demo/static/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'playwright.config.*'
+      - 'tests/e2e/**'
 
 # 权限配置
 permissions:

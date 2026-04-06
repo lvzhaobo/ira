@@ -13,6 +13,16 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main, master]
+    paths:
+      # 只有代码文件变更时才触发AI代码审查
+      - '**/*.py'
+      - '**/*.js'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.jsx'
+      - '**/*.vue'
+      - '**/*.java'
+      - '**/*.go'
 
 # 权限配置：需要读取代码、写入 PR 评论和创建检查
 permissions:
