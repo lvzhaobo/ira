@@ -29,7 +29,7 @@
 
 ## 改进版（另一套组织）
 
-仓库内另有 **`module-02-gule-coding-v2/`**，可与本模块对照使用。
+仓库内另有 **`module-02-gule-coding-v2/`**（Glue 静态页 / 样式练习，**不**迁入 `specs/workshop/`），可与本模块对照；**规格**仍以 **`specs/workshop/module-02-glue-multisource/`** 为准。见 [module-02-gule-coding-v2/README.md](../module-02-gule-coding-v2/README.md)。
 
 ## 班级入口
 

@@ -26,7 +26,7 @@
 | **D1** | 认识投研助手原型与数据边界 | ① 能口述「演示数据 vs 生产」红线；② 画出 3～5 个核心用户任务（工作台级） | ① 本地跑通 `ira` 前后端；② 能说明前端如何代理到 API | `ira/README.md`、`../AGENTS.md`、`copaw/README.md`（浏览） |
 | **D2** | 从界面回到契约：API 与模块边界 | ① 任选 1 条用户路径，写出「验收口径」草案（Given/When/Then 级） | ① 浏览 `ira/backend/app/blueprints/` 与 OpenAPI；② 跑通 `pytest` | `ira/backend/`、`ira/frontend/src/pages/` |
 | **D3** | 知识库与 AI 底座分工 | ① 参与 Proposal/Spec 式评审 1 次（记录「范围外」清单）；② 明确 CoPaw vs BFF 职责 | ① 通读冻结 Spec 思路；②（可选）起 CoPaw 控制台 | **`specs/workshop/module-03-knowledge-copaw/docs/`**（`00`→`01`→`02`）、[`module-03/README.md`](./module-03/README.md) |
-| **D4** | 数据集成与扩展能力 | ① 列出多源数据「来源—用途—留存—合规」四列简表；② 标出 1 个降级场景 | ① 跟练或走读 Glue 管道代码；② 了解 `module-05` 多 Agent 后端结构 | `module-02/`、`module-02-gule-coding-v2/`（二选一或对比）、`module-05/backend/README.md`、`samples/` |
+| **D4** | 数据集成与扩展能力 | ① 列出多源数据「来源—用途—留存—合规」四列简表；② 标出 1 个降级场景 | ① 跟练或走读 Glue 管道代码；② 了解 `module-05` 多 Agent 后端结构 | **`specs/workshop/module-02-glue-multisource/`** + `module-02/`；`module-02-gule-coding-v2/` 为 UI 胶水练习（无独立 specs 包）、可与上列对照 |
 | **D5** | 从代码到环境：部署与质量 | ① 画一张「Demo 环境 vs 真实生产」差异表（数据、模型、账号） | ① 读通 `demo/` 与一条 GitHub Actions 流程；②（可选）配置 pre-commit | `demo/`、`.github/workflows/`、`ira/docs/DEPLOY-GITHUB-ACTIONS.md` |
 
 **打印提示**：若需严格一页 A4，可只打印 **§1 + §2**；§3 为模块速查，可另页或电子版保留。
@@ -38,7 +38,8 @@
 | 模块目录 | 和 `ira/` 的一句话关系 |
 |----------|-------------------------|
 | `module-01-investment-assistant` | 独立小全栈，理解「最小投研对话」时可对照 `ira`。 |
-| `module-02` / `module-02-gule-coding-v2` | 主线外的 **数据胶水层** 纵深；`ira` 侧重产品全链路时可略读或专题讲。 |
+| `module-02` + `specs/workshop/module-02-glue-multisource` | 主线外的 **数据管道与契约** 纵深。 |
+| `module-02-gule-coding-v2` | **UI / 静态 Glue** 练习包，**不**进 `specs/workshop`；契约仍以 M2 主规格包为准。 |
 | `module-03` | **规格化 + CoPaw 集成** 范本；教「怎么写冻结 Spec、怎么拆 Task」。 |
 | `module-04` | **推送/渠道** 样例；与 `ira` 工作台可叙事为「通知侧能力」。 |
 | `module-05` | **多 Agent + 基金域 API** 练习；与 `ira` 可叙事为「分析编排加深」。 |
