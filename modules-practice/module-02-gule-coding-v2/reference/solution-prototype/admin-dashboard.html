@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Buy AI - 管理员控制台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bestbuy-blue: #003da6;
+            --bestbuy-yellow: #ffe600;
+            --bestbuy-dark: #1d252c;
+            --bestbuy-gray: #f4f6f8;
+            --bestbuy-light-gray: #e8ecf0;
+            --success-green: #00a651;
+            --warning-orange: #ff6b00;
+            --danger-red: #dc2626;
+            --tech-highlight: #e0f2fe;
+            --tech-border: #0ea5e9;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bestbuy-gray);
+            color: var(--bestbuy-text);
+        }
+        .header {
+            background: var(--bestbuy-blue);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            font-weight: 800;
+            font-size: 24px;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            border-color: var(--bestbuy-yellow);
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--bestbuy-light-gray);
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 14px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--bestbuy-gray);
+            border-left-color: var(--bestbuy-blue);
+        }
+        .nav-item.active {
+            font-weight: 600;
+            color: var(--bestbuy-blue);
+        }
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            color: #5c6c7c;
+            margin-bottom: 24px;
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--tech-highlight);
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--tech-border);
+            cursor: help;
+        }
+        .tech-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #f59e0b;
+        }
+        .tech-badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #ef4444;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .stat-card.tech-highlight {
+            border: 2px solid var(--tech-border);
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #5c6c7c;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-change.positive { color: var(--success-green); }
+        .stat-change.negative { color: var(--danger-red); }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .section.tech-highlight {
+            border: 2px solid var(--tech-border);
+            background: linear-gradient(to right, white 95%, var(--tech-highlight) 100%);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .tech-note {
+            background: var(--tech-highlight);
+            border-left: 4px solid var(--tech-border);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tech-note-title {
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tech-note ul {
+            margin-left: 20px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+        }
+        th {
+            font-weight: 600;
+            color: #5c6c7c;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-operational {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-degraded {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bestbuy-light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--bestbuy-blue);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+        }
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        .metric-info h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .metric-info p {
+            font-size: 12px;
+            color: #5c6c7c;
+        }
+        .metric-value {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .alert-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .alert-banner.error {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        .alert-icon {
+            font-size: 24px;
+        }
+        .alert-content h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .alert-content p {
+            font-size: 13px;
+            color: #5c6c7c;
+        }
+        .chart-placeholder {
+            height: 200px;
+            background: var(--bestbuy-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5c6c7c;
+            font-size: 14px;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div class="logo">best buy</div>
+            <span style="color:white;opacity:0.8;font-size:14px;">AI Assistant 管理平台</span>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-btn">客户视图</a>
+            <a href="admin-dashboard.html" class="nav-btn active">管理员视图</a>
+            <a href="knowledge-base.html" class="nav-btn">知识库管理</a>
+            <a href="integration-monitor.html" class="nav-btn">系统集成监控</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="nav-item active">📊 系统概览</div>
+            <div class="nav-item">💬 对话分析</div>
+            <div class="nav-item">🤖 模型管理</div>
+            <div class="nav-item">👥 客服管理</div>
+            <div class="nav-item">📈 业务指标</div>
+            <div class="nav-item">⚙️ 系统配置</div>
+            <div class="nav-item">🔔 告警中心</div>
+            <div class="nav-item">📋 日志审计</div>
+        </aside>
+
+        <main class="main-content">
+            <h1 class="page-title">系统运行监控</h1>
+            <p class="page-subtitle">实时监控AI助手运行状态、性能指标与业务数据</p>
+
+            <!-- 告警横幅 -->
+            <div class="alert-banner">
+                <span class="alert-icon">⚠️</span>
+                <div class="alert-content">
+                    <h4>系统提示</h4>
+                    <p>SAP ERP 接口响应时间超过阈值 (2.3s > 2s)，已触发降级策略</p>
+                </div>
+                <span class="tech-badge warning">技术难点: 遗留系统集成</span>
+            </div>
+
+            <!-- 核心指标 -->
+            <div class="stats-grid">
+                <div class="stat-card tech-highlight">
+                    <div class="stat-header">
+                        <span class="stat-label">今日对话量</span>
+                        <span class="tech-badge">实时数据流</span>
+                    </div>
+                    <div class="stat-value">47,832</div>
+                    <div class="stat-change positive">
+                        <span>↑</span> 12.5% 较昨日
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">AI解决率</span>
+                    </div>
+                    <div class="stat-value">68.4%</div>
+                    <div class="stat-change positive">
+                        <span>↑</span> 3.2% 较上周
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">平均响应时间</span>
+                    </div>
+                    <div class="stat-value">1.2s</div>
+                    <div class="stat-change positive">
+                        <span>↓</span> 0.3s 优化
+                    </div>
+                </div>
+                <div class="stat-card tech-highlight">
+                    <div class="stat-header">
+                        <span class="stat-label">客户满意度</span>
+                        <span class="tech-badge">情感分析</span>
+                    </div>
+                    <div class="stat-value">4.6/5</div>
+                    <div class="stat-change positive">
+                        <span>↑</span> 0.2 较上月
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAG性能监控 -->
+            <div class="section tech-highlight">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">🔍 RAG检索性能监控</h3>
+                        <span class="tech-badge" style="margin-top:8px;display:inline-flex;">核心技术: RAG Pipeline</span>
+                    </div>
+                    <span style="font-size:13px;color:#5c6c7c;">最近1小时</span>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 关键技术难点说明</div>
+                    <ul>
+                        <li><strong>向量检索延迟：</strong> Pinecone/Milvus 查询需控制在100ms以内，超过500ms需触发缓存降级</li>
+                        <li><strong>重排序质量：</strong> Cross-Encoder模型对检索结果重排序，直接影响回答准确性</li>
+                        <li><strong>幻觉检测：</strong> 置信度低于0.7的结果需标记为"需人工确认"</li>
+                        <li><strong>知识库同步：</strong> 产品信息变更后，向量索引需在5分钟内完成更新</li>
+                    </ul>
+                </div>
+
+                <div class="metric-row">
+                    <div class="metric-info">
+                        <h4>向量检索平均延迟</h4>
+                        <p>Pinecone索引查询响应时间</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:200px;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:45%;"></div>
+                            </div>
+                        </div>
+                        <span class="metric-value">45ms</span>
+                        <span class="status-badge status-operational">正常</span>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <div class="metric-info">
+                        <h4>检索准确率 (Top-5)</h4>
+                        <p>相关文档在前5个结果中的占比</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:200px;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:87%;"></div>
+                            </div>
+                        </div>
+                        <span class="metric-value">87.3%</span>
+                        <span class="status-badge status-operational">良好</span>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <div class="metric-info">
+                        <h4>回答幻觉率</h4>
+                        <p>LLM生成内容与知识库不符的比例</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:200px;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:8%;background:var(--success-green);"></div>
+                            </div>
+                        </div>
+                        <span class="metric-value">3.2%</span>
+                        <span class="status-badge status-operational">优秀</span>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <div class="metric-info">
+                        <h4>知识库覆盖率</h4>
+                        <p>用户问题能被知识库回答的比例</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:200px;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:78%;"></div>
+                            </div>
+                        </div>
+                        <span class="metric-value">78.5%</span>
+                        <span class="tech-badge warning">需扩充</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <!-- LLM性能 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h3 class="section-title">🤖 LLM服务状态</h3>
+                            <span class="tech-badge" style="margin-top:8px;display:inline-flex;">多供应商策略</span>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>服务提供商</th>
+                                <th>状态</th>
+                                <th>延迟</th>
+                                <th>调用占比</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Azure OpenAI (GPT-4)</td>
+                                <td><span class="status-badge status-operational">● 正常</span></td>
+                                <td>1.2s</td>
+                                <td>65%</td>
+                            </tr>
+                            <tr>
+                                <td>Anthropic (Claude 3)</td>
+                                <td><span class="status-badge status-operational">● 正常</span></td>
+                                <td>1.5s</td>
+                                <td>30%</td>
+                            </tr>
+                            <tr>
+                                <td>本地模型 (Llama 3)</td>
+                                <td><span class="status-badge status-degraded">● 降级</span></td>
+                                <td>3.2s</td>
+                                <td>5%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="tech-note">
+                        <div class="tech-note-title">⚡ 技术要点</div>
+                        <ul>
+                            <li><strong>多供应商容灾：</strong> 主服务故障时自动切换，确保99.9%可用性</li>
+                            <li><strong>智能路由：</strong> 简单查询路由到轻量级模型，降低成本40%</li>
+                            <li><strong>Prompt版本管理：</strong> A/B测试不同Prompt模板效果</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 情绪分析 -->
+                <div class="section tech-highlight">
+                    <div class="section-header">
+                        <div>
+                            <h3 class="section-title">😊 实时情绪分析</h3>
+                            <span class="tech-badge" style="margin-top:8px;display:inline-flex;">微调RoBERTa</span>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">[情绪分布趋势图]</div>
+
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <h4>积极情绪占比</h4>
+                            <p>客户表达满意/愉悦的比例</p>
+                        </div>
+                        <span class="metric-value" style="color:var(--success-green);">72%</span>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <h4>情绪识别准确率</h4>
+                            <p>与人工标注的一致性</p>
+                        </div>
+                        <span class="metric-value">89.5%</span>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <h4>升级预警触发</h4>
+                            <p>检测到负面情绪并通知人工</p>
+                        </div>
+                        <span class="metric-value" style="color:var(--warning-orange);">23次/小时</span>
+                    </div>
+
+                    <div class="tech-note">
+                        <div class="tech-note-title">⚡ 技术难点</div>
+                        <ul>
+                            <li><strong>细粒度情绪：</strong> 区分"沮丧"vs"愤怒"vs"失望"，影响升级策略</li>
+                            <li><strong>上下文感知：</strong>  sarcasm/反讽识别，避免误判</li>
+                            <li><strong>实时性要求：</strong> 需在500ms内完成分析并展示给客服</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统集成状态 -->
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">🔌 系统集成健康度</h3>
+                        <span class="tech-badge danger" style="margin-top:8px;display:inline-flex;">关键难点: 遗留系统</span>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>系统</th>
+                            <th>类型</th>
+                            <th>状态</th>
+                            <th>响应时间</th>
+                            <th>错误率</th>
+                            <th>技术要点</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SAP ERP</td>
+                            <td>订单/库存</td>
+                            <td><span class="status-badge status-degraded">● 降级</span></td>
+                            <td>2.3s ⚠️</td>
+                            <td>0.8%</td>
+                            <td><span class="tech-badge">RFC/BAPI接口</span></td>
+                        </tr>
+                        <tr>
+                            <td>Salesforce CRM</td>
+                            <td>客户数据</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                            <td>0.4s</td>
+                            <td>0.1%</td>
+                            <td><span class="tech-badge">REST API</span></td>
+                        </tr>
+                        <tr>
+                            <td>FedEx API</td>
+                            <td>物流追踪</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                            <td>0.8s</td>
+                            <td>0.3%</td>
+                            <td><span class="tech-badge">Webhook回调</span></td>
+                        </tr>
+                        <tr>
+                            <td>Legacy POS</td>
+                            <td>门店系统</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                            <td>1.1s</td>
+                            <td>1.2%</td>
+                            <td><span class="tech-badge warning">消息队列适配</span></td>
+                        </tr>
+                        <tr>
+                            <td>Payment Gateway</td>
+                            <td>支付</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                            <td>0.3s</td>
+                            <td>0.05%</td>
+                            <td><span class="tech-badge">PCI DSS合规</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 遗留系统集成难点</div>
+                    <ul>
+                        <li><strong>SAP RFC接口：</strong> 老旧BAPI函数文档不全，需大量逆向工程</li>
+                        <li><strong>数据格式转换：</strong> SAP的IDoc格式与现代JSON的映射复杂</li>
+                        <li><strong>事务一致性：</strong> 跨系统操作需保证最终一致性，使用Saga模式</li>
+                        <li><strong>降级策略：</strong> SAP不可用时，提供缓存数据+延迟同步机制</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

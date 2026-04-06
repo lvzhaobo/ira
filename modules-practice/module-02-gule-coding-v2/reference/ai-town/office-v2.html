@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab — Office V2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black:   #000000;
+            --white:   #ffffff;
+            --purple:  #A100FF;
+            --purple-light: #cc66ff;
+            --purple-dim:   rgba(161,0,255,0.10);
+            --purple-mid:   rgba(161,0,255,0.22);
+            --gray0:   #f8f8f8;
+            --gray1:   #f0f0f0;
+            --gray2:   #e0e0e0;
+            --gray3:   #a0a0a0;
+            --gray4:   #505050;
+            --gray5:   #222222;
+            --green:   #00c851;
+            --orange:  #ff6d00;
+            --topbar-h: 56px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray0);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--gray5);
+        }
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--topbar-h);
+            background: var(--black);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 24px;
+            z-index: 1000;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .acc-wordmark {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
+        }
+
+        .acc-wordmark span { color: var(--purple); }
+
+        .topbar-divider {
+            width: 1px;
+            height: 24px;
+            background: #333;
+            flex-shrink: 0;
+        }
+
+        .topbar-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray3);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            flex-shrink: 0;
+        }
+
+        .topbar-clock {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--white);
+            font-variant-numeric: tabular-nums;
+            margin-left: auto;
+        }
+
+        .topbar-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border: 1px solid #333;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .topbar-badge.active {
+            border-color: var(--purple);
+            color: var(--purple-light);
+        }
+
+        .tb-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--purple);
+            animation: tbPulse 2s infinite;
+        }
+
+        @keyframes tbPulse {
+            0%,100% { opacity:1; }
+            50%      { opacity:0.3; }
+        }
+
+        /* ===== LAYOUT ===== */
+        .page-body {
+            margin-top: var(--topbar-h);
+            margin-right: 320px;
+            min-height: calc(100vh - var(--topbar-h));
+            padding-bottom: 40px;
+        }
+
+        /* ===== PIPELINE STRIP ===== */
+        .pipeline-strip {
+            background: #0a0a0a;
+            border-bottom: 1px solid #1e1e1e;
+            padding: 12px 0;
+            position: relative;
+        }
+
+        .pipeline-header-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px 8px;
+        }
+
+        .pipeline-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray3);
+        }
+
+        .pipeline-label-dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--purple);
+        }
+
+        .pipeline-scroll-wrap {
+            overflow: hidden;
+            mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+        }
+
+        .pipeline-scroll-wrap:hover .pipeline-track {
+            animation-play-state: paused;
+        }
+
+        .pipeline-track {
+            display: flex;
+            gap: 10px;
+            padding: 0 24px 2px;
+            width: max-content;
+            animation: marqueeScroll 40s linear infinite;
+        }
+
+        @keyframes marqueeScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .pipeline-card {
+            flex: 0 0 200px;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-top: 2px solid var(--gray4);
+            border-radius: 2px;
+            padding: 12px 14px;
+            position: relative;
+            cursor: default;
+            transition: border-top-color 0.2s, transform 0.2s;
+        }
+
+        .pipeline-card:hover { transform: translateY(-2px); }
+
+        .pipeline-card.status-progress { border-top-color: var(--purple); }
+        .pipeline-card.status-review   { border-top-color: #facc15; }
+        .pipeline-card.status-done     { border-top-color: var(--green); }
+        .pipeline-card.status-blocked  { border-top-color: #ef4444; }
+
+        .pc-client {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--gray3);
+            margin-bottom: 5px;
+        }
+
+        .pc-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white);
+            line-height: 1.35;
+            margin-bottom: 8px;
+        }
+
+        .pc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .pc-tag {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 1px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pc-tag.in-progress { background: rgba(161,0,255,0.2); color: var(--purple-light); }
+        .pc-tag.review      { background: rgba(250,204,21,0.15); color: #fde68a; }
+        .pc-tag.done        { background: rgba(0,200,81,0.15); color: #4ade80; }
+        .pc-tag.blocked     { background: rgba(239,68,68,0.15); color: #fca5a5; }
+
+        .pc-assignees { display: flex; gap: 3px; margin-bottom: 8px; }
+
+        .pc-avatar {
+            width: 20px; height: 20px;
+            border-radius: 2px;
+            background: var(--purple);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pc-progress {
+            height: 2px;
+            background: #2a2a2a;
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .pc-progress-bar {
+            height: 100%;
+            background: var(--purple);
+            border-radius: 1px;
+        }
+
+        /* ===== OFFICE AREA ===== */
+        .office-area {
+            padding: 32px 28px 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray3);
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--gray2);
+        }
+
+        /* ===== ZONES GRID ===== */
+        .zones-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .zone {
+            background: var(--white);
+            border: 1px solid var(--gray2);
+            border-radius: 4px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .zone::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--purple);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .zone-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--gray4);
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray1);
+        }
+
+        /* ===== DESK CARDS ===== */
+        .desk-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .desk-grid.cols-3 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .desk-card {
+            background: var(--gray0);
+            border: 1px solid var(--gray2);
+            border-radius: 4px;
+            padding: 12px 10px 10px;
+            position: relative;
+            cursor: pointer;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            overflow: hidden;
+        }
+
+        .desk-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--gray2);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .desk-card.online::before  { background: var(--green); }
+        .desk-card.busy::before    { background: var(--purple); }
+        .desk-card.away::before    { background: var(--gray3); }
+
+        .desk-card:hover {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px var(--purple-dim);
+        }
+
+        /* Monitor graphic */
+        .dc-monitor {
+            width: 48px;
+            height: 32px;
+            background: var(--gray5);
+            border-radius: 2px;
+            margin: 0 auto 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dc-monitor::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 50%;
+            transform: translateX(-50%);
+            width: 14px; height: 5px;
+            background: var(--gray4);
+        }
+
+        .dc-screen {
+            position: absolute;
+            top: 3px; left: 3px; right: 3px; bottom: 3px;
+            background: #0a0a0a;
+            border-radius: 1px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 2px 2px;
+        }
+
+        .code-line {
+            height: 2px;
+            background: var(--purple);
+            opacity: 0.7;
+            border-radius: 1px;
+            animation: codeFlicker 3s infinite;
+        }
+
+        .code-line:nth-child(2) { width: 70%; animation-delay: 0.4s; opacity: 0.4; background: var(--purple-light); }
+        .code-line:nth-child(3) { width: 85%; animation-delay: 0.8s; }
+        .code-line:nth-child(4) { width: 50%; animation-delay: 1.2s; opacity: 0.3; background: #4ade80; }
+        .code-line:nth-child(5) { width: 90%; animation-delay: 0.2s; }
+
+        @keyframes codeFlicker {
+            0%,80%,100% { opacity: 0.7; }
+            40%          { opacity: 0.15; }
+        }
+
+        /* Avatar circle */
+        .dc-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--purple);
+            color: var(--white);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            position: relative;
+        }
+
+        .dc-status {
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            border: 2px solid var(--gray0);
+        }
+
+        .dc-status.online { background: var(--green); }
+        .dc-status.busy   { background: var(--purple); animation: tbPulse 2s infinite; }
+        .dc-status.away   { background: var(--gray3); }
+
+        .dc-name {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gray5);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dc-role {
+            font-size: 9px;
+            font-weight: 400;
+            color: var(--gray3);
+            text-align: center;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Speech bubble */
+        .dc-bubble {
+            position: absolute;
+            top: -36px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--black);
+            border: 1px solid var(--purple);
+            color: var(--white);
+            font-size: 9px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 2px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s;
+            z-index: 30;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dc-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 50%;
+            transform: translateX(-50%);
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid var(--purple);
+        }
+
+        .dc-bubble.active { opacity: 1; }
+
+        /* ===== RIGHT SIDEBAR ===== */
+        .right-sidebar {
+            position: fixed;
+            top: var(--topbar-h);
+            right: 0;
+            width: 320px;
+            height: calc(100vh - var(--topbar-h));
+            background: var(--white);
+            border-left: 1px solid var(--gray2);
+            display: flex;
+            flex-direction: column;
+            z-index: 500;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray2);
+            flex-shrink: 0;
+        }
+
+        .stab {
+            flex: 1;
+            padding: 12px 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: var(--gray3);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+            margin-bottom: -1px;
+        }
+
+        .stab.active {
+            color: var(--purple);
+            border-bottom-color: var(--purple);
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+        }
+
+        .sidebar-body::-webkit-scrollbar { width: 3px; }
+        .sidebar-body::-webkit-scrollbar-thumb { background: var(--gray2); }
+
+        .sidebar-panel { display: none; }
+        .sidebar-panel.active { display: block; }
+
+        /* --- Files --- */
+        .file-section { margin-bottom: 12px; }
+
+        .file-folder {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            background: var(--gray0);
+            border: 1px solid var(--gray2);
+            border-radius: 2px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray5);
+            transition: background 0.15s;
+        }
+
+        .file-folder:hover { background: var(--purple-dim); border-color: var(--purple); }
+
+        .file-folder .ff-arrow {
+            margin-left: auto;
+            font-size: 9px;
+            transition: transform 0.2s;
+            color: var(--gray3);
+        }
+
+        .file-folder.open .ff-arrow { transform: rotate(90deg); }
+
+        .file-list { display: none; padding-left: 14px; margin-bottom: 2px; }
+        .file-list.open { display: block; }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--gray4);
+            cursor: pointer;
+            transition: background 0.12s;
+            margin-bottom: 1px;
+        }
+
+        .file-item:hover { background: var(--purple-dim); color: var(--purple); }
+        .fi-size { margin-left: auto; color: var(--gray3); font-size: 9px; }
+
+        /* --- Timeline --- */
+        .timeline-entry {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            left: 14px; top: 28px; bottom: -12px;
+            width: 1px;
+            background: var(--gray2);
+        }
+
+        .timeline-entry:last-child::before { display: none; }
+
+        .tl-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--purple);
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 2px solid var(--white);
+            box-shadow: 0 0 0 1px var(--purple-mid);
+            z-index: 1;
+        }
+
+        .tl-dot.green  { background: var(--green); box-shadow: 0 0 0 1px rgba(0,200,81,0.3); }
+        .tl-dot.orange { background: var(--orange); box-shadow: 0 0 0 1px rgba(255,109,0,0.3); }
+        .tl-dot.gray   { background: var(--gray3); box-shadow: none; }
+
+        .tl-content { flex: 1; }
+
+        .tl-time {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--gray3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1px;
+        }
+
+        .tl-who {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--purple);
+            margin-bottom: 3px;
+        }
+
+        .tl-msg {
+            font-size: 11px;
+            color: var(--gray4);
+            line-height: 1.5;
+            background: var(--gray0);
+            padding: 6px 8px;
+            border-radius: 0 4px 4px 4px;
+            border: 1px solid var(--gray2);
+        }
+
+        /* --- TODO --- */
+        .todo-add {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .todo-add input {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid var(--gray2);
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            outline: none;
+            background: var(--gray0);
+            color: var(--gray5);
+        }
+
+        .todo-add input:focus { border-color: var(--purple); }
+
+        .todo-add button {
+            width: 30px; height: 30px;
+            border-radius: 2px;
+            border: 1px solid var(--purple);
+            background: var(--purple);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.15s;
+        }
+
+        .todo-add button:hover { opacity: 0.8; }
+
+        .todo-section-title {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--gray3);
+            margin: 10px 0 5px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+            padding: 7px 8px;
+            background: var(--gray0);
+            border: 1px solid var(--gray2);
+            border-radius: 2px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.12s;
+        }
+
+        .todo-item:hover { border-color: var(--purple); background: var(--purple-dim); }
+        .todo-item.done-item { opacity: 0.45; }
+        .todo-item.done-item .ti-text { text-decoration: line-through; }
+
+        .ti-check {
+            width: 14px; height: 14px;
+            border-radius: 2px;
+            border: 1.5px solid var(--gray2);
+            flex-shrink: 0;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            transition: all 0.12s;
+        }
+
+        .todo-item.done-item .ti-check {
+            background: var(--green);
+            border-color: var(--green);
+            color: white;
+        }
+
+        .ti-text { font-size: 11px; color: var(--gray5); line-height: 1.4; flex: 1; }
+
+        .ti-badge {
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 1px;
+            font-weight: 700;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ti-badge.high { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .ti-badge.mid  { background: rgba(255,109,0,0.12); color: var(--orange); }
+        .ti-badge.low  { background: var(--gray1); color: var(--gray3); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .agent-modal {
+            background: var(--white);
+            border-radius: 4px;
+            max-width: 420px;
+            width: 90%;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+            animation: modalFade 0.2s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity:0; transform: translateY(12px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+
+        .modal-topbar {
+            background: var(--black);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .modal-avatar-wrap {
+            width: 48px; height: 48px;
+            border-radius: 2px;
+            background: var(--purple-dim);
+            border: 1px solid var(--purple-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .modal-info-top { flex: 1; }
+
+        .modal-info-top h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 2px;
+        }
+
+        .modal-role {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--purple-light);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body p {
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--gray4);
+            margin-bottom: 16px;
+        }
+
+        .modal-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .modal-skill {
+            padding: 4px 10px;
+            background: var(--purple-dim);
+            border: 1px solid var(--purple-mid);
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--purple);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-close {
+            width: 100%;
+            padding: 11px;
+            background: var(--black);
+            border: 1px solid #333;
+            border-radius: 2px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .modal-close:hover { background: var(--purple); border-color: var(--purple); }
+
+        /* ===== KPI BAR ===== */
+        .kpi-bar {
+            display: flex;
+            gap: 12px;
+            padding: 16px 28px;
+            border-bottom: 1px solid var(--gray2);
+            background: var(--white);
+        }
+
+        .kpi-card {
+            flex: 1;
+            background: var(--gray0);
+            border: 1px solid var(--gray2);
+            border-radius: 2px;
+            padding: 12px 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--purple);
+        }
+
+        .kpi-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gray5);
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .kpi-num span {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--purple);
+            margin-left: 3px;
+        }
+
+        .kpi-label {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray3);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1400px) {
+            .zones-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 900px) {
+            .page-body { margin-right: 0; }
+            .right-sidebar { display: none; }
+            .zones-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="acc-wordmark">AI Lab<span>.</span></div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-label">AI Lab</div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-label">Sprint 3</div>
+    <div id="clock" class="topbar-clock">09:00 AM</div>
+    <div class="topbar-badge active"><span class="tb-dot"></span> AI Active</div>
+    <div class="topbar-badge">20 Online</div>
+</div>
+
+<div class="page-body">
+
+    <!-- PIPELINE STRIP -->
+    <div class="pipeline-strip">
+        <div class="pipeline-header-row">
+            <span class="pipeline-label-dot"></span>
+            <span class="pipeline-label">Project Pipeline</span>
+        </div>
+        <div class="pipeline-scroll-wrap">
+            <div class="pipeline-track" id="pipelineTrack"></div>
+        </div>
+    </div>
+
+    <!-- KPI BAR -->
+    <div class="kpi-bar">
+        <div class="kpi-card">
+            <div class="kpi-num">10<span>projects</span></div>
+            <div class="kpi-label">Active Projects</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-num">20<span>online</span></div>
+            <div class="kpi-label">Team Members</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-num">98.2<span>%</span></div>
+            <div class="kpi-label">Model Accuracy</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-num">0.28<span>%</span></div>
+            <div class="kpi-label">Hallucination Rate</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-num">512<span>TFLOPS</span></div>
+            <div class="kpi-label">GPU Cluster</div>
+        </div>
+    </div>
+
+    <!-- OFFICE AREA -->
+    <div class="office-area">
+        <div class="section-header">
+            <span class="section-title">Team Floor</span>
+            <span class="section-line"></span>
+        </div>
+
+        <div class="zones-grid">
+
+            <!-- Zone 1: Leadership -->
+            <div class="zone">
+                <div class="zone-title">👔 Leadership</div>
+                <div class="desk-grid">
+                    <div class="desk-card online" onclick="showAgent('cto')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-cto">Reviewing AI strategy...</div>
+                        <div class="dc-avatar" style="background:#A100FF">👨‍💼<div class="dc-status online"></div></div>
+                        <div class="dc-name">CTO</div>
+                        <div class="dc-role">Chief Technology Officer</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('aiprincipal')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-aiprincipal">Planning AI roadmap...</div>
+                        <div class="dc-avatar" style="background:#7a00c2">👩‍💼<div class="dc-status online"></div></div>
+                        <div class="dc-name">AI Principal</div>
+                        <div class="dc-role">AI首席专家</div>
+                    </div>
+                    <div class="desk-card busy" onclick="showAgent('pm')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-pm">Updating sprint plan...</div>
+                        <div class="dc-avatar" style="background:#4ecdc4">🧑‍💼<div class="dc-status busy"></div></div>
+                        <div class="dc-name">Project Mgr</div>
+                        <div class="dc-role">项目经理</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('req')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-req">Gathering requirements...</div>
+                        <div class="dc-avatar" style="background:#fbbf24">🔍<div class="dc-status online"></div></div>
+                        <div class="dc-name">Req Analyst</div>
+                        <div class="dc-role">需求分析师</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 2: AI Engineering -->
+            <div class="zone">
+                <div class="zone-title">🤖 AI Engineering</div>
+                <div class="desk-grid">
+                    <div class="desk-card busy" onclick="showAgent('aiengineer1')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-aiengineer1">Training LLM model...</div>
+                        <div class="dc-avatar" style="background:#a78bfa">🤖<div class="dc-status busy"></div></div>
+                        <div class="dc-name">AI Engineer I</div>
+                        <div class="dc-role">AI工程师</div>
+                    </div>
+                    <div class="desk-card busy" onclick="showAgent('aiengineer2')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-aiengineer2">Building RAG pipeline...</div>
+                        <div class="dc-avatar" style="background:#8b5cf6">⚡<div class="dc-status busy"></div></div>
+                        <div class="dc-name">AI Engineer II</div>
+                        <div class="dc-role">AI工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('datascientist')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-datascientist">Analyzing model metrics...</div>
+                        <div class="dc-avatar" style="background:#fb923c">📊<div class="dc-status online"></div></div>
+                        <div class="dc-name">Data Scientist</div>
+                        <div class="dc-role">数据科学家</div>
+                    </div>
+                    <div class="desk-card busy" onclick="showAgent('mlengineer')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-mlengineer">Tuning hyperparams...</div>
+                        <div class="dc-avatar" style="background:#A100FF">🧠<div class="dc-status busy"></div></div>
+                        <div class="dc-name">ML Engineer</div>
+                        <div class="dc-role">机器学习工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('prompteng')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-prompteng">Optimizing prompts...</div>
+                        <div class="dc-avatar" style="background:#a78bfa">✍️<div class="dc-status online"></div></div>
+                        <div class="dc-name">Prompt Engineer</div>
+                        <div class="dc-role">提示词工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('dataengineer')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-dataengineer">Building data pipeline...</div>
+                        <div class="dc-avatar" style="background:#fb923c">🗄️<div class="dc-status online"></div></div>
+                        <div class="dc-name">Data Engineer</div>
+                        <div class="dc-role">数据工程师</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 3: App Development -->
+            <div class="zone">
+                <div class="zone-title">💻 App Development</div>
+                <div class="desk-grid">
+                    <div class="desk-card busy" onclick="showAgent('frontend')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-frontend">Building AI chat UI...</div>
+                        <div class="dc-avatar" style="background:#60a5fa">💻<div class="dc-status busy"></div></div>
+                        <div class="dc-name">Frontend Dev</div>
+                        <div class="dc-role">前端开发工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('backend')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-backend">Coding AI API gateway...</div>
+                        <div class="dc-avatar" style="background:#34d399">⚙️<div class="dc-status online"></div></div>
+                        <div class="dc-name">Backend Dev</div>
+                        <div class="dc-role">后端开发工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('designer')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-designer">Designing AI UI/UX...</div>
+                        <div class="dc-avatar" style="background:#f472b6">🎨<div class="dc-status online"></div></div>
+                        <div class="dc-name">UI Designer</div>
+                        <div class="dc-role">AI产品设计师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('fullstack')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-fullstack">Integrating APIs...</div>
+                        <div class="dc-avatar" style="background:#60a5fa">🔧<div class="dc-status online"></div></div>
+                        <div class="dc-name">Fullstack Dev</div>
+                        <div class="dc-role">全栈开发工程师</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 4: Quality & Ops -->
+            <div class="zone">
+                <div class="zone-title">🛡️ Quality & Ops</div>
+                <div class="desk-grid">
+                    <div class="desk-card online" onclick="showAgent('aiquality')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-aiquality">Evaluating AI outputs...</div>
+                        <div class="dc-avatar" style="background:#f87171">🧪<div class="dc-status online"></div></div>
+                        <div class="dc-name">AI Quality</div>
+                        <div class="dc-role">AI质量工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('aisec')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-aisec">Auditing AI safety...</div>
+                        <div class="dc-avatar" style="background:#6b7280">🔒<div class="dc-status online"></div></div>
+                        <div class="dc-name">AI Security</div>
+                        <div class="dc-role">AI安全工程师</div>
+                    </div>
+                    <div class="desk-card busy" onclick="showAgent('mlops')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-mlops">Deploying to prod...</div>
+                        <div class="dc-avatar" style="background:#2dd4bf">🚀<div class="dc-status busy"></div></div>
+                        <div class="dc-name">MLOps</div>
+                        <div class="dc-role">MLOps工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('devops')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-devops">CI/CD pipeline running...</div>
+                        <div class="dc-avatar" style="background:#4b5563">⚙️<div class="dc-status online"></div></div>
+                        <div class="dc-name">DevOps</div>
+                        <div class="dc-role">DevOps工程师</div>
+                    </div>
+                    <div class="desk-card online" onclick="showAgent('govai')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-govai">Checking AI ethics...</div>
+                        <div class="dc-avatar" style="background:#6b7280">⚖️<div class="dc-status online"></div></div>
+                        <div class="dc-name">AI Governance</div>
+                        <div class="dc-role">AI治理专家</div>
+                    </div>
+                    <div class="desk-card busy" onclick="showAgent('dispatcher')">
+                        <div class="dc-monitor"><div class="dc-screen"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div></div>
+                        <div class="dc-bubble" id="bubble-dispatcher">Orchestrating agents...</div>
+                        <div class="dc-avatar" style="background:#1e3a5f">🎛️<div class="dc-status busy"></div></div>
+                        <div class="dc-name">Dispatcher</div>
+                        <div class="dc-role">智能调度主控</div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- zones-grid -->
+    </div><!-- office-area -->
+</div><!-- page-body -->
+
+<!-- RIGHT SIDEBAR -->
+<div class="right-sidebar">
+    <div class="sidebar-tabs">
+        <button class="stab active" onclick="switchTab('files',this)">📁 Files</button>
+        <button class="stab" onclick="switchTab('timeline',this)">💬 Chat</button>
+        <button class="stab" onclick="switchTab('todo',this)">✅ Todo</button>
+    </div>
+    <div class="sidebar-body">
+
+        <!-- FILES PANEL -->
+        <div class="sidebar-panel active" id="panel-files">
+            <div class="file-section">
+                <div class="file-folder open" onclick="toggleFolder(this)">📁 需求文档 <span class="ff-arrow">▶</span></div>
+                <div class="file-list open">
+                    <div class="file-item">📄 BRD-零售AI助手-v2.docx<span class="fi-size">48KB</span></div>
+                    <div class="file-item">📄 SRS-智能推荐引擎-v3.pdf<span class="fi-size">112KB</span></div>
+                    <div class="file-item">📋 用户故事地图-Sprint3.xlsx<span class="fi-size">36KB</span></div>
+                    <div class="file-item">🔍 竞品分析报告-2026Q1.pptx<span class="fi-size">2.1MB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder open" onclick="toggleFolder(this)">📁 AI模型 <span class="ff-arrow">▶</span></div>
+                <div class="file-list open">
+                    <div class="file-item">🧠 llm-retail-finetuned-v4.pt<span class="fi-size">14GB</span></div>
+                    <div class="file-item">📊 eval-report-2026-03.json<span class="fi-size">256KB</span></div>
+                    <div class="file-item">✍️ prompt-library-v8.yaml<span class="fi-size">22KB</span></div>
+                    <div class="file-item">🗄️ vector-store-prod.db<span class="fi-size">8.4GB</span></div>
+                    <div class="file-item">📈 training-metrics-run42.csv<span class="fi-size">890KB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder" onclick="toggleFolder(this)">📁 设计资产 <span class="ff-arrow">▶</span></div>
+                <div class="file-list">
+                    <div class="file-item">🎨 AI-Chat-UI-Figma-v5.fig<span class="fi-size">18MB</span></div>
+                    <div class="file-item">🖼️ design-system-tokens.json<span class="fi-size">14KB</span></div>
+                    <div class="file-item">📐 wireframes-v3-final.pdf<span class="fi-size">5.2MB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder" onclick="toggleFolder(this)">📁 代码仓库 <span class="ff-arrow">▶</span></div>
+                <div class="file-list">
+                    <div class="file-item">⚙️ ai-gateway-api-v2.3.zip<span class="fi-size">4.1MB</span></div>
+                    <div class="file-item">💻 frontend-chat-sdk.tar.gz<span class="fi-size">12MB</span></div>
+                    <div class="file-item">🚀 k8s-manifests-prod.yaml<span class="fi-size">38KB</span></div>
+                    <div class="file-item">🔒 security-audit-report.pdf<span class="fi-size">720KB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder" onclick="toggleFolder(this)">📁 交付报告 <span class="ff-arrow">▶</span></div>
+                <div class="file-list">
+                    <div class="file-item">📑 Sprint3-Review-Slides.pptx<span class="fi-size">6.8MB</span></div>
+                    <div class="file-item">📊 KPI-Dashboard-Mar2026.xlsx<span class="fi-size">340KB</span></div>
+                    <div class="file-item">✅ UAT-Signoff-TechCorp.pdf<span class="fi-size">180KB</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMELINE PANEL -->
+        <div class="sidebar-panel" id="panel-timeline">
+            <div id="timelineList"></div>
+        </div>
+
+        <!-- TODO PANEL -->
+        <div class="sidebar-panel" id="panel-todo">
+            <div class="todo-add">
+                <input type="text" id="todoInput" placeholder="Add task..." onkeydown="if(event.key==='Enter')addTodo()">
+                <button onclick="addTodo()">+</button>
+            </div>
+            <div class="todo-section-title">🔥 High Priority</div>
+            <div id="todoHigh"></div>
+            <div class="todo-section-title">📌 In Progress</div>
+            <div id="todoMid"></div>
+            <div class="todo-section-title">📋 Backlog</div>
+            <div id="todoLow"></div>
+            <div class="todo-section-title">✅ Done</div>
+            <div id="todoDone"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="agentModal" onclick="closeModal(event)">
+    <div class="agent-modal" onclick="event.stopPropagation()">
+        <div class="modal-topbar">
+            <div class="modal-avatar-wrap" id="modalAvatar">🤖</div>
+            <div class="modal-info-top">
+                <h3 id="modalName">AI Engineer</h3>
+                <div class="modal-role" id="modalRole">AI Lab</div>
+            </div>
+        </div>
+        <div class="modal-body">
+            <p id="modalDesc"></p>
+            <div class="modal-skills" id="modalSkills"></div>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// AGENT DATA
+// ============================================================
+const AGENTS = {
+    cto:          { name:'CTO', role:'首席技术官', avatar:'👨‍💼', desc:'统筹AI Lab技术战略，负责AI技术架构设计、技术选型决策与AI创新方向制定，确保AI解决方案的可扩展性与商业落地。', skills:['AI战略规划','技术架构','代码审查','风险管控','团队领导'] },
+    aiprincipal:  { name:'AI Principal', role:'AI首席专家', avatar:'👩‍💼', desc:'AI领域深度专家，负责制定AI技术路线、推动大模型与生成式AI在企业场景中的落地，主导与客户的AI解决方案交付。', skills:['LLM调优','生成式AI','方案设计','客户交付','AI路线图'] },
+    pm:           { name:'Project Manager', role:'项目经理', avatar:'🧑‍💼', desc:'负责AI项目全生命周期管理，制定迭代计划、分配任务、跟踪进度、协调多团队资源，确保AI项目按期高质交付。', skills:['Agile/Scrum','项目规划','资源协调','风险管理','进度跟踪'] },
+    req:          { name:'Req Analyst', role:'需求分析师', avatar:'🔍', desc:'深入挖掘业务需求，将客户业务场景转化为AI可执行的技术需求，编写需求规格说明书，是AI项目成功的基石。', skills:['需求分析','用户调研','竞品分析','SRS编写','业务建模'] },
+    aiengineer1:  { name:'AI Engineer I', role:'AI工程师', avatar:'🤖', desc:'专注大语言模型微调与训练，负责基于企业私有数据的LLM定制化，搭建训练流水线，提升模型在垂直领域的表现。', skills:['LLM微调','RLHF','模型训练','PyTorch','Transformer'] },
+    aiengineer2:  { name:'AI Engineer II', role:'AI工程师', avatar:'⚡', desc:'专注RAG（检索增强生成）系统构建，设计企业知识库向量化方案，实现AI与私有知识的深度融合，打造精准AI问答系统。', skills:['RAG架构','向量数据库','LangChain','Embedding','知识图谱'] },
+    datascientist:{ name:'Data Scientist', role:'数据科学家', avatar:'📊', desc:'负责AI模型效果评估与分析，通过A/B测试、指标体系设计持续优化模型效果，输出可视化分析报告支撑决策。', skills:['模型评估','A/B测试','统计分析','Python/R','数据可视化'] },
+    mlengineer:   { name:'ML Engineer', role:'机器学习工程师', avatar:'🧠', desc:'专注机器学习模型工程化，负责超参调优、模型压缩与量化，将科学实验模型转化为高效可部署的生产级AI服务。', skills:['超参优化','模型压缩','量化加速','AutoML','MLflow'] },
+    prompteng:    { name:'Prompt Engineer', role:'提示词工程师', avatar:'✍️', desc:'专精大模型提示词设计与优化，为各业务场景制定专业的System Prompt与Few-shot示例，显著提升AI输出质量。', skills:['Prompt设计','Chain-of-Thought','Few-shot','指令调优','评估基准'] },
+    dataengineer: { name:'Data Engineer', role:'数据工程师', avatar:'🗄️', desc:'构建和维护AI训练所需的数据基础设施，负责数据采集、清洗、标注流水线建设，为AI模型持续提供高质量数据。', skills:['数据管道','ETL/ELT','Spark','数据标注','特征工程'] },
+    frontend:     { name:'Frontend Dev', role:'前端开发工程师', avatar:'💻', desc:'负责AI应用前端开发，构建流畅的AI对话界面、可视化大屏与AI工具平台，让用户体验到AI能力的直观价值。', skills:['React/Vue','AI流式渲染','Streaming UI','组件设计','性能优化'] },
+    backend:      { name:'Backend Dev', role:'后端开发工程师', avatar:'⚙️', desc:'构建AI应用服务端，开发AI API网关、会话管理、上下文存储等核心服务，保障AI系统的稳定、安全与高并发。', skills:['API Gateway','微服务','AI集成','数据库设计','高并发'] },
+    designer:     { name:'UI Designer', role:'AI产品设计师', avatar:'🎨', desc:'专注AI产品的用户体验设计，设计直观易用的AI交互界面，让用户与AI的协作过程变得自然、高效、愉悦。', skills:['UX设计','AI交互设计','Figma','用户研究','设计系统'] },
+    fullstack:    { name:'Fullstack Dev', role:'全栈开发工程师', avatar:'🔧', desc:'端到端开发能力，负责AI应用前后端集成联调，快速搭建AI原型与MVP，推动AI解决方案从概念到可用产品的落地。', skills:['全栈集成','API对接','原型开发','DevEx优化','TypeScript'] },
+    aiquality:    { name:'AI Quality', role:'AI质量工程师', avatar:'🧪', desc:'专注AI系统质量评估，设计AI输出评测框架，执行幻觉检测、偏见测试、边界case验证，保障AI产品质量达标。', skills:['AI评测框架','幻觉检测','偏见测试','自动化测试','质量报告'] },
+    aisec:        { name:'AI Security', role:'AI安全工程师', avatar:'🔒', desc:'负责AI系统安全审计，防御Prompt注入攻击、数据泄露风险，制定AI安全基线策略，确保AI应用合规上线。', skills:['AI安全审计','Prompt注入防御','数据脱敏','合规评估','威胁建模'] },
+    mlops:        { name:'MLOps', role:'MLOps工程师', avatar:'🚀', desc:'构建AI模型生产部署流水线，负责模型版本管理、A/B发布、实时监控与性能告警，确保AI服务稳定运行。', skills:['模型部署','Kubernetes','模型监控','A/B发布','版本管理'] },
+    devops:       { name:'DevOps', role:'DevOps工程师', avatar:'⚙️', desc:'维护AI研发基础设施，搭建CI/CD流水线，管理GPU计算资源、容器集群与AI开发环境，保障研发效能。', skills:['CI/CD','GPU管理','容器化','IaC','监控告警'] },
+    govai:        { name:'AI Governance', role:'AI治理专家', avatar:'⚖️', desc:'负责企业AI治理体系建设，制定AI伦理准则、使用规范与审计流程，推动AI负责任应用，满足监管合规要求。', skills:['AI伦理','合规治理','风险评估','政策制定','责任AI框架'] },
+    dispatcher:   { name:'Dispatcher', role:'智能调度主控', avatar:'🎛️', desc:'AI团队核心协调中枢，负责多Agent任务编排与调度，管理AI工作流全流程，实现从需求输入到AI产出的自动化协作闭环。', skills:['Agent编排','任务调度','工作流引擎','状态管理','异常处理'] }
+};
+
+const SPEECHES = {
+    cto:          ['Reviewing AI strategy...','Checking tech roadmap...','AI架构评审中...','Approving new AI model...'],
+    aiprincipal:  ['Planning AI roadmap...','LLM调优讨论...','Demo preparing...','Writing AI proposal...'],
+    pm:           ['Updating sprint plan...','Standup in 5min!','排期更新中...','Tracking milestones...'],
+    req:          ['Gathering requirements...','User interview today','需求梳理中...','Writing SRS...'],
+    aiengineer1:  ['Training LLM model...','Loss converging!','GPU利用率99%...','Fine-tuning in progress...'],
+    aiengineer2:  ['Building RAG pipeline...','Vector search done!','知识库更新中...','Embedding model ready...'],
+    datascientist:['Analyzing model metrics...','Precision up 3%!','数据分析中...','Building dashboard...'],
+    mlengineer:   ['Tuning hyperparams...','Best val_loss found!','量化压缩中...','AutoML job running...'],
+    prompteng:    ['Optimizing prompts...','New CoT template!','Prompt testing...','指令调优中...'],
+    dataengineer: ['Building data pipeline...','ETL job done!','数据清洗中...','Feature store ready...'],
+    frontend:     ['Building AI chat UI...','Streaming render!','前端联调中...','UI review done!'],
+    backend:      ['Coding AI API gateway...','Rate limiter added!','API测试通过...','Session store done...'],
+    designer:     ['Designing AI UI/UX...','Prototype ready!','UX走查中...','Design system updated!'],
+    fullstack:    ['Integrating APIs...','MVP demo ready!','前后端联调中...','Deploy to staging...'],
+    aiquality:    ['Evaluating AI outputs...','Hallucination 0.3%!','AI评测运行中...','Test suite passed!'],
+    aisec:        ['Auditing AI safety...','Prompt injection blocked!','安全扫描中...','Compliance report done!'],
+    mlops:        ['Deploying to prod...','Canary release done!','模型监控正常...','Rolling update ok!'],
+    devops:       ['CI/CD pipeline running...','GPU cluster healthy!','容器扩容中...','IaC apply done!'],
+    govai:        ['Checking AI ethics...','Policy review done!','AI治理审计中...','Bias report ready!'],
+    dispatcher:   ['Orchestrating agents...','Workflow step 3/7...','多Agent协同中...','Task queue 12 jobs...']
+};
+
+// Clock
+function updateClock() {
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const dh = h % 12 || 12;
+    document.getElementById('clock').textContent = `${dh}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Modal
+function showAgent(id) {
+    const a = AGENTS[id]; if (!a) return;
+    document.getElementById('modalAvatar').textContent = a.avatar;
+    document.getElementById('modalName').textContent = a.name;
+    document.getElementById('modalRole').textContent = a.role;
+    document.getElementById('modalDesc').textContent = a.desc;
+    document.getElementById('modalSkills').innerHTML = a.skills.map(s => `<span class="modal-skill">${s}</span>`).join('');
+    document.getElementById('agentModal').classList.add('active');
+}
+
+function closeModal(e) {
+    if (!e || e.target.id === 'agentModal') {
+        document.getElementById('agentModal').classList.remove('active');
+    }
+}
+
+// Auto rotating bubbles
+const agentIds = Object.keys(AGENTS);
+let bubbleIdx = 0;
+
+function rotateBubble() {
+    agentIds.forEach(id => {
+        const el = document.getElementById('bubble-' + id);
+        if (el) el.classList.remove('active');
+    });
+    const id = agentIds[bubbleIdx % agentIds.length];
+    const el = document.getElementById('bubble-' + id);
+    if (el) {
+        const pool = SPEECHES[id];
+        el.textContent = pool[Math.floor(Math.random() * pool.length)];
+        el.classList.add('active');
+    }
+    bubbleIdx++;
+}
+
+rotateBubble();
+setInterval(rotateBubble, 2800);
+
+// ============================================================
+// PIPELINE
+// ============================================================
+const PIPELINE_CARDS = [
+    { client:'TechCorp 零售', title:'AI智能推荐引擎 v2', tags:['in-progress'], assignees:['CTO','AI1','FE'], progress:72, cls:'status-progress' },
+    { client:'国泰银行', title:'风控大模型微调', tags:['review'], assignees:['AI2','ML','DA'], progress:88, cls:'status-review' },
+    { client:'健康云平台', title:'医疗知识库 RAG 系统', tags:['in-progress'], assignees:['AI1','DE','BE'], progress:45, cls:'status-progress' },
+    { client:'AutoDrive 出行', title:'驾驶行为 AI 分析', tags:['blocked'], assignees:['DS','ML'], progress:30, cls:'status-blocked' },
+    { client:'速达物流', title:'智能调度优化系统', tags:['done'], assignees:['PM','BE','OPS'], progress:100, cls:'status-done' },
+    { client:'学思教育', title:'AI个性化学习推荐', tags:['in-progress'], assignees:['PE','FE','QA'], progress:58, cls:'status-progress' },
+    { client:'先进制造集团', title:'工业质检视觉 AI', tags:['review'], assignees:['AI2','DS'], progress:91, cls:'status-review' },
+    { client:'全球外贸平台', title:'多语言 AI 客服系统', tags:['in-progress'], assignees:['AI1','BE','SEC'], progress:63, cls:'status-progress' },
+    { client:'明康药业', title:'药物分子生成模型', tags:['in-progress'], assignees:['ML','DS'], progress:25, cls:'status-progress' },
+    { client:'合规治理项目', title:'AI伦理评估框架', tags:['review'], assignees:['GOV','SEC'], progress:80, cls:'status-review' },
+];
+
+const TAG_MAP = { 'in-progress':'In Progress','review':'Review','done':'Done','blocked':'Blocked' };
+const AC_COLORS = ['#A100FF','#4ecdc4','#fb923c','#60a5fa','#f472b6','#34d399','#fbbf24','#f87171','#a78bfa','#2dd4bf'];
+
+function renderPipeline() {
+    const track = document.getElementById('pipelineTrack');
+    const makeCards = () => PIPELINE_CARDS.map((c, i) => `
+        <div class="pipeline-card ${c.cls}">
+            <div class="pc-client">${c.client}</div>
+            <div class="pc-title">${c.title}</div>
+            <div class="pc-tags">${c.tags.map(t=>`<span class="pc-tag ${t}">${TAG_MAP[t]||t}</span>`).join('')}</div>
+            <div class="pc-assignees">${c.assignees.map((a,j)=>`<div class="pc-avatar" style="background:${AC_COLORS[(i+j)%AC_COLORS.length]}">${a.substring(0,2)}</div>`).join('')}</div>
+            <div class="pc-progress"><div class="pc-progress-bar" style="width:${c.progress}%"></div></div>
+        </div>
+    `).join('');
+    track.innerHTML = makeCards() + makeCards();
+}
+
+renderPipeline();
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function switchTab(name, btn) {
+    document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+function toggleFolder(el) {
+    el.classList.toggle('open');
+    const list = el.nextElementSibling;
+    if (list) list.classList.toggle('open');
+}
+
+// Timeline
+const TL_DATA = [
+    { who:'CTO', emoji:'👨‍💼', color:'purple', time:'09:02', msg:'本周Sprint 3正式启动，重点攻坚TechCorp推荐引擎v2，请各团队今日同步进展。' },
+    { who:'AI Principal', emoji:'👩‍💼', color:'purple', time:'09:15', msg:'国泰银行风控模型已进入最终review阶段，准入精度达到98.2%，等待客户确认。' },
+    { who:'ML Engineer', emoji:'🧠', color:'orange', time:'09:28', msg:'run-42量化压缩完成！模型体积从14GB降至3.2GB，推理速度提升4.1x。' },
+    { who:'AI Engineer I', emoji:'🤖', color:'purple', time:'09:45', msg:'健康云RAG系统知识库更新完毕，新增医学文献2.3万篇，检索精度↑6%。' },
+    { who:'PM', emoji:'🧑‍💼', color:'gray', time:'10:00', msg:'Standup提醒：AutoDrive项目数据源问题升级为阻塞，需CTO介入协调。' },
+    { who:'Data Scientist', emoji:'📊', color:'green', time:'10:18', msg:'TechCorp推荐引擎A/B测试：CTR+12.3%, 转化率+8.7%，超出KPI！' },
+    { who:'Frontend Dev', emoji:'💻', color:'green', time:'10:35', msg:'AI Chat UI v5流式渲染优化，TTFB从1.2s降至280ms，推送staging。' },
+    { who:'AI Security', emoji:'🔒', color:'orange', time:'10:52', msg:'健康云安全审计发现1个中风险Prompt注入漏洞，已生成修复方案。' },
+    { who:'MLOps', emoji:'🚀', color:'green', time:'11:10', msg:'速达物流调度系统金丝雀发布完成，流量切换100%，项目交付！' },
+    { who:'Dispatcher', emoji:'🎛️', color:'purple', time:'11:45', msg:'多Agent任务队列12个jobs，优先级最高的国泰银行部署预计13:00完成。' },
+];
+
+function renderTimeline() {
+    const list = document.getElementById('timelineList');
+    list.innerHTML = TL_DATA.map(e => `
+        <div class="timeline-entry">
+            <div class="tl-dot ${e.color}">${e.emoji}</div>
+            <div class="tl-content">
+                <div class="tl-time">${e.time}</div>
+                <div class="tl-who">${e.who}</div>
+                <div class="tl-msg">${e.msg}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+renderTimeline();
+
+const AUTO_TL = [
+    { who:'Prompt Engineer', emoji:'✍️', color:'purple', msg:'Prompt库新增12条few-shot模板，推理准确率+4.2%，已同步知识库。' },
+    { who:'QA Engineer', emoji:'🧪', color:'green', msg:'Frontend Chat SDK自动化测试全部通过（覆盖率91%），幻觉率0.28%。' },
+    { who:'DevOps', emoji:'⚙️', color:'orange', msg:'GPU集群扩容完成：新增8x A100节点，总算力达512 TFLOPS。' },
+    { who:'Backend Dev', emoji:'⚙️', color:'green', msg:'AI安全漏洞已修复，Prompt注入防护规则升级v3，通过安全复测。' },
+    { who:'CTO', emoji:'👨‍💼', color:'purple', msg:'AutoDrive数据权限达成协议，数据脱敏方案确认，项目解除阻塞。' },
+];
+let autoTlIdx = 0;
+
+setInterval(() => {
+    const now = new Date();
+    const t = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const entry = AUTO_TL[autoTlIdx++ % AUTO_TL.length];
+    TL_DATA.push({ ...entry, time: t });
+    if (TL_DATA.length > 30) TL_DATA.shift();
+    renderTimeline();
+    const panel = document.getElementById('panel-timeline');
+    if (panel) panel.scrollTop = panel.scrollHeight;
+}, 15000);
+
+// TODO
+const TODOS = [
+    { id:1, text:'完成国泰银行风控模型最终review', pri:'high', done:false },
+    { id:2, text:'修复AI安全Prompt注入漏洞', pri:'high', done:false },
+    { id:3, text:'TechCorp推荐引擎v2上线准备', pri:'high', done:false },
+    { id:4, text:'健康云RAG系统性能测试', pri:'mid', done:false },
+    { id:5, text:'全球外贸多语言模型联调', pri:'mid', done:false },
+    { id:6, text:'明康药业GPU资源申请', pri:'mid', done:false },
+    { id:7, text:'AutoDrive数据权限跟进', pri:'mid', done:false },
+    { id:8, text:'Sprint 3复盘PPT准备', pri:'low', done:false },
+    { id:9, text:'学思教育偏见检测报告归档', pri:'low', done:false },
+    { id:10, text:'速达物流项目结案文档', pri:'done', done:true },
+    { id:11, text:'Prompt库v7版本归档', pri:'done', done:true },
+];
+let todoNextId = 100;
+
+function renderTodos() {
+    const sections = { high:[], mid:[], low:[], done:[] };
+    TODOS.forEach(t => { sections[t.done ? 'done' : t.pri].push(t); });
+    const render = arr => arr.map(t => `
+        <div class="todo-item ${t.done?'done-item':''}" onclick="toggleTodo(${t.id})">
+            <div class="ti-check">${t.done?'✓':''}</div>
+            <div class="ti-text">${t.text}</div>
+            ${!t.done?`<span class="ti-badge ${t.pri}">${{high:'High',mid:'Mid',low:'Low'}[t.pri]}</span>`:''}
+        </div>
+    `).join('');
+    document.getElementById('todoHigh').innerHTML = render(sections.high);
+    document.getElementById('todoMid').innerHTML  = render(sections.mid);
+    document.getElementById('todoLow').innerHTML  = render(sections.low);
+    document.getElementById('todoDone').innerHTML = render(sections.done);
+}
+
+function toggleTodo(id) {
+    const t = TODOS.find(x => x.id === id);
+    if (t) { t.done = !t.done; renderTodos(); }
+}
+
+function addTodo() {
+    const inp = document.getElementById('todoInput');
+    const txt = inp.value.trim();
+    if (!txt) return;
+    TODOS.unshift({ id: todoNextId++, text: txt, pri: 'mid', done: false });
+    inp.value = '';
+    renderTodos();
+}
+
+renderTodos();
+</script>
+</body>
+</html>

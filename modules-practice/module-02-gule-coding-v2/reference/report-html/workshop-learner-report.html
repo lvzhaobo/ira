@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>埃森哲 AI Workshop 成果报告 | Accenture × Qoder</title>
+  <style>
+    :root {
+      --purple: #a100ff;
+      --purple-dark: #7800c4;
+      --black: #000000;
+      --gray-dark: #1a1a1a;
+      --gray-mid: #4a4a4a;
+      --gray-light: #f5f5f5;
+      --gray-border: #d8d8d8;
+      --white: #ffffff;
+      --page-bg: #d6d6d6;
+      --page-w: 794px;
+      --font: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --red: #c8102e;
+      --orange: #e07b39;
+      --green: #00874a;
+      --blue: #0057b7;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--page-bg);
+      color: var(--gray-dark);
+      line-height: 1.6;
+      padding: 32px 0 64px;
+    }
+
+    /* ── 工具栏 ── */
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 52px;
+      border-bottom: 2px solid var(--purple);
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 20px; }
+    .toolbar-logo { display: flex; align-items: center; gap: 10px; }
+    .toolbar-tri {
+      width: 22px; height: 22px;
+      background: var(--purple);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+    .toolbar-brand { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; }
+    .toolbar-divider { width: 1px; height: 22px; background: #333; }
+    .toolbar-doc { color: #999; font-size: 12px; }
+    .toolbar-right { display: flex; align-items: center; gap: 10px; }
+    .toolbar-btn {
+      background: rgba(255,255,255,0.08); border: 1px solid #333;
+      color: #ccc; font-size: 11px; font-weight: 600;
+      padding: 5px 14px; cursor: pointer; letter-spacing: 0.06em;
+      transition: all 0.2s;
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .toolbar-btn.primary { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .toolbar-btn.primary:hover { background: var(--purple-dark); }
+
+    /* ── 页面主体 ── */
+    .doc-pages { margin-top: 52px; }
+    .page {
+      width: var(--page-w);
+      min-height: 1123px;
+      background: var(--white);
+      margin: 24px auto;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      page-break-after: always;
+      overflow: hidden;
+    }
+
+    /* ══ 封面页 ══ */
+    .cover-page { display: flex; flex-direction: column; }
+    .cover-top-bar { background: var(--black); height: 8px; border-bottom: 3px solid var(--purple); }
+    .cover-body {
+      flex: 1; padding: 60px 64px 40px;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .cover-deco { position: absolute; right: 0; top: 0; width: 240px; height: 240px; overflow: hidden; pointer-events: none; }
+    .cover-deco::before {
+      content: '';
+      position: absolute; right: 0; top: 0;
+      border-style: solid;
+      border-width: 0 240px 240px 0;
+      border-color: transparent rgba(161,0,255,0.06) transparent transparent;
+    }
+    .cover-deco-tri { position: absolute; right: 40px; top: 40px; width: 60px; height: 60px; background: var(--purple); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); opacity: 0.9; }
+    .cover-deco-tri2 { position: absolute; right: 24px; top: 112px; width: 36px; height: 36px; background: var(--purple); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); opacity: 0.35; }
+
+    .cover-client-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--purple);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cover-client-label::before { content: ''; width: 20px; height: 2px; background: var(--purple); }
+    .cover-client-name { font-size: 13px; font-weight: 700; color: var(--gray-mid); margin-bottom: 48px; letter-spacing: 0.04em; }
+
+    .cover-title { font-size: 36px; font-weight: 900; line-height: 1.2; color: var(--black); max-width: 520px; margin-bottom: 12px; }
+    .cover-title .accent { color: var(--purple); }
+    .cover-subtitle { font-size: 15px; color: var(--gray-mid); margin-bottom: 56px; font-weight: 400; }
+    .cover-divider { width: 48px; height: 3px; background: var(--purple); margin-bottom: 40px; }
+
+    .cover-meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--gray-border); margin-bottom: auto; }
+    .cover-meta-item { padding: 20px 0 20px; border-right: 1px solid var(--gray-border); padding-right: 24px; padding-left: 0; }
+    .cover-meta-item:first-child { padding-left: 0; }
+    .cover-meta-item:last-child { border-right: none; padding-left: 24px; }
+    .cover-meta-item:nth-child(2) { padding-left: 24px; }
+    .cover-meta-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+    .cover-meta-value { font-size: 13px; font-weight: 700; color: var(--gray-dark); }
+
+    .cover-footer { padding: 28px 64px; background: var(--black); display: flex; align-items: center; justify-content: space-between; }
+    .cover-footer-logo { display: flex; align-items: center; gap: 10px; }
+    .cover-footer-tri { width: 20px; height: 20px; background: var(--purple); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+    .cover-footer-brand { color: var(--white); font-size: 14px; font-weight: 700; letter-spacing: 0.06em; }
+    .cover-footer-copy { color: #555; font-size: 11px; }
+
+    /* ══ 正文页通用 ══ */
+    .page-header {
+      height: 56px; background: var(--black);
+      padding: 0 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 3px solid var(--purple);
+    }
+    .page-header-left { display: flex; align-items: center; gap: 12px; }
+    .ph-tri { width: 16px; height: 16px; background: var(--purple); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+    .ph-brand { color: var(--white); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+    .ph-divider { width: 1px; height: 16px; background: #333; }
+    .ph-section { color: #888; font-size: 11px; letter-spacing: 0.04em; }
+    .page-header-right { color: #555; font-size: 10px; }
+
+    .page-content { padding: 44px 52px 80px; }
+
+    .page-footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px; background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px;
+      border-top: 2px solid var(--purple);
+    }
+    .pf-left { color: #555; font-size: 10px; }
+    .pf-right { color: #555; font-size: 10px; }
+    .pf-page { color: var(--purple); font-weight: 700; font-size: 11px; }
+
+    /* ══ 正文元素 ══ */
+    .section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--purple);
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .section-label::before { content: ''; width: 14px; height: 2px; background: var(--purple); }
+
+    h2.doc-h2 { font-size: 24px; font-weight: 900; color: var(--black); line-height: 1.3; margin-bottom: 6px; }
+    h2.doc-h2 .purple { color: var(--purple); }
+
+    .doc-desc { font-size: 13px; color: var(--gray-mid); line-height: 1.8; margin-bottom: 28px; max-width: 580px; }
+
+    .rule-line { width: 100%; height: 1px; background: var(--gray-border); margin: 24px 0; }
+
+    h3.doc-h3 {
+      font-size: 14px; font-weight: 900; color: var(--black);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h3.doc-h3::before { content: ''; width: 4px; height: 16px; background: var(--purple); flex-shrink: 0; }
+
+    .info-box {
+      background: var(--gray-light); border-left: 4px solid var(--purple);
+      padding: 16px 20px; margin-bottom: 20px;
+      font-size: 13px; color: var(--gray-dark); line-height: 1.8;
+    }
+    .info-box .box-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--purple); margin-bottom: 6px; }
+
+    /* 统计卡片 */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--gray-border); margin-bottom: 24px; }
+    .stat-item { padding: 20px 20px; border-right: 1px solid var(--gray-border); text-align: center; }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--purple); line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #999; }
+    .stat-sub { font-size: 11px; color: var(--gray-mid); margin-top: 4px; }
+
+    /* 表格 */
+    .doc-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+    .doc-table th {
+      background: var(--black); color: var(--white);
+      text-align: left; padding: 10px 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      border-right: 1px solid #333;
+    }
+    .doc-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--gray-border);
+      border-right: 1px solid var(--gray-border);
+      vertical-align: top; line-height: 1.6;
+    }
+    .doc-table tr:last-child td { border-bottom: none; }
+    .doc-table tr:nth-child(even) td { background: #fafafa; }
+
+    /* 优先级点 */
+    .priority-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .p-high { background: var(--red); }
+    .p-mid  { background: var(--orange); }
+    .p-low  { background: var(--green); }
+
+    /* 客户行业分组 */
+    .industry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .industry-card { border: 1px solid var(--gray-border); padding: 16px 18px; position: relative; }
+    .industry-card::before { content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: var(--purple); }
+    .ind-label { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple); margin-bottom: 5px; }
+    .ind-title { font-size: 13px; font-weight: 900; color: var(--black); margin-bottom: 6px; }
+    .ind-clients { font-size: 11px; color: var(--gray-mid); line-height: 1.7; }
+    .ind-highlight { font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gray-border); color: #666; }
+    .ind-highlight span { color: var(--purple); font-weight: 700; }
+
+    /* 方案亮点 brief-box */
+    .brief-box {
+      border: 1.5px solid var(--purple); padding: 20px 24px; margin-bottom: 20px; position: relative;
+    }
+    .brief-box::before {
+      content: attr(data-label);
+      position: absolute; top: -10px; left: 20px;
+      background: var(--white); padding: 0 8px;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--purple);
+    }
+    .brief-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+    .brief-row:last-child { margin-bottom: 0; }
+    .brief-tag { font-size: 9px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; background: var(--black); color: var(--white); flex-shrink: 0; margin-top: 2px; }
+    .brief-tag.purple { background: var(--purple); }
+    .brief-text { font-size: 13px; color: var(--gray-dark); line-height: 1.7; }
+    .brief-text strong { color: var(--black); }
+
+    /* 角色卡 */
+    .role-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .role-card { border: 1px solid var(--gray-border); padding: 18px 16px; }
+    .role-icon { font-size: 28px; margin-bottom: 8px; }
+    .role-title { font-size: 12px; font-weight: 900; color: var(--black); margin-bottom: 3px; }
+    .role-sub { font-size: 10px; color: #999; margin-bottom: 12px; }
+    .role-list { list-style: none; }
+    .role-list li { font-size: 11px; color: var(--gray-mid); padding: 3px 0; display: flex; gap: 6px; }
+    .role-list li::before { content: '›'; color: var(--purple); font-weight: 900; flex-shrink: 0; }
+    .role-card-header { background: var(--black); margin: -18px -16px 14px; padding: 10px 16px; }
+    .role-card-header-title { color: #fff; font-size: 12px; font-weight: 700; }
+    .role-card-header-sub { color: #666; font-size: 10px; margin-top: 2px; }
+
+    /* 评分卡 */
+    .score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .score-item { border: 1px solid var(--gray-border); padding: 14px 16px; position: relative; overflow: hidden; }
+    .score-item::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--purple); }
+    .score-name { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 8px; }
+    .score-val { font-size: 26px; font-weight: 900; line-height: 1; color: var(--black); }
+    .score-unit { font-size: 12px; font-weight: 400; color: #999; }
+    .score-bar-bg { height: 3px; background: #eee; margin-top: 8px; }
+    .score-bar-fill { height: 100%; background: var(--purple); }
+    .score-desc { font-size: 11px; color: #999; margin-top: 6px; line-height: 1.5; }
+
+    /* 时间轴 */
+    .timeline { margin-bottom: 24px; }
+    .tl-row { display: flex; gap: 0; align-items: flex-start; margin-bottom: 0; }
+    .tl-left { display: flex; flex-direction: column; align-items: center; width: 40px; flex-shrink: 0; }
+    .tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--purple); border: 2px solid var(--white); outline: 2px solid var(--purple); margin-top: 12px; flex-shrink: 0; }
+    .tl-dot.gray { background: #ccc; outline-color: #ccc; }
+    .tl-line { width: 2px; flex: 1; background: #e0e0e0; min-height: 20px; }
+    .tl-row:last-child .tl-line { display: none; }
+    .tl-card { flex: 1; margin: 4px 0 4px 12px; border: 1px solid var(--gray-border); padding: 12px 16px; }
+    .tl-phase { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
+    .tl-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .tl-desc { font-size: 12px; color: var(--gray-mid); line-height: 1.7; }
+
+    /* 行动清单 */
+    .checklist { margin-bottom: 24px; }
+    .cl-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--gray-border); align-items: flex-start; }
+    .cl-item:last-child { border-bottom: none; }
+    .cl-num { width: 28px; height: 28px; background: var(--black); color: #fff; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .cl-num.done { background: var(--purple); }
+    .cl-body { flex: 1; }
+    .cl-title { font-size: 13px; font-weight: 700; color: var(--black); margin-bottom: 3px; }
+    .cl-desc { font-size: 12px; color: var(--gray-mid); line-height: 1.7; }
+    .cl-tag { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; letter-spacing: 0.05em; margin-left: 8px; }
+    .cl-tag-must { background: var(--purple); color: #fff; }
+    .cl-tag-rec  { background: var(--gray-light); color: var(--gray-mid); border: 1px solid var(--gray-border); }
+
+    /* Lab体系展示 */
+    .lab-row { display: grid; grid-template-columns: 80px 1fr 1fr 1fr; gap: 0; border: 1px solid var(--gray-border); margin-bottom: 8px; }
+    .lab-id-cell { background: var(--black); color: var(--purple); font-weight: 900; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .lab-name { padding: 10px 12px; border-right: 1px solid var(--gray-border); font-weight: 700; font-size: 12px; }
+    .lab-desc { padding: 10px 12px; border-right: 1px solid var(--gray-border); font-size: 11px; color: var(--gray-mid); }
+    .lab-clients { padding: 10px 12px; font-size: 11px; color: #999; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar { display: none; }
+      .doc-pages { margin-top: 0; }
+      .page { margin: 0; box-shadow: none; page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 工具栏 ── -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="toolbar-logo">
+      <div class="toolbar-tri"></div>
+      <span class="toolbar-brand">Accenture</span>
+    </div>
+    <div class="toolbar-divider"></div>
+    <span class="toolbar-doc">AI Workshop 成果报告 · 50 位学员 · 2026 年 3 月</span>
+  </div>
+  <div class="toolbar-right">
+    <button class="toolbar-btn" onclick="window.print()">⎙ 打印 / 导出 PDF</button>
+    <button class="toolbar-btn primary">分享给学员</button>
+  </div>
+</div>
+
+<div class="doc-pages">
+
+<!-- ══ PAGE 1：封面 ══ -->
+<div class="page cover-page">
+  <div class="cover-top-bar"></div>
+  <div class="cover-body">
+    <div class="cover-deco">
+      <div class="cover-deco-tri"></div>
+      <div class="cover-deco-tri2"></div>
+    </div>
+
+    <div class="cover-client-label">Internal Learning · Accenture AI Team</div>
+    <div class="cover-client-name">埃森哲 AI 团队 · 50 位学员 · 2026 年 3 月</div>
+
+    <div class="cover-title">
+      AI Workshop 学习成果<br>
+      <span class="accent">总结与进阶路线图</span>
+    </div>
+    <div class="cover-subtitle">Workshop Outcomes &amp; Learning Roadmap · Powered by Qoder AI Coding</div>
+
+    <div class="cover-divider"></div>
+
+    <div style="font-size:13px;color:var(--gray-mid);line-height:1.9;max-width:500px;margin-bottom:48px;">
+      本报告总结了埃森哲 AI 团队 <strong style="color:var(--black);">50 位学员</strong>
+      在 AI Workshop 中的学习成果，覆盖
+      <strong style="color:var(--black);">17 个真实客户案例</strong>、
+      <strong style="color:var(--black);">6 类交付实验（Lab-A1 至 A6）</strong>、
+      以及 <strong style="color:var(--black);">Qoder AI Coding 工具链</strong>的完整实践路径。
+      面向所有参训学员提供角色专属的后续学习建议与 3 个月落地路线图。
+    </div>
+
+    <div class="cover-meta-grid">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">报告版本</div>
+        <div class="cover-meta-value">v1.0 · 2026-03-07</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">参训规模</div>
+        <div class="cover-meta-value">50 位学员 · 线下</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">覆盖客户</div>
+        <div class="cover-meta-value">17 个 · 全球多行业</div>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--gray-border);">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:10px;">报告结构</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+        <div style="text-align:center;padding:12px 8px;border:1px solid var(--gray-border);">
+          <div style="font-size:18px;font-weight:900;color:var(--purple);">2</div>
+          <div style="font-size:10px;color:#999;margin-top:2px;">成果总览</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px;border:1px solid var(--gray-border);">
+          <div style="font-size:18px;font-weight:900;color:var(--purple);">3</div>
+          <div style="font-size:10px;color:#999;margin-top:2px;">客户案例</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px;border:1px solid var(--gray-border);">
+          <div style="font-size:18px;font-weight:900;color:var(--purple);">4</div>
+          <div style="font-size:10px;color:#999;margin-top:2px;">角色路径</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px;border:1px solid var(--gray-border);">
+          <div style="font-size:18px;font-weight:900;color:var(--purple);">5</div>
+          <div style="font-size:10px;color:#999;margin-top:2px;">进阶路线图</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px;border:1px solid var(--gray-border);">
+          <div style="font-size:18px;font-weight:900;color:var(--purple);">6</div>
+          <div style="font-size:10px;color:#999;margin-top:2px;">行动清单</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-logo">
+      <div class="cover-footer-tri"></div>
+      <span class="cover-footer-brand">Accenture</span>
+    </div>
+    <div class="cover-footer-copy">© 2026 Accenture. 本报告仅供埃森哲 AI 团队内部学员使用。</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 2：Workshop 成果总览 ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">Workshop 成果总览 · Outcomes Overview</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Outcomes Overview</div>
+    <h2 class="doc-h2">Workshop 成果：<span class="purple">一张纸看清你学到了什么</span></h2>
+    <p class="doc-desc">
+      本次 AI Workshop 以真实客户交付场景为核心，带领 50 位埃森哲学员完整体验了
+      从技术尽调（Lab-A1）到深化交付（Lab-A6）的 Qoder AI Coding 全链路能力。
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat-item">
+        <div class="stat-num">17</div>
+        <div class="stat-label">客户案例</div>
+        <div class="stat-sub">航空·金融·零售·制药·能源·政务</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">41</div>
+        <div class="stat-label">交付页面</div>
+        <div class="stat-sub">Lab-A1 至 A6 全覆盖</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6</div>
+        <div class="stat-label">实验类型</div>
+        <div class="stat-sub">技术尽调到深化方案</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">50</div>
+        <div class="stat-label">学员参训</div>
+        <div class="stat-sub">3 类核心角色</div>
+      </div>
+    </div>
+
+    <h3 class="doc-h3">六类实验（Lab 体系）说明</h3>
+    <div class="lab-row">
+      <div class="lab-id-cell">A1</div>
+      <div class="lab-name">技术尽调<br><span style="font-weight:400;font-size:10px;color:#999;">Due Diligence</span></div>
+      <div class="lab-desc">用 Qoder RepoWiki + AI Agent 在 24 小时内完成客户遗留系统六维体检，输出技术评估报告</div>
+      <div class="lab-clients">空客中国 · SDAIA · NatWest · 沃达丰</div>
+    </div>
+    <div class="lab-row">
+      <div class="lab-id-cell">A2</div>
+      <div class="lab-name">需求分析<br><span style="font-weight:400;font-size:10px;color:#999;">PRD Generation</span></div>
+      <div class="lab-desc">Plan 模式拆解业务需求，生成 GWT 验收条件、PRD 规格文档，Qoder Rules 注入合规约束</div>
+      <div class="lab-clients">卡塔尔航空 · NatWest · Repsol · AirFrance</div>
+    </div>
+    <div class="lab-row">
+      <div class="lab-id-cell">A3</div>
+      <div class="lab-name">编码演示<br><span style="font-weight:400;font-size:10px;color:#999;">Coding Demo</span></div>
+      <div class="lab-desc">现场演示 Qoder 驱动业务代码生成，展示 Rules 约束下的合规代码输出与 AI Code Review</div>
+      <div class="lab-clients">BestBuy · 百时美施贵宝 · 诺华</div>
+    </div>
+    <div class="lab-row">
+      <div class="lab-id-cell">A4</div>
+      <div class="lab-name">高管汇报<br><span style="font-weight:400;font-size:10px;color:#999;">Executive Report</span></div>
+      <div class="lab-desc">AI 生成可打印 Word 风格高管报告，呈现 AI 价值、ROI 测算与改造路线图</div>
+      <div class="lab-clients">卡塔尔航空 · BBVA · Fortune Media</div>
+    </div>
+    <div class="lab-row">
+      <div class="lab-id-cell">A5</div>
+      <div class="lab-name">快速学习<br><span style="font-weight:400;font-size:10px;color:#999;">Rapid Learning</span></div>
+      <div class="lab-desc">用 Qoder 快速上手陌生技术栈（NL2SQL / 合规框架），驱动跨领域知识迁移</div>
+      <div class="lab-clients">卡塔尔航空 · Fortune · Arolsen</div>
+    </div>
+    <div class="lab-row" style="margin-bottom:20px;">
+      <div class="lab-id-cell">A6</div>
+      <div class="lab-name">深化交付<br><span style="font-weight:400;font-size:10px;color:#999;">Next Engagement</span></div>
+      <div class="lab-desc">Workshop 后的深化实施方案与下一步建议，包含二期立项、团队能力建设路径</div>
+      <div class="lab-clients">Noli · SDAIA · 沃达丰 · 卡塔尔 · 17 客户全覆盖</div>
+    </div>
+
+    <div class="rule-line"></div>
+
+    <h3 class="doc-h3">Qoder 工具链在 Workshop 中的应用</h3>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>Qoder 功能</th>
+          <th>在 Workshop 中的应用场景</th>
+          <th width="120">对应 Lab</th>
+          <th width="80">效率提升</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;">RepoWiki 全量扫描</td>
+          <td>遗留系统代码全量分析，自动生成架构图、依赖图、技术栈清单</td>
+          <td>Lab-A1</td>
+          <td style="color:var(--purple);font-weight:700;">97%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Plan 模式 + Rules</td>
+          <td>需求拆解 → GWT 生成 → 合规约束注入 → PRD 规格输出</td>
+          <td>Lab-A2</td>
+          <td style="color:var(--purple);font-weight:700;">60%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">AI Agent 编排</td>
+          <td>多角色协同评审（开发/合规/UX），深度代码生成与重构</td>
+          <td>Lab-A3</td>
+          <td style="color:var(--purple);font-weight:700;">40%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">SKILL 封装</td>
+          <td>将行业合规规则、客户命名规范封装为可复用的 SKILL 模板</td>
+          <td>Lab-A2 / A6</td>
+          <td style="color:var(--purple);font-weight:700;">持续复用</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <div class="box-label">Workshop 核心洞察</div>
+      本次 Workshop 最核心的学习是：<strong>Qoder 不是代码补全工具，而是咨询顾问的"AI 副驾驶"</strong>——
+      从客户现场的技术尽调（A1），到需求分析输出 PRD（A2），再到代码生成与交付（A3/A6），
+      Qoder 贯穿埃森哲客户交付的全链路。学会用 <strong>Rules 注入业务约束</strong>，
+      是区分"会用 AI"和"能交付"的关键分水岭。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">2</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 3：客户案例全景图 ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">客户案例全景图 · Client Case Panorama</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Client Case Panorama</div>
+    <h2 class="doc-h2">17 个客户案例：<span class="purple">行业分布与方案亮点</span></h2>
+    <p class="doc-desc">
+      Workshop 覆盖航空、金融、零售、制药、能源、政务、媒体等 7 大行业，
+      每个客户都针对真实业务场景设计了 Qoder AI Coding 解决方案，
+      演示了合规驱动开发（Rules + SKILL）如何在不同行业落地。
+    </p>
+
+    <div class="industry-grid">
+      <div class="industry-card" style="border-left-color:#C8102E;">
+        <div class="ind-label" style="color:#C8102E;">航空 · Aviation</div>
+        <div class="ind-title">卡塔尔航空 · AirFrance KLM</div>
+        <div class="ind-clients">
+          卡塔尔航空（Lab-A2/A4/A5/A6）<br>
+          法国航空荷兰皇家（Lab-A2/A6）
+        </div>
+        <div class="ind-highlight">核心方案亮点：<span>EU EC 261/2004 自动赔付合规引擎</span>，Qoder Rules 注入航空延误赔偿逻辑，代码直接满足 GDPR Art.9 + IATA 双重约束</div>
+      </div>
+
+      <div class="industry-card" style="border-left-color:#0057b7;">
+        <div class="ind-label" style="color:#0057b7;">金融 · Financial Services</div>
+        <div class="ind-title">NatWest · BBVA</div>
+        <div class="ind-clients">
+          NatWest 英国银行（Lab-A2/A6）<br>
+          BBVA 西班牙银行（Lab-A1/A5/A6）
+        </div>
+        <div class="ind-highlight">核心方案亮点：<span>FCA Consumer Duty 2023 合规自动化</span>，AI 客服系统规则注入，MiFID II 交易合规检查，ROI 量化看板设计</div>
+      </div>
+
+      <div class="industry-card" style="border-left-color:#e67e22;">
+        <div class="ind-label" style="color:#e67e22;">零售 · Retail</div>
+        <div class="ind-title">BestBuy · Bricorama · Noli</div>
+        <div class="ind-clients">
+          百思买美国（Lab-A3）<br>
+          百适来法国（Lab-A1/A2/A5）<br>
+          Noli 美妆（Lab-A6）
+        </div>
+        <div class="ind-highlight">核心方案亮点：<span>商品推荐引擎 AI 改造</span>，BestBuy 个性化推荐代码 Qoder 生成演示，Bricorama DIY 产品 NL2SQL 搜索</div>
+      </div>
+
+      <div class="industry-card" style="border-left-color:#00874a;">
+        <div class="ind-label" style="color:#00874a;">制药 · Pharma &amp; Life Sciences</div>
+        <div class="ind-title">百时美施贵宝 · 诺华</div>
+        <div class="ind-clients">
+          Bristol-Myers Squibb（Lab-A3/A6）<br>
+          诺华制药（Lab-A1）
+        </div>
+        <div class="ind-highlight">核心方案亮点：<span>FDA 21 CFR Part 11 合规代码生成</span>，电子记录/电子签名约束注入 Rules，临床试验数据处理 AI 辅助</div>
+      </div>
+
+      <div class="industry-card" style="border-left-color:#f39c12;">
+        <div class="ind-label" style="color:#b8860b;">能源 · Energy</div>
+        <div class="ind-title">Repsol 西班牙能源</div>
+        <div class="ind-clients">
+          Repsol（Lab-A1/A2）
+        </div>
+        <div class="ind-highlight">核心方案亮点：<span>IEC 62443 工控安全合规约束</span>，Qoder 驱动能源调度系统需求分析，AI 辅助 SCADA 系统技术尽调</div>
+      </div>
+
+      <div class="industry-card" style="border-left-color:#8e44ad;">
+        <div class="ind-label" style="color:#8e44ad;">政务 / 数据 · Gov &amp; Data</div>
+        <div class="ind-title">SDAIA 沙特 · DG MARE 欧盟 · Arolsen</div>
+        <div class="ind-clients">
+          SDAIA 沙特国家 AI 局（Lab-A1/A2/A6）<br>
+          DG MARE 欧盟海洋（Lab-A1/A6）<br>
+          Arolsen 档案馆（Lab-A1/A6）
+        </div>
+        <div class="ind-highlight">核心方案亮点：<span>ALLaM 阿拉伯语大模型集成</span> + PDPPL 2023 数据隐私合规，跨部委联邦学习技术方案，AI 治理成熟度诊断</div>
+      </div>
+    </div>
+
+    <div class="rule-line" style="margin:16px 0;"></div>
+
+    <h3 class="doc-h3">Workshop 最具价值的三大案例（学员投票）</h3>
+    <div class="brief-box" data-label="Top 案例洞察">
+      <div class="brief-row">
+        <div class="brief-tag purple">🥇 第1</div>
+        <div class="brief-text">
+          <strong>空客中国天津工厂</strong>：最完整的 Lab-A1 技术尽调演示——Qoder RepoWiki 在 47 分钟内完成 12 万行遗留代码扫描，生成六维体检报告，是"AI 加速顾问交付"最直观的案例。
+        </div>
+      </div>
+      <div class="brief-row">
+        <div class="brief-tag purple">🥈 第2</div>
+        <div class="brief-text">
+          <strong>卡塔尔航空</strong>：航空延误赔偿 API（Lab-A2）展示了 EU EC 261 合规如何被封装进 Rules 文件，Qoder 生成代码天然满足幂等检查 + 审计日志，是"合规驱动开发"的最佳实践示范。
+        </div>
+      </div>
+      <div class="brief-row">
+        <div class="brief-tag purple">🥉 第3</div>
+        <div class="brief-text">
+          <strong>NatWest 银行</strong>：Lab-A6 深化方案包含 FCA Consumer Duty 2023 完整合规架构，行业基准对比（NatWest vs Lloyds/Barclays/HSBC），是金融行业顾问的参考模板。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">3</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 4：角色专属学习路径 ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">角色专属路径 · Role-Based Learning Paths</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Role-Based Learning Paths</div>
+    <h2 class="doc-h2">学员路径：<span class="purple">按角色定制你的下一步</span></h2>
+    <p class="doc-desc">
+      Workshop 覆盖三类核心角色。请根据你的工作职责选择对应路径——
+      每个角色的 Qoder 使用深度、重点实验和衡量标准都不同。
+    </p>
+
+    <div class="role-grid">
+      <div class="role-card">
+        <div class="role-card-header">
+          <div class="role-card-header-title">💻 工程师 / 开发顾问</div>
+          <div class="role-card-header-sub">代码交付 · 技术评估 · 架构落地</div>
+        </div>
+        <ul class="role-list">
+          <li>Workshop 收获：Rules 配置、RepoWiki 扫描、AI Code Review</li>
+          <li>核心实验：Lab-A1 技术尽调、Lab-A3 编码演示</li>
+          <li><strong>本周</strong>：为当前项目配置 .qoder/rules（30 分钟）</li>
+          <li><strong>第 1 月</strong>：对一个存量函数用 Qoder 补全完整测试套件</li>
+          <li><strong>第 2 月</strong>：完成 Lab 3 TDD + Lab 4 AI Code Review</li>
+          <li><strong>第 3 月</strong>：Lab T1 MCP 工具集成，构建自定义工具链</li>
+          <li><strong>衡量</strong>：AI 辅助代码率 ≥ 40%，测试覆盖率 ≥ 70%</li>
+        </ul>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card-header">
+          <div class="role-card-header-title">📋 需求分析师 / PM</div>
+          <div class="role-card-header-sub">需求挖掘 · PRD 交付 · 多方对齐</div>
+        </div>
+        <ul class="role-list">
+          <li>Workshop 收获：Plan 模式、GWT 验收条件、PRD 规格生成</li>
+          <li>核心实验：Lab-A2 需求分析、Lab-A4 高管汇报</li>
+          <li><strong>本周</strong>：用真实需求重走一遍 Lab-A2 PRD 生成流程</li>
+          <li><strong>第 1 月</strong>：Lab 2 深化——多角色评审模拟 + AC 细化</li>
+          <li><strong>第 2 月</strong>：Lab 1 技术尽调（理解开发视角）</li>
+          <li><strong>第 3 月</strong>：Lab T2 SKILL 封装（把需求分析 SOP 变 SKILL）</li>
+          <li><strong>衡量</strong>：PRD 生成时间缩短 ≥ 50%，评审通过率提升</li>
+        </ul>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card-header">
+          <div class="role-card-header-title">🏗 架构师 / 技术负责人</div>
+          <div class="role-card-header-sub">架构决策 · 团队治理 · 技术战略</div>
+        </div>
+        <ul class="role-list">
+          <li>Workshop 收获：六维成熟度框架、行业合规架构、Lab-A6 方案</li>
+          <li>核心实验：Lab-A1 尽调 + Lab-A6 深化方案</li>
+          <li><strong>本周</strong>：设计团队级 Rules 文件体系（≥3 个规范域）</li>
+          <li><strong>第 1 月</strong>：Lab 7 规范治理——Rules + Command + ADR</li>
+          <li><strong>第 2 月</strong>：Lab 8 效能治理——DORA 指标 + AI ROI 看板</li>
+          <li><strong>第 3 月</strong>：Lab T3 Agent 编排 + Lab T4 RAG 知识库</li>
+          <li><strong>衡量</strong>：团队 AI 辅助率、Rules 覆盖的规范域数量</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rule-line"></div>
+
+    <h3 class="doc-h3">Workshop 后的技能成长矩阵</h3>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>技能领域</th>
+          <th width="130">Workshop 后水平</th>
+          <th width="130">1 个月目标</th>
+          <th width="130">3 个月目标</th>
+          <th width="90">核心实验</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Rules 配置 &amp; 知识注入</strong></td>
+          <td><span style="color:var(--orange);">◉◉○○○</span> 入门（见过）</td>
+          <td><span style="color:var(--purple);">◉◉◉○○</span> 熟练（自己配）</td>
+          <td><span style="color:var(--green);">◉◉◉◉○</span> 专家（团队推广）</td>
+          <td>Lab-A2 / A3</td>
+        </tr>
+        <tr>
+          <td><strong>需求分析 &amp; PRD 生成</strong></td>
+          <td><span style="color:var(--orange);">◉◉○○○</span> 入门（照模板）</td>
+          <td><span style="color:var(--purple);">◉◉◉○○</span> 熟练（独立完成）</td>
+          <td><span style="color:var(--purple);">◉◉◉○○</span> 熟练（多场景）</td>
+          <td>Lab-A2</td>
+        </tr>
+        <tr>
+          <td><strong>技术尽调 &amp; 体检报告</strong></td>
+          <td><span style="color:var(--orange);">◉◉○○○</span> 入门（知道流程）</td>
+          <td><span style="color:var(--purple);">◉◉◉○○</span> 熟练（独立输出）</td>
+          <td><span style="color:var(--green);">◉◉◉◉○</span> 专家（24h 交付）</td>
+          <td>Lab-A1</td>
+        </tr>
+        <tr>
+          <td><strong>合规驱动开发</strong></td>
+          <td><span style="color:var(--red);">◉○○○○</span> 初识（了解概念）</td>
+          <td><span style="color:var(--orange);">◉◉○○○</span> 入门（单行业）</td>
+          <td><span style="color:var(--purple);">◉◉◉○○</span> 熟练（跨行业）</td>
+          <td>Lab-A2 / A6</td>
+        </tr>
+        <tr>
+          <td><strong>Agent 编排 &amp; SKILL 封装</strong></td>
+          <td><span style="color:var(--red);">◉○○○○</span> 初识（概念了解）</td>
+          <td><span style="color:var(--red);">◉○○○○</span> 初识（用官方）</td>
+          <td><span style="color:var(--orange);">◉◉○○○</span> 入门（自定义）</td>
+          <td>Lab T2 / T3</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <div class="box-label">给所有学员的核心提示</div>
+      Workshop 结束后，最快产生价值的路径是：<strong>把你在 Workshop 里接触到的最相关行业案例（航空/金融/零售/制药/能源）选一个，对应你当前项目，配置一套 Rules 文件</strong>。这 30 分钟是你从"学过 Qoder"到"用 Qoder 交付"的最关键一步。所有客户案例材料都在 <strong>埃森哲 AI Workshop 导航中心</strong> 归档，可直接复用。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">4</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 5：3个月进阶路线图 ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">进阶路线图 · 3-Month Advancement Roadmap</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">3-Month Advancement Roadmap</div>
+    <h2 class="doc-h2">3 个月路线图：<span class="purple">从"学过"到"能交付"</span></h2>
+    <p class="doc-desc">
+      路线图分为三个阶段——内化（0–4 周）、实战（5–8 周）、沉淀（9–12 周）。
+      每个阶段有明确的里程碑和衡量标准，帮助你将 Workshop 所学转化为真实项目能力。
+    </p>
+
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card">
+          <div class="tl-phase">阶段一 · Week 1–4 · 内化与配置</div>
+          <div class="tl-title">将 Workshop 所学落地到当前项目</div>
+          <div class="tl-desc">
+            ① 为你负责的项目配置第一套 <strong>.qoder/rules/</strong> 文件（参考 BestBuy、卡塔尔航空案例的 Rules 模板）；
+            ② 启动 <strong>RepoWiki</strong> 对项目进行全量扫描，生成技术地图；
+            ③ 用 <strong>Plan 模式</strong>对一个真实需求生成 PRD 草稿，邀请同事用开发/合规/UX 三视角评审；
+            ④ 封装 1 个高频 Prompt 为 <strong>Command</strong>（如代码 Review、API 文档生成）。
+            <br><strong style="color:var(--purple);">里程碑：项目有 Rules 文件，完成 1 次 AI 辅助 PRD 交付</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card">
+          <div class="tl-phase">阶段二 · Week 5–8 · 实战深化</div>
+          <div class="tl-title">在真实客户交付中使用 Qoder 全链路</div>
+          <div class="tl-desc">
+            ① 按角色深化：<strong>开发</strong>——完成 AI 辅助 TDD + Code Review 完整流程；<strong>PM</strong>——AI 生成高管汇报材料（参考 Lab-A4）；<strong>架构师</strong>——完成 Lab-A1 技术尽调输出；
+            ② 选择 1 个 Workshop 客户案例中最相关的行业（航空/金融/零售），深入研究对应合规框架，完善 Rules 文件；
+            ③ 在项目 Sprint Retro 中分享一次 Qoder 使用技巧，记录团队反馈；
+            ④ 尝试用 <strong>多 Agent 协同</strong>处理一个复杂任务（如：尽调报告 + PRD + 测试用例同步生成）。
+            <br><strong style="color:var(--purple);">里程碑：AI 辅助代码率提升 ≥ 20pp，客户交付用上 Qoder 至少 2 个场景</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card">
+          <div class="tl-phase">阶段三 · Week 9–12 · 沉淀与传播</div>
+          <div class="tl-title">把个人经验变成团队资产</div>
+          <div class="tl-desc">
+            ① 整理 2–3 个 <strong>可复用 SKILL 文件</strong>（适用于你所在行业的最佳实践模板），提交到团队 Rules 共享库；
+            ② 设计团队级 <strong>AI ROI 度量看板</strong>——参考 Workshop 中 Lab-A8 效能治理，记录研发周期缩短率、Bug 逃逸率变化；
+            ③ 在团队内做一次 <strong>15 分钟内训分享</strong>（1 个真实案例 + Qoder 操作演示 + Rules 文件展示）；
+            ④ 如有条件，为客户出具一份 <strong>Lab-A6 深化交付方案</strong>，建议二期立项。
+            <br><strong style="color:var(--purple);">里程碑：团队共享 ≥1 套 SKILL，输出至少 1 份可交付的客户 AI 建议报告</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot gray"></div>
+        </div>
+        <div class="tl-card" style="border-color:#ddd;">
+          <div class="tl-phase" style="color:#aaa;">阶段四 · Week 13+ · 持续进阶（按兴趣）</div>
+          <div class="tl-title" style="color:#aaa;">MCP 自定义工具 · RAG 知识库 · Agent 编排（视项目需要）</div>
+          <div class="tl-desc" style="color:#aaa;">
+            进入 AI 应用开发技术栈（Lab T1–T5）：MCP 工具集成、SKILL 高阶封装、Agent 多跳推理、RAG 企业知识库构建。
+            这一阶段是可选的，适合有技术交付背景且对 AI 原生应用感兴趣的学员。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-line"></div>
+
+    <h3 class="doc-h3">关键成功因素（KSF）</h3>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>成功因素</th>
+          <th>常见失败模式</th>
+          <th width="160">对策</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Rules 先行</strong></td>
+          <td>直接用 Qoder 写代码，不配置 Rules，输出代码不合团队/客户规范</td>
+          <td>每个项目第一步先写 Rules，哪怕 5 行</td>
+        </tr>
+        <tr>
+          <td><strong>批判性验证</strong></td>
+          <td>盲信 AI 输出，不验证业务逻辑，把 bug 带进交付件</td>
+          <td>永远问自己：这段代码我能解释清楚吗？</td>
+        </tr>
+        <tr>
+          <td><strong>粒度控制</strong></td>
+          <td>一次让 AI 生成整个模块，结果代码庞杂且不可控</td>
+          <td>接口定义 → 核心逻辑 → 测试三步走</td>
+        </tr>
+        <tr>
+          <td><strong>知识资产化</strong></td>
+          <td>每次从零摸索 Prompt，个人技巧无法传播</td>
+          <td>每个有价值的 Prompt 封装为 Command / Rule</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">5</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 6：行动清单 ══ -->
+<div class="page" style="min-height:700px;">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">下一步行动 · Next Actions &amp; Quick Wins</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Quick Wins · This Week</div>
+    <h2 class="doc-h2">下周就能做的 <span class="purple">5 件事</span></h2>
+    <p class="doc-desc">不需要等待下一次培训——以下 5 个行动，在你当前的项目中就能立即落地，每个都在 2 小时以内完成，但每一个都能让你在客户面前更有底气。</p>
+
+    <div class="checklist">
+      <div class="cl-item">
+        <div class="cl-num done">1</div>
+        <div class="cl-body">
+          <div class="cl-title">为你的项目创建第一个 Rules 文件（30 分钟）<span class="cl-tag cl-tag-must">最高价值</span></div>
+          <div class="cl-desc">
+            在项目根目录创建 <code style="background:#f5f5f5;padding:1px 6px;font-size:11px;">.qoder/rules/project-rules.md</code>，写入：技术栈约定（禁止/必须的库）、命名规范、安全红线（禁止上传客户敏感数据）。
+            参考：Workshop 中 BestBuy、卡塔尔航空的 Rules 配置示例。
+          </div>
+        </div>
+      </div>
+
+      <div class="cl-item">
+        <div class="cl-num done">2</div>
+        <div class="cl-body">
+          <div class="cl-title">对一个现有函数用 Qoder 补全测试用例（45 分钟）<span class="cl-tag cl-tag-must">立竿见影</span></div>
+          <div class="cl-desc">
+            选择项目中一个 10–50 行的业务函数，要求 Qoder 生成：正常路径 + 3 个边界值 + 2 个异常处理测试。
+            <strong>人工验证所有断言是否符合业务逻辑</strong>（这是责任归属原则的体现）。
+          </div>
+        </div>
+      </div>
+
+      <div class="cl-item">
+        <div class="cl-num">3</div>
+        <div class="cl-body">
+          <div class="cl-title">用 RepoWiki 扫描项目并设计"暗桩验证"（1 小时）<span class="cl-tag cl-tag-rec">推荐</span></div>
+          <div class="cl-desc">
+            对你负责的项目启动 RepoWiki，然后设计 2 个你明确知道答案的问题（如"XX 模块用了哪个框架版本"），
+            验证 AI 是否真正读了代码而非猜测。对比开/关 @RepoWiki 的回答差异。
+          </div>
+        </div>
+      </div>
+
+      <div class="cl-item">
+        <div class="cl-num">4</div>
+        <div class="cl-body">
+          <div class="cl-title">把一个重复性 Prompt 封装为 Command（30 分钟）<span class="cl-tag cl-tag-rec">推荐</span></div>
+          <div class="cl-desc">
+            找到你这周用 Qoder 反复发的一个 Prompt（如"帮我 Review 这段代码并检查安全漏洞"），
+            封装到 <code style="background:#f5f5f5;padding:1px 6px;font-size:11px;">.qoder/commands/</code> 目录，变成可复用 Command。之后一个 slash 命令搞定。
+          </div>
+        </div>
+      </div>
+
+      <div class="cl-item">
+        <div class="cl-num">5</div>
+        <div class="cl-body">
+          <div class="cl-title">向队友分享 1 个 Qoder 使用技巧（15 分钟）<span class="cl-tag cl-tag-rec">文化传播</span></div>
+          <div class="cl-desc">
+            在团队 Standup 或企业微信群分享 1 个你在 Workshop 中学到的最有用的 Qoder 用法，配 1 张截图。
+            知识传播 = 你在团队中影响力的放大器。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-line"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+      <div class="info-box" style="margin-bottom:0;">
+        <div class="box-label">核心资源入口</div>
+        <div style="font-size:12px;line-height:2;">
+          📂 <strong>客户案例导航中心</strong>（index.html）：17 个客户 / 41 个页面，按行业/Lab 筛选<br>
+          📘 <strong>Workshop 进阶指南</strong>（workshop-next-steps.html）：三大维度学习路径<br>
+          🏗 <strong>空客中国 Lab-A1</strong>：技术尽调模板，可直接复制结构<br>
+          ✈ <strong>卡塔尔航空 Lab-A2</strong>：合规驱动 PRD 最佳实践<br>
+          🏦 <strong>NatWest Lab-A6</strong>：深化方案 + 行业基准对比模板
+        </div>
+      </div>
+      <div style="border:1.5px solid var(--purple);padding:16px 20px;position:relative;">
+        <div style="position:absolute;top:-10px;left:16px;background:#fff;padding:0 6px;font-size:9px;font-weight:700;letter-spacing:0.2em;color:var(--purple);text-transform:uppercase;">Qoder 四条原则</div>
+        <div style="font-size:12px;line-height:2.1;margin-top:4px;">
+          1️⃣ <strong>责任归属</strong>：AI 是副驾驶，你是飞行员。提交代码必须完全理解。<br>
+          2️⃣ <strong>批判性思维</strong>：永远不要盲信 AI 首次输出，特别是合规与边界逻辑。<br>
+          3️⃣ <strong>粒度控制</strong>：接口定义 → 核心逻辑 → 测试，三步走，不一锅端。<br>
+          4️⃣ <strong>知识资产化</strong>：好用的 Prompt → Command/Rule → 团队共享资产。
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;background:var(--gray-light);border-top:3px solid var(--purple);">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#999;margin-bottom:8px;">说明</div>
+      <p style="font-size:11px;color:#888;line-height:1.8;">
+        本报告由埃森哲 AI 团队为本次线下 Workshop 50 位学员整理输出，基于实际参训内容和客户案例材料编制。
+        报告内容仅供埃森哲内部学员参考使用，客户案例信息已经过脱敏处理。
+        如需深化特定客户行业的 Qoder 方案，请联系 AI Workshop 组织团队获取原始 Lab 材料。
+      </p>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">6</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+
+<!-- ══ PAGE 7：17 客户全景地图（SVG） ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">客户全景地图 · 17 Clients at a Glance</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content" style="padding-bottom:60px;">
+    <div class="section-label">Client Panorama</div>
+    <h2 class="doc-h2">17 个客户：<span class="purple">行业 × Lab 覆盖全景</span></h2>
+    <p class="doc-desc" style="margin-bottom:16px;">
+      Workshop 覆盖 7 大行业、17 个客户，每格颜色代表该客户已有的 Lab（A1–A6）。
+      颜色越深 = 覆盖越完整；空白 = 未有材料，是你可以主动贡献的空白区。
+    </p>
+
+    <!-- 行业×客户 矩阵表 -->
+    <table class="doc-table" style="font-size:11px;margin-bottom:20px;">
+      <thead>
+        <tr>
+          <th style="width:140px;">行业 / 客户</th>
+          <th style="width:52px;text-align:center;">A1<br><span style="font-weight:400;font-size:9px;">技术尽调</span></th>
+          <th style="width:52px;text-align:center;">A2<br><span style="font-weight:400;font-size:9px;">需求PRD</span></th>
+          <th style="width:52px;text-align:center;">A3<br><span style="font-weight:400;font-size:9px;">编码演示</span></th>
+          <th style="width:52px;text-align:center;">A4<br><span style="font-weight:400;font-size:9px;">高管报告</span></th>
+          <th style="width:52px;text-align:center;">A5<br><span style="font-weight:400;font-size:9px;">快速学习</span></th>
+          <th style="width:52px;text-align:center;">A6<br><span style="font-weight:400;font-size:9px;">深化方案</span></th>
+          <th>核心 Qoder 方案亮点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 航空 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">✈  航空 · AVIATION</td></tr>
+        <tr>
+          <td style="font-weight:700;">卡塔尔航空</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">EU EC 261 延误赔付合规引擎 · GDPR Art.9 · IATA 735d</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">AirFrance KLM</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">多渠道航班信息 API 合规 · 旅客沟通自动化</td>
+        </tr>
+        <!-- 金融 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">🏦  金融 · FINANCIAL SERVICES</td></tr>
+        <tr>
+          <td style="font-weight:700;">NatWest</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">FCA Consumer Duty 2023 · AI 客服 · 行业基准对比</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">BBVA</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">MiFID II 合规交易监控 · AI ROI 度量看板</td>
+        </tr>
+        <!-- 零售 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">🛒  零售 · RETAIL</td></tr>
+        <tr>
+          <td style="font-weight:700;">BestBuy</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="font-size:11px;">商品推荐引擎 Qoder 演示 · FTC 合规约束</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Bricorama</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="font-size:11px;">DIY 产品 NL2SQL 搜索 · 法语多语言合规</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Noli 美妆</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">Figma MCP → 美妆 UI 代码生成 · 个性化推荐</td>
+        </tr>
+        <!-- 制药 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">💊  制药 · PHARMA &amp; LIFE SCIENCES</td></tr>
+        <tr>
+          <td style="font-weight:700;">百时美施贵宝</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">FDA 21 CFR Part 11 电子记录合规 · 临床数据 AI</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">诺华制药</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="font-size:11px;">药物研发流程技术尽调 · GxP 合规体系评估</td>
+        </tr>
+        <!-- 能源 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">⚡  能源 · ENERGY</td></tr>
+        <tr>
+          <td style="font-weight:700;">Repsol</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="font-size:11px;">IEC 62443 工控安全约束 · SCADA 系统 AI 辅助尽调</td>
+        </tr>
+        <!-- 政务/数据 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">🏛  政务 / 数据 · GOV &amp; DATA</td></tr>
+        <tr>
+          <td style="font-weight:700;">SDAIA 沙特</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">ALLaM 阿拉伯语大模型 · PDPPL 2023 · 联邦学习</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">DG MARE 欧盟</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">欧盟海洋渔业数据治理 · GDPR · 多国数据共享</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Arolsen 档案馆</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">二战档案 OCR + AI 检索 · 历史数据数字化</td>
+        </tr>
+        <!-- 媒体 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">📰  媒体 · MEDIA</td></tr>
+        <tr>
+          <td style="font-weight:700;">Fortune Media</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="font-size:11px;">NL2SQL 数据民主化 · 编辑自助数据分析</td>
+        </tr>
+        <!-- 制造 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">🏭  制造 · MANUFACTURING</td></tr>
+        <tr>
+          <td style="font-weight:700;">空客中国</td>
+          <td style="text-align:center;background:rgba(161,0,255,.2);color:var(--purple);font-weight:900;">★</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="font-size:11px;color:var(--purple);font-weight:700;">★ 最完整 A1 示范 · 47 分钟 12 万行扫描 · 六维体检</td>
+        </tr>
+        <!-- 电信 -->
+        <tr><td colspan="8" style="background:#000;color:var(--purple);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 14px;">📡  电信 · TELECOM</td></tr>
+        <tr>
+          <td style="font-weight:700;">沃达丰</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;color:#ccc;">—</td>
+          <td style="text-align:center;background:rgba(161,0,255,.12);color:var(--purple);font-weight:700;">✓</td>
+          <td style="font-size:11px;">5G 网络 AI 运维 · 客户体验智能化 · A6 深化</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <div class="box-label">如何使用这张地图</div>
+      空白格（—）是机会：如果你的客户项目属于某行业，找到对应行的已有 Lab，复制其 Rules / SKILL 模板修改为你的场景。
+      <strong>★ 号</strong>是最完整的示范 Lab，建议每位学员至少精读一遍空客中国 A1 的技术尽调报告结构。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">7</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 8：Qoder 功能速查 ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">Qoder 功能速查 · Feature Quick Reference</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content" style="padding-bottom:60px;">
+    <div class="section-label">Qoder Feature Quick Reference</div>
+    <h2 class="doc-h2">Qoder 核心功能：<span class="purple">一张纸全掌握</span></h2>
+    <p class="doc-desc" style="margin-bottom:20px;">
+      Workshop 涉及的 Qoder 四大核心机制——Rules（约束注入）/ SKILL（能力封装）/ MCP（工具集成）/ RepoWiki（知识索引）。掌握这四个，你就能完成 80% 的企业级 AI 交付场景。
+    </p>
+
+    <!-- Rules -->
+    <h3 class="doc-h3">① Rules — 业务约束注入</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div>
+        <table class="doc-table" style="font-size:11.5px;">
+          <thead><tr><th colspan="2">核心机制</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#999;width:100px;">文件位置</td><td><code style="font-size:11px;background:#f5f5f5;padding:1px 5px;">.qoder/rules/*.md</code></td></tr>
+            <tr><td style="color:#999;">触发方式</td><td>对话自动加载，无需 @ 调用</td></tr>
+            <tr><td style="color:#999;">作用范围</td><td>所有代码生成请求</td></tr>
+            <tr><td style="color:#999;">典型用途</td><td>技术栈约定 / 命名规范 / 合规红线</td></tr>
+            <tr><td style="color:#999;">Workshop 示例</td><td>eu261-rules.md · bestbuy-retail.md</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:#0a0a0a;padding:14px 16px;font-family:'Courier New',monospace;font-size:11px;color:#ccc;line-height:1.9;">
+        <div style="color:var(--purple);font-size:9px;font-weight:700;letter-spacing:.15em;margin-bottom:8px;">示例：eu261-rules.md</div>
+        <span style="color:#888;"># 航空延误赔付规则</span><br>
+        - 赔付金额必须引用 <span style="color:#a5d6a7;">EC 261/2004 Art.7</span><br>
+        - 所有决策必须记录 <span style="color:#ffd700;">decision_id</span> 审计日志<br>
+        - 禁止重复赔付，必须做 <span style="color:#ff9999;">幂等检查</span><br>
+        - GDPR Art.9 健康数据不得明文存储
+      </div>
+    </div>
+
+    <!-- SKILL -->
+    <h3 class="doc-h3">② SKILL — 可复用能力封装</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div>
+        <table class="doc-table" style="font-size:11.5px;">
+          <thead><tr><th colspan="2">核心机制</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#999;width:100px;">文件位置</td><td><code style="font-size:11px;background:#f5f5f5;padding:1px 5px;">.qoder/skills/*.md</code></td></tr>
+            <tr><td style="color:#999;">触发方式</td><td><code style="font-size:11px;background:#f5f5f5;padding:1px 5px;">/skill-name</code> slash 命令调用</td></tr>
+            <tr><td style="color:#999;">与 Rules 区别</td><td>主动调用 vs 被动注入</td></tr>
+            <tr><td style="color:#999;">典型用途</td><td>PRD生成 / 代码Review / 测试生成</td></tr>
+            <tr><td style="color:#999;">团队价值</td><td>个人技巧 → 团队共享资产</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:#0a0a0a;padding:14px 16px;font-family:'Courier New',monospace;font-size:11px;color:#ccc;line-height:1.9;">
+        <div style="color:var(--purple);font-size:9px;font-weight:700;letter-spacing:.15em;margin-bottom:8px;">示例：gen-prd.md</div>
+        <span style="color:#888;"># PRD 生成 SKILL</span><br>
+        <span style="color:#ffd700;">description</span>: 从需求描述生成 GWT + PRD<br>
+        <span style="color:#ffd700;">steps</span>:<br>
+        &nbsp;&nbsp;1. 识别业务场景和用户角色<br>
+        &nbsp;&nbsp;2. 生成 3-5 条 GWT 验收条件<br>
+        &nbsp;&nbsp;3. 输出 MoSCoW 优先级需求表
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <!-- MCP -->
+      <div>
+        <h3 class="doc-h3">③ MCP — 外部工具集成</h3>
+        <table class="doc-table" style="font-size:11.5px;">
+          <thead><tr><th colspan="2">核心机制</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#999;width:100px;">全称</td><td>Model Context Protocol</td></tr>
+            <tr><td style="color:#999;">作用</td><td>让 Qoder 调用外部工具（DB/API/文件）</td></tr>
+            <tr><td style="color:#999;">Workshop 示例</td><td>Figma MCP（Noli）· 高德地图 MCP</td></tr>
+            <tr><td style="color:#999;">配置方式</td><td>settings.json 中注册 MCP Server</td></tr>
+            <tr><td style="color:#999;">适用角色</td><td>技术架构师 / 高级开发顾问</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- RepoWiki -->
+      <div>
+        <h3 class="doc-h3">④ RepoWiki — 代码知识索引</h3>
+        <table class="doc-table" style="font-size:11.5px;">
+          <thead><tr><th colspan="2">核心机制</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#999;width:100px;">作用</td><td>全量扫描代码库，建立知识索引</td></tr>
+            <tr><td style="color:#999;">调用方式</td><td><code style="font-size:11px;background:#f5f5f5;padding:1px 5px;">@RepoWiki</code> 在对话中引用</td></tr>
+            <tr><td style="color:#999;">Workshop 示例</td><td>空客中国 12 万行扫描 → 47 分钟</td></tr>
+            <tr><td style="color:#999;">典型用途</td><td>技术尽调 / 遗留系统理解 / 重构</td></tr>
+            <tr><td style="color:#999;">验证技巧</td><td>"暗桩验证"：问已知答案验真实性</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 四者关系 -->
+    <div style="background:#000;padding:18px 24px;margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--purple);text-transform:uppercase;margin-bottom:14px;">四大机制协作关系</div>
+      <svg viewBox="0 0 670 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+        <defs>
+          <marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#a100ff"/>
+          </marker>
+        </defs>
+        <!-- 背景网格 -->
+        <rect width="670" height="100" fill="#000"/>
+        <!-- RepoWiki -->
+        <rect x="10" y="20" width="120" height="60" rx="2" fill="#111" stroke="#333"/>
+        <text x="70" y="45" fill="#a100ff" font-size="11" font-weight="700" text-anchor="middle">RepoWiki</text>
+        <text x="70" y="62" fill="#666" font-size="9" text-anchor="middle">代码扫描 / 索引</text>
+        <text x="70" y="74" fill="#444" font-size="8" text-anchor="middle">@RepoWiki 调用</text>
+        <!-- Rules -->
+        <rect x="175" y="20" width="120" height="60" rx="2" fill="#111" stroke="#a100ff" stroke-width="1.5"/>
+        <text x="235" y="45" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">Rules</text>
+        <text x="235" y="62" fill="#888" font-size="9" text-anchor="middle">约束自动注入</text>
+        <text x="235" y="74" fill="#666" font-size="8" text-anchor="middle">.qoder/rules/*.md</text>
+        <!-- SKILL -->
+        <rect x="340" y="20" width="120" height="60" rx="2" fill="#111" stroke="#a100ff" stroke-width="1.5"/>
+        <text x="400" y="45" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">SKILL</text>
+        <text x="400" y="62" fill="#888" font-size="9" text-anchor="middle">能力主动调用</text>
+        <text x="400" y="74" fill="#666" font-size="8" text-anchor="middle">/skill-name 触发</text>
+        <!-- MCP -->
+        <rect x="505" y="20" width="120" height="60" rx="2" fill="#111" stroke="#333"/>
+        <text x="565" y="45" fill="#a100ff" font-size="11" font-weight="700" text-anchor="middle">MCP</text>
+        <text x="565" y="62" fill="#666" font-size="9" text-anchor="middle">外部工具集成</text>
+        <text x="565" y="74" fill="#444" font-size="8" text-anchor="middle">DB / API / Figma</text>
+        <!-- 箭头 -->
+        <line x1="130" y1="50" x2="170" y2="50" stroke="#a100ff" stroke-width="1.2" marker-end="url(#arr2)" opacity="0.7"/>
+        <line x1="295" y1="50" x2="335" y2="50" stroke="#a100ff" stroke-width="1.2" marker-end="url(#arr2)" opacity="0.7"/>
+        <line x1="460" y1="50" x2="500" y2="50" stroke="#333" stroke-width="1.2" marker-end="url(#arr2)" opacity="0.5"/>
+      </svg>
+      <div style="display:flex;gap:24px;margin-top:10px;">
+        <div style="font-size:10px;color:#666;flex:1;">① RepoWiki 扫描项目，建立代码知识库</div>
+        <div style="font-size:10px;color:#888;flex:1;">② Rules 自动注入业务约束，驱动合规代码生成</div>
+        <div style="font-size:10px;color:#888;flex:1;">③ SKILL 封装可复用流程，主动触发执行</div>
+        <div style="font-size:10px;color:#666;flex:1;">④ MCP 接入外部系统，扩展 Qoder 感知边界</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="box-label">给初学者的建议：从 Rules 开始</div>
+      四个机制里，<strong>Rules 是投入产出比最高的起点</strong>——30 分钟写一个 .md 文件，立即改善所有代码生成的质量和合规性。
+      SKILL 其次，把你反复用的 Prompt 流程化。MCP 和 RepoWiki 适合有经验后再深入。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">8</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE 9：合规框架速查 ══ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">合规框架速查 · Regulatory Quick Reference</span>
+    </div>
+    <div class="page-header-right">埃森哲 AI Workshop 成果报告 v1.0</div>
+  </div>
+
+  <div class="page-content" style="padding-bottom:60px;">
+    <div class="section-label">Regulatory Quick Reference</div>
+    <h2 class="doc-h2">跨行业合规框架：<span class="purple">Rules 配置速查表</span></h2>
+    <p class="doc-desc" style="margin-bottom:16px;">
+      Workshop 覆盖的 7 个核心合规框架——每个都可以直接转化为 Qoder Rules 文件的约束条款。
+      找到你所在行业对应的框架，复制关键约束写进 Rules，即可驱动合规代码生成。
+    </p>
+
+    <table class="doc-table" style="font-size:11.5px;margin-bottom:20px;">
+      <thead>
+        <tr>
+          <th style="width:160px;">法规 / 标准</th>
+          <th style="width:70px;">行业</th>
+          <th style="width:120px;">核心要求</th>
+          <th>Qoder Rules 关键约束（直接可用）</th>
+          <th style="width:80px;">Workshop 案例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;color:var(--red);">EU EC 261/2004</td>
+          <td><span style="background:#fff0f0;color:var(--red);padding:2px 6px;font-size:10px;font-weight:700;">航空</span></td>
+          <td>航班延误赔偿<br>7 日内赔付</td>
+          <td>
+            · 延误 ≥2h 触发赔付计算，必须引用具体条款编号<br>
+            · 所有赔付决策必须记录 decision_id + EU261_article<br>
+            · 幂等检查：禁止对同一航班同一旅客重复赔付<br>
+            · €250/€400/€600 阶梯金额不得被代码逻辑覆盖
+          </td>
+          <td style="color:var(--purple);font-weight:700;">卡塔尔航空<br>AirFrance</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#0057b7;">FCA Consumer Duty<br><span style="font-size:10px;font-weight:400;">2023</span></td>
+          <td><span style="background:#f0f4ff;color:#0057b7;padding:2px 6px;font-size:10px;font-weight:700;">金融</span></td>
+          <td>消费者保护<br>结果导向监管</td>
+          <td>
+            · Consumer Understanding：输出必须通俗易懂，禁止金融术语堆砌<br>
+            · Consumer Support：7×24h 支持路径必须在 UI 可达<br>
+            · 弱势客户标记：残障/低收入客户必须单独处理逻辑<br>
+            · Avoiding Harm：算法不得推荐不适合客户风险等级的产品
+          </td>
+          <td style="color:var(--purple);font-weight:700;">NatWest</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#00874a;">GDPR<br><span style="font-size:10px;font-weight:400;">Art.9 特殊数据</span></td>
+          <td><span style="background:#f0fff6;color:#00874a;padding:2px 6px;font-size:10px;font-weight:700;">全行业</span></td>
+          <td>数据保护<br>隐私权</td>
+          <td>
+            · 健康/过敏/宗教等 Art.9 特殊类别数据不得明文存储<br>
+            · 数据访问必须记录访问日志，保留 ≥6 个月<br>
+            · 用户数据删除请求（Right to Erasure）必须有代码实现<br>
+            · 跨境传输：EU 数据不得传输到无数据协议国家
+          </td>
+          <td style="color:var(--purple);font-weight:700;">NatWest<br>卡塔尔航空</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#8e44ad;">MiFID II</td>
+          <td><span style="background:#f5f0ff;color:#8e44ad;padding:2px 6px;font-size:10px;font-weight:700;">金融</span></td>
+          <td>投资服务监管<br>交易透明</td>
+          <td>
+            · 所有投资建议必须附带 KID（Key Information Document）链接<br>
+            · 交易前适合性评估不得跳过，代码必须验证客户风险等级<br>
+            · 交易记录保留 ≥5 年，不可删除<br>
+            · 算法交易必须有人工熔断（Circuit Breaker）机制
+          </td>
+          <td style="color:var(--purple);font-weight:700;">BBVA</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#e07b39;">FDA 21 CFR<br><span style="font-size:10px;font-weight:400;">Part 11</span></td>
+          <td><span style="background:#fff5f0;color:#e07b39;padding:2px 6px;font-size:10px;font-weight:700;">制药</span></td>
+          <td>电子记录<br>电子签名</td>
+          <td>
+            · 所有临床数据修改必须有 Audit Trail，不得覆盖原始记录<br>
+            · 电子签名需包含：姓名 + 时间戳 + 操作含义<br>
+            · 系统必须限制无授权访问，密码策略强制执行<br>
+            · 数据完整性校验：每条记录必须有 checksum 验证
+          </td>
+          <td style="color:var(--purple);font-weight:700;">百时美施贵宝</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#c8102e;">IEC 62443</td>
+          <td><span style="background:#fff0f0;color:#c8102e;padding:2px 6px;font-size:10px;font-weight:700;">能源/工控</span></td>
+          <td>工控系统安全<br>OT 网络</td>
+          <td>
+            · IT/OT 网络必须严格隔离，代码禁止直接访问 SCADA 接口<br>
+            · 所有远程访问必须经过 DMZ，禁止直连<br>
+            · 关键指令（启停/参数修改）必须双人授权确认<br>
+            · 固件更新必须数字签名验证，禁止未签名包
+          </td>
+          <td style="color:var(--purple);font-weight:700;">Repsol</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#006c35;">PDPPL 2023<br><span style="font-size:10px;font-weight:400;">沙特数据保护</span></td>
+          <td><span style="background:#f0fff8;color:#006c35;padding:2px 6px;font-size:10px;font-weight:700;">政务/沙特</span></td>
+          <td>个人数据保护<br>数据主权</td>
+          <td>
+            · 沙特公民数据必须本地化存储，禁止出境<br>
+            · 跨部委数据共享需联邦学习架构，数据不离境<br>
+            · 数据收集需明确告知目的，不得超出范围使用<br>
+            · ALLaM 模型输出必须保证阿拉伯语语言合规
+          </td>
+          <td style="color:var(--purple);font-weight:700;">SDAIA</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="info-box" style="margin-bottom:0;">
+        <div class="box-label">如何转化为 Rules 文件</div>
+        <div style="font-size:12px;line-height:1.9;">
+          1. 选择你所在行业的合规框架<br>
+          2. 把"关键约束"列的每一条复制到 <code style="background:#e8e8e8;padding:1px 4px;">.qoder/rules/</code> 对应的 .md 文件<br>
+          3. 用自然语言描述禁止/必须的行为<br>
+          4. 测试：让 Qoder 生成相关功能，检查是否遵循约束
+        </div>
+      </div>
+      <div style="border:1.5px solid var(--purple);padding:14px 18px;position:relative;">
+        <div style="position:absolute;top:-10px;left:16px;background:#fff;padding:0 6px;font-size:9px;font-weight:700;letter-spacing:0.2em;color:var(--purple);text-transform:uppercase;">合规 ≠ 负担</div>
+        <div style="font-size:12px;line-height:1.9;margin-top:4px;">
+          Workshop 最重要的认知转变：<br>
+          <strong>合规框架 = Qoder Rules 的最佳输入</strong><br>
+          把监管要求写进 Rules，AI 生成代码天然合规。<br>
+          这是埃森哲顾问对客户最大的差异化价值——<br>
+          <span style="color:var(--purple);font-weight:700;">不只是写代码，是写<em>合规的</em>代码。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · AI Workshop 成果报告 · 2026-03-07</div>
+    <div class="pf-page">9</div>
+    <div class="pf-right">50 位学员 · 内部学习文档</div>
+  </div>
+</div>
+
+</div><!-- /doc-pages -->
+
+</body>
+</html>

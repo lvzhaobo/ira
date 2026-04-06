@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Buy AI - 客服代表工作台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bestbuy-blue: #003da6;
+            --bestbuy-yellow: #ffe600;
+            --bestbuy-dark: #1d252c;
+            --bestbuy-gray: #f4f6f8;
+            --bestbuy-light-gray: #e8ecf0;
+            --success-green: #00a651;
+            --warning-orange: #ff6b00;
+            --danger-red: #dc2626;
+            --tech-highlight: #e0f2fe;
+            --tech-border: #0ea5e9;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bestbuy-gray);
+            color: var(--bestbuy-text);
+        }
+        .header {
+            background: var(--bestbuy-blue);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            font-weight: 800;
+            font-size: 24px;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            border-color: var(--bestbuy-yellow);
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--bestbuy-light-gray);
+            display: flex;
+            flex-direction: column;
+        }
+        .agent-profile {
+            padding: 20px;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+        }
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .agent-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--bestbuy-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .agent-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--success-green);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-green);
+            border-radius: 50%;
+        }
+        .performance-mini {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            text-align: center;
+        }
+        .perf-item {
+            background: var(--bestbuy-gray);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .perf-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--bestbuy-blue);
+        }
+        .perf-label {
+            font-size: 11px;
+            color: #5c6c7c;
+            margin-top: 4px;
+        }
+        .queue-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5c6c7c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .chat-item {
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .chat-item:hover {
+            background: var(--bestbuy-gray);
+        }
+        .chat-item.active {
+            background: var(--tech-highlight);
+            border-color: var(--tech-border);
+        }
+        .chat-item.urgent {
+            border-left: 3px solid var(--danger-red);
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .customer-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .chat-time {
+            font-size: 12px;
+            color: #5c6c7c;
+        }
+        .chat-preview {
+            font-size: 13px;
+            color: #5c6c7c;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .tag-ai {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .tag-escalated {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .tag-vip {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        .chat-header-bar {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--bestbuy-light-gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .customer-details h4 {
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+        .customer-details p {
+            font-size: 12px;
+            color: #5c6c7c;
+        }
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--bestbuy-blue);
+            color: white;
+        }
+        .btn-secondary {
+            background: white;
+            color: var(--bestbuy-blue);
+            border: 1px solid var(--bestbuy-blue);
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--bestbuy-gray);
+        }
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .message.customer {
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, var(--bestbuy-blue), #0056d6);
+        }
+        .message.customer .message-avatar {
+            background: white;
+            border: 1px solid var(--bestbuy-light-gray);
+        }
+        .message-content {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            max-width: 70%;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .message.customer .message-content {
+            background: var(--bestbuy-blue);
+            color: white;
+        }
+        .message-meta {
+            font-size: 11px;
+            color: #5c6c7c;
+            margin-top: 6px;
+        }
+        .chat-input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--bestbuy-light-gray);
+            background: white;
+        }
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--bestbuy-light-gray);
+            border-radius: 24px;
+            padding: 12px 20px;
+            font-size: 14px;
+            resize: none;
+        }
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bestbuy-blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .assist-panel {
+            width: 360px;
+            background: var(--bestbuy-dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--bestbuy-yellow);
+            margin-bottom: 4px;
+        }
+        .panel-subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--tech-highlight);
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--tech-border);
+        }
+        .tech-note {
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid var(--bestbuy-yellow);
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .tech-note-title {
+            color: var(--bestbuy-yellow);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .insight-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .insight-text {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .customer-context {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .context-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+        .context-item:last-child {
+            border-bottom: none;
+        }
+        .context-label {
+            opacity: 0.7;
+        }
+        .context-value {
+            font-weight: 500;
+        }
+        .sentiment-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(0,166,81,0.2);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .sentiment-indicator.warning {
+            background: rgba(255,107,0,0.2);
+        }
+        .sentiment-score {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .sentiment-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .suggested-actions h4 {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+        .action-btn {
+            display: block;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .quick-reply {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            margin: 4px;
+            cursor: pointer;
+        }
+        .quick-reply:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div class="logo">best buy</div>
+            <span style="color:white;opacity:0.8;font-size:14px;">Agent Workspace</span>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-btn">客户视图</a>
+            <a href="agent-workspace.html" class="nav-btn active">客服代表视图</a>
+            <a href="admin-dashboard.html" class="nav-btn">管理员视图</a>
+            <a href="knowledge-base.html" class="nav-btn">知识库管理</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- 左侧：会话队列 -->
+        <aside class="sidebar">
+            <div class="agent-profile">
+                <div class="agent-header">
+                    <div class="agent-avatar">SK</div>
+                    <div class="agent-info">
+                        <h3>Sarah Kim</h3>
+                        <div class="agent-status">
+                            <span class="status-dot"></span>
+                            在线服务中
+                        </div>
+                    </div>
+                </div>
+                <div class="performance-mini">
+                    <div class="perf-item">
+                        <div class="perf-value">24</div>
+                        <div class="perf-label">今日会话</div>
+                    </div>
+                    <div class="perf-item">
+                        <div class="perf-value">4.8</div>
+                        <div class="perf-label">满意度</div>
+                    </div>
+                    <div class="perf-item">
+                        <div class="perf-value">2m</div>
+                        <div class="perf-label">平均响应</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="queue-section">
+                <div class="section-title">待接入 (3)</div>
+                <div class="chat-item urgent">
+                    <div class="chat-header">
+                        <span class="customer-name">Michael Chen</span>
+                        <span class="chat-time">2m</span>
+                    </div>
+                    <div class="chat-preview">我的订单被取消了，但我没有...</div>
+                    <div class="chat-tags">
+                        <span class="tag tag-escalated">升级</span>
+                        <span class="tag tag-vip">VIP</span>
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-header">
+                        <span class="customer-name">Emma Wilson</span>
+                        <span class="chat-time">5m</span>
+                    </div>
+                    <div class="chat-preview">想了解Geek Squad的服务内容...</div>
+                </div>
+
+                <div class="section-title" style="margin-top:20px;">我的会话 (2)</div>
+                <div class="chat-item active">
+                    <div class="chat-header">
+                        <span class="customer-name">John Doe</span>
+                        <span class="chat-time">现在</span>
+                    </div>
+                    <div class="chat-preview">耳机降噪功能怎么用？</div>
+                    <div class="chat-tags">
+                        <span class="tag tag-ai">AI辅助</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 中间：对话区域 -->
+        <main class="main-content">
+            <div class="chat-header-bar">
+                <div class="customer-info">
+                    <div class="customer-avatar">👤</div>
+                    <div class="customer-details">
+                        <h4>John Doe</h4>
+                        <p>My Best Buy PLUS 会员 | 3年客户</p>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn btn-secondary">📋 查看订单</button>
+                    <button class="btn btn-secondary">🎧 转接</button>
+                    <button class="btn btn-primary">✓ 结束会话</button>
+                </div>
+            </div>
+
+            <div class="chat-messages">
+                <div class="message ai">
+                    <div class="message-avatar">🤖</div>
+                    <div>
+                        <div class="message-content">
+                            您好！我是Best Buy AI助手。我注意到您最近购买了 Sony WH-1000XM5 耳机，有什么可以帮您的吗？
+                        </div>
+                        <div class="message-meta">AI助手 • 10:30 AM</div>
+                    </div>
+                </div>
+
+                <div class="message customer">
+                    <div class="message-avatar">👤</div>
+                    <div>
+                        <div class="message-content">
+                            这个耳机的降噪功能怎么用？我按了按钮但没反应
+                        </div>
+                        <div class="message-meta" style="text-align:right;color:rgba(255,255,255,0.7);">10:32 AM</div>
+                    </div>
+                </div>
+
+                <div class="message ai">
+                    <div class="message-avatar">🤖</div>
+                    <div>
+                        <div class="message-content">
+                            请您尝试以下步骤：<br><br>
+                            1. 确保耳机已开机<br>
+                            2. 按住左耳罩上的 NC/AMB 按钮约2秒<br>
+                            3. 听到提示音表示降噪已开启<br><br>
+                            如果仍有问题，我可以为您转接人工客服。
+                        </div>
+                        <div class="message-meta">AI助手 • 10:32 AM</div>
+                    </div>
+                </div>
+
+                <div class="message customer">
+                    <div class="message-avatar">👤</div>
+                    <div>
+                        <div class="message-content">
+                            还是不行，可能是我操作不对，能详细说一下吗
+                        </div>
+                        <div class="message-meta" style="text-align:right;color:rgba(255,255,255,0.7);">10:35 AM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <textarea class="chat-input" placeholder="输入回复..."></textarea>
+                    <button class="send-btn">➤</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧：AI辅助面板 -->
+        <aside class="assist-panel">
+            <div class="panel-header">
+                <div>
+                    <div class="panel-title">🤖 Agent Assist</div>
+                    <div class="panel-subtitle">AI实时辅助</div>
+                </div>
+            </div>
+
+            <div class="panel-content">
+                <!-- 情绪分析 -->
+                <div class="sentiment-indicator">
+                    <span class="sentiment-score">75</span>
+                    <div>
+                        <div style="font-weight:600;">客户情绪</div>
+                        <div class="sentiment-label">中性 - 轻微困惑</div>
+                    </div>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 实时情绪分析</div>
+                    基于Transformer模型实时分析对话情绪，识别客户满意度变化趋势，提前预警升级需求。
+                </div>
+
+                <!-- 客户画像 -->
+                <div class="section-title" style="color:rgba(255,255,255,0.7);margin-bottom:12px;">客户画像</div>
+                <div class="customer-context">
+                    <div class="context-item">
+                        <span class="context-label">会员等级</span>
+                        <span class="context-value" style="color:var(--bestbuy-yellow);">PLUS</span>
+                    </div>
+                    <div class="context-item">
+                        <span class="context-label">客户年限</span>
+                        <span class="context-value">3年</span>
+                    </div>
+                    <div class="context-item">
+                        <span class="context-label">年均消费</span>
+                        <span class="context-value">$2,400</span>
+                    </div>
+                    <div class="context-item">
+                        <span class="context-label">最近订单</span>
+                        <span class="context-value">Sony耳机 #78432</span>
+                    </div>
+                    <div class="context-item">
+                        <span class="context-label">历史满意度</span>
+                        <span class="context-value" style="color:var(--success-green);">4.8/5</span>
+                    </div>
+                </div>
+
+                <!-- AI洞察 -->
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <span>💡</span>
+                        <span>智能洞察</span>
+                    </div>
+                    <div class="insight-text">
+                        客户购买了高端耳机但遇到使用困难，可能需要更详细的图文指导。建议发送操作视频链接。
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <span>⚠️</span>
+                        <span>产品预警</span>
+                    </div>
+                    <div class="insight-text">
+                        WH-1000XM5 近期有 2% 用户反馈固件问题，建议确认客户固件版本是否为最新。
+                    </div>
+                </div>
+
+                <!-- 知识推荐 -->
+                <div class="section-title" style="color:rgba(255,255,255,0.7);margin:20px 0 12px;">推荐知识</div>
+                <div class="insight-card">
+                    <div class="insight-text">
+                        <strong>Sony WH-1000XM5 降噪设置指南</strong><br>
+                        详细步骤图解 + 常见问题排查
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-text">
+                        <strong>固件更新教程</strong><br>
+                        如何通过App检查并更新耳机固件
+                    </div>
+                </div>
+
+                <!-- 快捷回复 -->
+                <div class="section-title" style="color:rgba(255,255,255,0.7);margin:20px 0 12px;">快捷回复</div>
+                <div>
+                    <span class="quick-reply">发送操作视频</span>
+                    <span class="quick-reply">固件更新指南</span>
+                    <span class="quick-reply">申请换货</span>
+                    <span class="quick-reply">转接技术支持</span>
+                </div>
+
+                <!-- 建议操作 -->
+                <div class="suggested-actions" style="margin-top:20px;">
+                    <h4>建议操作</h4>
+                    <button class="action-btn">📹 发送视频教程链接</button>
+                    <button class="action-btn">📋 查看详细产品手册</button>
+                    <button class="action-btn">🔧 创建技术支持工单</button>
+                    <button class="action-btn">🎁 推荐耳机保护套</button>
+                </div>
+
+                <div class="tech-note" style="margin-top:20px;">
+                    <div class="tech-note-title">⚡ 技术实现</div>
+                    RAG检索 + 实时情绪分析 + 客户画像融合，为客服代表提供上下文感知的智能建议。
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>

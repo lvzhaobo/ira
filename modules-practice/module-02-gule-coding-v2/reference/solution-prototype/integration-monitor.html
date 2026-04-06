@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Buy AI - 系统集成监控</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bestbuy-blue: #003da6;
+            --bestbuy-yellow: #ffe600;
+            --bestbuy-dark: #1d252c;
+            --bestbuy-gray: #f4f6f8;
+            --bestbuy-light-gray: #e8ecf0;
+            --success-green: #00a651;
+            --warning-orange: #ff6b00;
+            --danger-red: #dc2626;
+            --tech-highlight: #e0f2fe;
+            --tech-border: #0ea5e9;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bestbuy-gray);
+            color: var(--bestbuy-text);
+        }
+        .header {
+            background: var(--bestbuy-blue);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            font-weight: 800;
+            font-size: 24px;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            border-color: var(--bestbuy-yellow);
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--bestbuy-light-gray);
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 14px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--bestbuy-gray);
+            border-left-color: var(--bestbuy-blue);
+        }
+        .nav-item.active {
+            font-weight: 600;
+            color: var(--bestbuy-blue);
+        }
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            color: #5c6c7c;
+            margin-bottom: 24px;
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--tech-highlight);
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--tech-border);
+        }
+        .tech-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #f59e0b;
+        }
+        .tech-badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #ef4444;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .section.tech-highlight {
+            border: 2px solid var(--tech-border);
+        }
+        .section.danger-highlight {
+            border: 2px solid #ef4444;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .tech-note {
+            background: var(--tech-highlight);
+            border-left: 4px solid var(--tech-border);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tech-note.danger {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        .tech-note-title {
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tech-note.danger .tech-note-title {
+            color: #991b1b;
+        }
+        .tech-note ul {
+            margin-left: 20px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.8;
+        }
+        .system-card {
+            background: white;
+            border: 1px solid var(--bestbuy-light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .system-card.tech-highlight {
+            border: 2px solid var(--tech-border);
+        }
+        .system-card.danger-highlight {
+            border: 2px solid #ef4444;
+        }
+        .system-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .system-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .system-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bestbuy-gray);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .system-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .system-type {
+            font-size: 13px;
+            color: #5c6c7c;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-operational {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-degraded {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .metric-box {
+            background: var(--bestbuy-gray);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #5c6c7c;
+            margin-bottom: 4px;
+        }
+        .metric-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .api-endpoint {
+            background: var(--bestbuy-dark);
+            color: #a5b4fc;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .api-method {
+            color: #4ade80;
+            font-weight: 600;
+        }
+        .log-entry {
+            display: flex;
+            gap: 16px;
+            padding: 12px;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+            font-size: 13px;
+            font-family: monospace;
+        }
+        .log-time {
+            color: #5c6c7c;
+            min-width: 80px;
+        }
+        .log-level {
+            min-width: 60px;
+            font-weight: 600;
+        }
+        .log-level.error { color: var(--danger-red); }
+        .log-level.warn { color: var(--warning-orange); }
+        .log-level.info { color: var(--bestbuy-blue); }
+        .log-message {
+            flex: 1;
+        }
+        .architecture-diagram {
+            background: var(--bestbuy-dark);
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .arch-node {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin: 4px;
+        }
+        .arch-ai { background: #7c3aed; }
+        .arch-api { background: #0ea5e9; }
+        .arch-db { background: #059669; }
+        .arch-legacy { background: #dc2626; }
+        .arch-external { background: #f59e0b; color: #1d252c; }
+        .connector {
+            color: #6b7280;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div class="logo">best buy</div>
+            <span style="color:white;opacity:0.8;font-size:14px;">AI Assistant 管理平台</span>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-btn">客户视图</a>
+            <a href="admin-dashboard.html" class="nav-btn">管理员视图</a>
+            <a href="knowledge-base.html" class="nav-btn">知识库管理</a>
+            <a href="integration-monitor.html" class="nav-btn active">系统集成监控</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="nav-item">📊 系统概览</div>
+            <div class="nav-item">💬 对话分析</div>
+            <div class="nav-item">🤖 模型管理</div>
+            <div class="nav-item">👥 客服管理</div>
+            <div class="nav-item">📈 业务指标</div>
+            <div class="nav-item">⚙️ 系统配置</div>
+            <div class="nav-item">🔔 告警中心</div>
+            <div class="nav-item active">🔌 集成监控</div>
+        </aside>
+
+        <main class="main-content">
+            <h1 class="page-title">系统集成监控</h1>
+            <p class="page-subtitle">监控AI助手与核心业务系统的集成状态与性能</p>
+
+            <!-- 架构概览 -->
+            <div class="section tech-highlight">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">🏗️ 系统集成架构</h3>
+                        <span class="tech-badge" style="margin-top:8px;display:inline-flex;">核心技术: API网关 + 微服务</span>
+                    </div>
+                </div>
+
+                <div class="architecture-diagram">
+                    <div style="text-align:center;">
+                        <span class="arch-node arch-ai">🤖 AI Assistant</span>
+                        <br>
+                        <span class="connector">↓</span>
+                        <br>
+                        <span class="arch-node arch-api">🚪 API Gateway (Kong)</span>
+                        <br>
+                        <span class="connector">↓</span>
+                        <br>
+                        <span class="arch-node arch-api">⚙️ Orchestration Service</span>
+                        <span class="connector">←→</span>
+                        <span class="arch-node arch-api">💾 Cache (Redis)</span>
+                        <br>
+                        <span class="connector">↓ ↓ ↓ ↓ ↓</span>
+                        <br>
+                        <span class="arch-node arch-legacy">🏢 SAP ERP</span>
+                        <span class="arch-node arch-api">👤 Salesforce</span>
+                        <span class="arch-node arch-db">📦 WMS</span>
+                        <span class="arch-node arch-external">🚚 FedEx</span>
+                        <span class="arch-node arch-external">💳 Payment</span>
+                    </div>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 架构设计要点</div>
+                    <ul>
+                        <li><strong>API网关：</strong> 统一认证、限流、熔断，防止单点故障拖垮整个系统</li>
+                        <li><strong>编排服务：</strong> Saga模式处理分布式事务，保证最终一致性</li>
+                        <li><strong>缓存策略：</strong> 订单状态等高频查询数据缓存5分钟，降低源系统压力</li>
+                        <li><strong>异步解耦：</strong> 非关键操作（如日志）使用消息队列异步处理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SAP ERP -->
+            <div class="system-card danger-highlight">
+                <div class="system-header">
+                    <div class="system-info">
+                        <div class="system-icon">🏢</div>
+                        <div>
+                            <div class="system-title">SAP ERP</div>
+                            <div class="system-type">订单/库存/客户主数据</div>
+                        </div>
+                    </div>
+                    <span class="status-badge status-degraded">⚠️ 降级运行</span>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-label">响应时间</div>
+                        <div class="metric-value" style="color:var(--warning-orange);">2.3s</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">成功率</div>
+                        <div class="metric-value" style="color:var(--warning-orange);">94.2%</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">QPS</div>
+                        <div class="metric-value">156</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">超时率</div>
+                        <div class="metric-value" style="color:var(--danger-red);">5.8%</div>
+                    </div>
+                </div>
+
+                <div class="api-endpoint">
+                    <span class="api-method">RFC</span> Z_BAPI_ORDER_GET_DETAIL <span style="color:#6b7280;">→ 读取订单详情</span>
+                </div>
+
+                <div class="tech-note danger">
+                    <div class="tech-note-title">🚨 关键难点: SAP遗留系统集成</div>
+                    <ul>
+                        <li><strong>RFC/BAPI接口：</strong> 使用SAP JCo库调用远程函数，连接池配置复杂</li>
+                        <li><strong>数据格式转换：</strong> SAP的IDoc/ABAP结构需转换为JSON，字段映射维护困难</li>
+                        <li><strong>事务一致性：</strong> 跨系统操作使用Saga补偿事务，失败时回滚或补偿</li>
+                        <li><strong>性能瓶颈：</strong> SAP系统老旧，并发能力有限，需严格限流保护</li>
+                        <li><strong>降级策略：</strong> 当前已启用缓存降级，返回5分钟内缓存数据</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Salesforce -->
+            <div class="system-card">
+                <div class="system-header">
+                    <div class="system-info">
+                        <div class="system-icon">👤</div>
+                        <div>
+                            <div class="system-title">Salesforce CRM</div>
+                            <div class="system-type">客户数据/服务工单</div>
+                        </div>
+                    </div>
+                    <span class="status-badge status-operational">● 正常运行</span>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-label">响应时间</div>
+                        <div class="metric-value" style="color:var(--success-green);">0.4s</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">成功率</div>
+                        <div class="metric-value" style="color:var(--success-green);">99.9%</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">QPS</div>
+                        <div class="metric-value">423</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">API限额</div>
+                        <div class="metric-value">45%</div>
+                    </div>
+                </div>
+
+                <div class="api-endpoint">
+                    <span class="api-method">GET</span> /services/data/v58.0/sobjects/Account/{id} <span style="color:#6b7280;">→ 查询客户信息</span>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <!-- FedEx -->
+                <div class="system-card">
+                    <div class="system-header">
+                        <div class="system-info">
+                            <div class="system-icon">🚚</div>
+                            <div>
+                                <div class="system-title">FedEx API</div>
+                                <div class="system-type">物流追踪</div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-operational">● 正常</span>
+                    </div>
+                    <div class="metrics-row" style="grid-template-columns:repeat(2,1fr);">
+                        <div class="metric-box">
+                            <div class="metric-label">响应时间</div>
+                            <div class="metric-value" style="color:var(--success-green);">0.8s</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">成功率</div>
+                            <div class="metric-value" style="color:var(--success-green);">99.7%</div>
+                        </div>
+                    </div>
+                    <div class="tech-badge" style="margin-top:12px;">Webhook回调推送</div>
+                </div>
+
+                <!-- Payment -->
+                <div class="system-card">
+                    <div class="system-header">
+                        <div class="system-info">
+                            <div class="system-icon">💳</div>
+                            <div>
+                                <div class="system-title">Payment Gateway</div>
+                                <div class="system-type">支付处理</div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-operational">● 正常</span>
+                    </div>
+                    <div class="metrics-row" style="grid-template-columns:repeat(2,1fr);">
+                        <div class="metric-box">
+                            <div class="metric-label">响应时间</div>
+                            <div class="metric-value" style="color:var(--success-green);">0.3s</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">成功率</div>
+                            <div class="metric-value" style="color:var(--success-green);">99.95%</div>
+                        </div>
+                    </div>
+                    <div class="tech-badge" style="margin-top:12px;">PCI DSS合规</div>
+                </div>
+            </div>
+
+            <!-- 实时日志 -->
+            <div class="section tech-highlight">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">📜 集成调用日志</h3>
+                        <span class="tech-badge" style="margin-top:8px;display:inline-flex;">实时数据流</span>
+                    </div>
+                    <span style="font-size:13px;color:#5c6c7c;">自动刷新: 5s</span>
+                </div>
+
+                <div style="background:var(--bestbuy-dark);border-radius:8px;padding:16px;max-height:300px;overflow-y:auto;">
+                    <div class="log-entry">
+                        <span class="log-time">10:42:15</span>
+                        <span class="log-level error">ERROR</span>
+                        <span class="log-message">SAP_RFC_TIMEOUT: Z_BAPI_ORDER_GET_DETAIL 调用超时 (3000ms)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">10:42:15</span>
+                        <span class="log-level warn">WARN</span>
+                        <span class="log-message">CIRCUIT_BREAKER: SAP ERP 熔断器打开，启用缓存降级</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">10:42:14</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Salesforce_API: Account查询成功 (id=0015g00000XZYAA)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">10:42:13</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">FedEx_Webhook: 订单#BB-78432 状态更新: 运输中</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">10:42:12</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">CACHE_HIT: 订单详情从Redis读取 (key=order:78432)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">10:42:10</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">SAGA_TX: 订单创建事务完成 (tx_id=tx_20240304104210)</span>
+                    </div>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 关键技术: 熔断降级与Saga模式</div>
+                    <ul>
+                        <li><strong>熔断器(Circuit Breaker)：</strong> 连续失败5次后打开熔断，直接返回降级数据，避免级联故障</li>
+                        <li><strong>降级策略：</strong> SAP不可用时，返回缓存数据；缓存过期则返回"数据暂时不可用"提示</li>
+                        <li><strong>Saga事务：</strong> 长事务拆分为本地事务，失败时执行补偿操作（如取消订单释放库存）</li>
+                        <li><strong>日志追踪：</strong> 使用OpenTelemetry实现全链路追踪，tx_id贯穿所有服务调用</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 数据同步 -->
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">🔄 数据同步状态</h3>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>同步任务</th>
+                            <th>源系统</th>
+                            <th>目标系统</th>
+                            <th>同步方式</th>
+                            <th>最后同步</th>
+                            <th>延迟</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>订单主数据</td>
+                            <td>SAP ERP</td>
+                            <td>AI Assistant DB</td>
+                            <td><span class="tech-badge">CDC实时</span></td>
+                            <td>10:42:15</td>
+                            <td>2.3s</td>
+                            <td><span class="status-badge status-degraded">⚠️ 延迟</span></td>
+                        </tr>
+                        <tr>
+                            <td>客户信息</td>
+                            <td>Salesforce</td>
+                            <td>AI Assistant DB</td>
+                            <td><span class="tech-badge">API轮询</span></td>
+                            <td>10:42:00</td>
+                            <td>&lt;1s</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                        </tr>
+                        <tr>
+                            <td>库存数据</td>
+                            <td>WMS</td>
+                            <td>AI Assistant DB</td>
+                            <td><span class="tech-badge">消息队列</span></td>
+                            <td>10:41:55</td>
+                            <td>&lt;1s</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                        </tr>
+                        <tr>
+                            <td>物流状态</td>
+                            <td>FedEx</td>
+                            <td>AI Assistant DB</td>
+                            <td><span class="tech-badge">Webhook</span></td>
+                            <td>10:42:13</td>
+                            <td>实时</td>
+                            <td><span class="status-badge status-operational">● 正常</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

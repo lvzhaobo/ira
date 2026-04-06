@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Buy · AI 零售运营智能看板 | Accenture Analytics</title>
+<style>
+  :root {
+    --blue:       #003DA5;
+    --blue-dark:  #00257A;
+    --blue-mid:   #0055CC;
+    --blue-light: #E8F0FF;
+    --blue-pale:  #F0F4FF;
+    --yellow:     #FFE000;
+    --yellow-dark:#CCB300;
+    --yellow-pale:#FFFBCC;
+    --dark:       #0A0F1E;
+    --gray-dark:  #1A1F2E;
+    --gray:       #4A5568;
+    --gray-mid:   #718096;
+    --gray-light: #F7F8FC;
+    --border:     #E2E8F0;
+    --white:      #FFFFFF;
+    --green:      #00C851;
+    --green-light:#E6FAF0;
+    --red:        #E53E3E;
+    --red-light:  #FFF5F5;
+    --orange:     #F57C00;
+    --orange-light:#FFF3E0;
+    --purple:     #6B46C1;
+    --purple-light:#F3F0FF;
+    --teal:       #0097A7;
+    --teal-light: #E0F7FA;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: #0D1117;
+    color: var(--white);
+    min-height: 100vh;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: linear-gradient(90deg, #001560 0%, #003DA5 100%);
+    height: 56px; padding: 0 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid var(--yellow);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .tb-left { display: flex; align-items: center; gap: 20px; }
+  .tb-logo {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-badge {
+    background: var(--yellow); color: var(--blue);
+    font-weight: 900; font-size: 16px; padding: 3px 10px;
+    letter-spacing: -0.5px;
+  }
+  .logo-text { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }
+  .tb-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
+  .tb-title { font-size: 13px; color: rgba(255,255,255,0.7); }
+  .tb-title strong { color: var(--yellow); }
+  .tb-right { display: flex; align-items: center; gap: 16px; }
+  .tb-live {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; color: var(--green);
+    background: rgba(0,200,81,0.12); padding: 4px 10px; border-radius: 20px;
+    border: 1px solid rgba(0,200,81,0.3);
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .tb-time { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .tb-accenture { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+  .tb-accenture span { color: var(--yellow); }
+
+  /* ─── LAYOUT ─── */
+  .dashboard {
+    padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  /* ─── PAGE TITLE ROW ─── */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-title { font-size: 22px; font-weight: 900; color: var(--white); }
+  .page-title span { color: var(--yellow); }
+  .page-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+  .page-controls { display: flex; align-items: center; gap: 10px; }
+  .ctrl-btn {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    transition: all .2s;
+  }
+  .ctrl-btn:hover, .ctrl-btn.active {
+    background: var(--blue); border-color: var(--blue); color: var(--white);
+  }
+  .ctrl-btn.yellow-btn {
+    background: var(--yellow); border-color: var(--yellow); color: var(--blue);
+    font-weight: 800;
+  }
+  .date-range {
+    font-size: 12px; color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ─── KPI ROW ─── */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px;
+  }
+  .kpi-card {
+    background: linear-gradient(145deg, #141B2D, #1A2238);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 16px 18px;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+    cursor: default;
+  }
+  .kpi-card:hover { border-color: rgba(255,224,0,0.3); transform: translateY(-2px); }
+  .kpi-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .kpi-blue::before { background: var(--blue-mid); }
+  .kpi-yellow::before { background: var(--yellow); }
+  .kpi-green::before { background: var(--green); }
+  .kpi-red::before { background: var(--red); }
+  .kpi-orange::before { background: var(--orange); }
+  .kpi-purple::before { background: var(--purple); }
+  .kpi-label {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45);
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .kpi-value { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+  .kpi-blue .kpi-value { color: #5B9CF6; }
+  .kpi-yellow .kpi-value { color: var(--yellow); }
+  .kpi-green .kpi-value { color: var(--green); }
+  .kpi-red .kpi-value { color: #FC8181; }
+  .kpi-orange .kpi-value { color: #F6AD55; }
+  .kpi-purple .kpi-value { color: #A78BFA; }
+  .kpi-trend {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 600;
+  }
+  .trend-up { color: var(--green); }
+  .trend-down { color: #FC8181; }
+  .trend-vs { font-size: 11px; color: rgba(255,255,255,0.3); margin-left: 2px; }
+
+  /* ─── MAIN GRID ─── */
+  .main-grid {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 18px;
+  }
+  .side-grid {
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  /* ─── CHART CARD ─── */
+  .chart-card {
+    background: linear-gradient(145deg, #141B2D, #1A2238);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px; padding: 20px 22px;
+    position: relative; overflow: hidden;
+  }
+  .chart-card:hover { border-color: rgba(0,61,165,0.4); }
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 14px; font-weight: 800; color: var(--white); margin-bottom: 3px; }
+  .card-subtitle { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .card-badge {
+    font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-ai { background: rgba(0,61,165,0.3); color: #7EB3FF; border: 1px solid rgba(0,61,165,0.5); }
+  .badge-live { background: rgba(0,200,81,0.15); color: var(--green); border: 1px solid rgba(0,200,81,0.3); }
+  .badge-alert { background: rgba(229,62,62,0.15); color: #FC8181; border: 1px solid rgba(229,62,62,0.3); }
+  .badge-new { background: rgba(255,224,0,0.15); color: var(--yellow); border: 1px solid rgba(255,224,0,0.3); }
+
+  /* ─── SVG CHARTS ─── */
+  .chart-area { width: 100%; }
+
+  /* Revenue Line Chart */
+  .rev-chart { height: 200px; position: relative; }
+  .rev-chart svg { width: 100%; height: 100%; }
+
+  /* Bar Chart */
+  .bar-chart { height: 180px; }
+  .bar-chart svg { width: 100%; height: 100%; }
+
+  /* Donut */
+  .donut-wrap { display: flex; align-items: center; gap: 20px; }
+  .donut-svg { flex-shrink: 0; }
+  .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { color: rgba(255,255,255,0.7); flex: 1; }
+  .legend-pct { font-weight: 800; color: var(--white); }
+  .legend-val { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+  /* Heatmap */
+  .heatmap-grid {
+    display: grid; grid-template-columns: 40px repeat(12, 1fr);
+    gap: 3px; margin-top: 8px;
+  }
+  .hm-label { font-size: 10px; color: rgba(255,255,255,0.35); text-align: center; padding: 4px 0; }
+  .hm-row-label { font-size: 10px; color: rgba(255,255,255,0.35); text-align: right; padding-right: 6px; line-height: 22px; }
+  .hm-cell {
+    height: 22px; border-radius: 3px; cursor: pointer;
+    transition: opacity .2s; position: relative;
+  }
+  .hm-cell:hover { opacity: 0.8; outline: 1px solid rgba(255,255,255,0.4); }
+
+  /* ─── AI ASSISTANT PANEL ─── */
+  .ai-panel {
+    background: linear-gradient(145deg, #0A1428, #0E1B35);
+    border: 1px solid rgba(0,61,165,0.4);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .ai-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .ai-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .ai-title { font-size: 13px; font-weight: 800; color: var(--white); }
+  .ai-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .ai-insights { display: flex; flex-direction: column; gap: 10px; }
+  .insight-item {
+    background: rgba(255,255,255,0.04); border-radius: 8px; padding: 12px 14px;
+    border-left: 3px solid;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .insight-blue { border-color: var(--blue-mid); }
+  .insight-green { border-color: var(--green); }
+  .insight-yellow { border-color: var(--yellow); }
+  .insight-red { border-color: var(--red); }
+  .insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .insight-text { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+  .insight-text strong { color: var(--white); }
+
+  /* ─── BOTTOM GRID ─── */
+  .bottom-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;
+  }
+
+  /* ─── TABLE ─── */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table thead th {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
+    text-align: left;
+  }
+  .data-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .data-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .data-table tbody td { padding: 10px 0; font-size: 13px; vertical-align: middle; }
+  .td-rank { color: rgba(255,255,255,0.3); font-weight: 700; width: 24px; }
+  .td-prod { color: rgba(255,255,255,0.85); font-weight: 600; }
+  .td-cat { font-size: 11px; color: rgba(255,255,255,0.4); display: block; margin-top: 1px; }
+  .td-num { text-align: right; font-weight: 800; }
+  .td-bar-wrap { padding-right: 8px; }
+  .td-bar-bg { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; }
+  .td-bar-fill { height: 4px; background: var(--yellow); border-radius: 2px; }
+
+  /* ─── GAUGE ─── */
+  .gauge-row { display: flex; flex-direction: column; gap: 12px; }
+  .gauge-item { }
+  .gauge-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .gauge-name { font-size: 13px; color: rgba(255,255,255,0.75); display: flex; align-items: center; gap: 6px; }
+  .gauge-val { font-size: 13px; font-weight: 800; }
+  .gauge-bg { height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; }
+  .gauge-fill { height: 6px; border-radius: 3px; position: relative; }
+  .gauge-fill::after {
+    content: ''; position: absolute; right: -1px; top: -3px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: inherit; box-shadow: 0 0 6px currentColor;
+  }
+
+  /* ─── FUNNEL ─── */
+  .funnel { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .funnel-step { display: flex; align-items: center; gap: 10px; }
+  .funnel-bar-wrap { flex: 1; position: relative; height: 32px; display: flex; align-items: center; }
+  .funnel-bar {
+    height: 32px; border-radius: 4px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9);
+    transition: width .6s ease;
+  }
+  .funnel-label { font-size: 12px; color: rgba(255,255,255,0.5); width: 90px; flex-shrink: 0; }
+  .funnel-num { font-size: 12px; font-weight: 800; width: 60px; text-align: right; flex-shrink: 0; }
+  .funnel-drop { font-size: 11px; color: #FC8181; width: 44px; text-align: right; flex-shrink: 0; }
+
+  /* ─── SPARKLINE inline ─── */
+  .mini-spark { display: inline-block; vertical-align: middle; }
+
+  /* ─── FOOTER BAR ─── */
+  .footer-bar {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: rgba(255,255,255,0.35);
+  }
+  .footer-bar strong { color: rgba(255,255,255,0.6); }
+  .footer-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.2); display: inline-block; margin: 0 8px; vertical-align: middle; }
+
+  /* ─── ALERT STRIP ─── */
+  .alert-strip {
+    background: rgba(229,62,62,0.08); border: 1px solid rgba(229,62,62,0.2);
+    border-radius: 8px; padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px;
+  }
+  .alert-icon { font-size: 14px; flex-shrink: 0; }
+  .alert-text { color: rgba(255,255,255,0.7); flex: 1; }
+  .alert-text strong { color: #FC8181; }
+  .alert-time { font-size: 11px; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-logo">
+      <div class="logo-badge">Best Buy</div>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-title">AI 零售运营智能看板 &nbsp;·&nbsp; <strong>Q1 2025 实时视图</strong></div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-live"><div class="live-dot"></div>LIVE</div>
+    <div class="tb-time" id="clock">更新于 09:42:18</div>
+    <div class="tb-divider"></div>
+    <div class="tb-accenture">Powered by <span>Accenture Analytics</span></div>
+  </div>
+</div>
+
+<div class="dashboard">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">零售运营 <span>AI 智能看板</span></div>
+      <div class="page-subtitle">Best Buy North America · GenAI 客服 + 全渠道运营 + 商品销售分析</div>
+    </div>
+    <div class="page-controls">
+      <div class="date-range">📅 2025-01-01 ~ 2025-03-31</div>
+      <button class="ctrl-btn active">本季度</button>
+      <button class="ctrl-btn">本月</button>
+      <button class="ctrl-btn">本周</button>
+      <button class="ctrl-btn yellow-btn">↗ 导出报告</button>
+    </div>
+  </div>
+
+  <!-- ALERT STRIP -->
+  <div class="alert-strip">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-text"><strong>智能预警</strong>：今日 TV/显示器品类退货率上升 <strong>+3.2%</strong>，AI 助手已检测到"安装问题"相关咨询激增，建议增派技术支持坐席</div>
+    <div class="alert-time">09:38 触发</div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-label">💰 季度销售额</div>
+      <div class="kpi-value">$4.28B</div>
+      <div class="kpi-trend">
+        <span class="trend-up">▲ +7.4%</span>
+        <span class="trend-vs">vs Q1'24</span>
+      </div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-label">🤖 AI 客服解决率</div>
+      <div class="kpi-value">89.3%</div>
+      <div class="kpi-trend">
+        <span class="trend-up">▲ +12.1%</span>
+        <span class="trend-vs">同比</span>
+      </div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-label">😊 客户满意度</div>
+      <div class="kpi-value">4.72<span style="font-size:14px;font-weight:400"> /5</span></div>
+      <div class="kpi-trend">
+        <span class="trend-up">▲ +0.18</span>
+        <span class="trend-vs">NPS +23</span>
+      </div>
+    </div>
+    <div class="kpi-card kpi-orange">
+      <div class="kpi-label">🛒 在线订单量</div>
+      <div class="kpi-value">2.14M</div>
+      <div class="kpi-trend">
+        <span class="trend-up">▲ +18.6%</span>
+        <span class="trend-vs">YoY</span>
+      </div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">↩ 退货率</div>
+      <div class="kpi-value">8.7%</div>
+      <div class="kpi-trend">
+        <span class="trend-down">▼ -1.4pp</span>
+        <span class="trend-vs">优化中</span>
+      </div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-label">⏱ 平均响应时长</div>
+      <div class="kpi-value">38<span style="font-size:16px;font-weight:500">s</span></div>
+      <div class="kpi-trend">
+        <span class="trend-up">▼ -52s</span>
+        <span class="trend-vs">AI接入前: 90s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+    <!-- LEFT: Revenue + Heatmap -->
+    <div style="display:flex;flex-direction:column;gap:18px;">
+
+      <!-- Revenue Trend -->
+      <div class="chart-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">销售额趋势 vs AI 客服接待量</div>
+            <div class="card-subtitle">双轴折线图 · 月维度 · 2024 Q3 ~ 2025 Q1</div>
+          </div>
+          <span class="card-badge badge-live">实时</span>
+        </div>
+        <div class="rev-chart">
+          <svg viewBox="0 0 700 180" preserveAspectRatio="none">
+            <!-- Grid lines -->
+            <line x1="0" y1="30"  x2="700" y2="30"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="60"  x2="700" y2="60"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="90"  x2="700" y2="90"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="120" x2="700" y2="120" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="150" x2="700" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <!-- Y labels -->
+            <text x="0" y="28"  fill="rgba(255,255,255,0.25)" font-size="9">$5B</text>
+            <text x="0" y="88"  fill="rgba(255,255,255,0.25)" font-size="9">$3B</text>
+            <text x="0" y="153" fill="rgba(255,255,255,0.25)" font-size="9">$1B</text>
+
+            <!-- Revenue area (blue) -->
+            <defs>
+              <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#003DA5" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#003DA5" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="aiGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFE000" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#FFE000" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Revenue area fill -->
+            <polygon points="28,142 95,130 162,118 229,122 296,108 363,98 430,88 497,80 564,72 631,62 672,55 672,165 28,165"
+              fill="url(#revGrad)"/>
+            <!-- Revenue line -->
+            <polyline points="28,142 95,130 162,118 229,122 296,108 363,98 430,88 497,80 564,72 631,62 672,55"
+              fill="none" stroke="#4D89E0" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Revenue dots -->
+            <circle cx="672" cy="55" r="5" fill="#4D89E0" stroke="#0D1117" stroke-width="2"/>
+
+            <!-- AI Sessions area -->
+            <polygon points="28,148 95,145 162,138 229,133 296,120 363,108 430,95 497,82 564,70 631,56 672,48 672,165 28,165"
+              fill="url(#aiGrad)"/>
+            <!-- AI Sessions line -->
+            <polyline points="28,148 95,145 162,138 229,133 296,120 363,108 430,95 497,82 564,70 631,56 672,48"
+              fill="none" stroke="#FFE000" stroke-width="2" stroke-dasharray="5,3" stroke-linejoin="round"/>
+            <circle cx="672" cy="48" r="4" fill="#FFE000" stroke="#0D1117" stroke-width="2"/>
+
+            <!-- X labels -->
+            <text x="25"  y="175" fill="rgba(255,255,255,0.3)" font-size="9" text-anchor="middle">Q3'24</text>
+            <text x="162" y="175" fill="rgba(255,255,255,0.3)" font-size="9" text-anchor="middle">Aug</text>
+            <text x="296" y="175" fill="rgba(255,255,255,0.3)" font-size="9" text-anchor="middle">Oct</text>
+            <text x="430" y="175" fill="rgba(255,255,255,0.3)" font-size="9" text-anchor="middle">Dec</text>
+            <text x="564" y="175" fill="rgba(255,255,255,0.3)" font-size="9" text-anchor="middle">Feb'25</text>
+            <text x="672" y="175" fill="rgba(255,255,255,0.3)" font-size="9" text-anchor="middle">Mar</text>
+
+            <!-- Legend -->
+            <rect x="440" y="8" width="10" height="3" fill="#4D89E0" rx="1"/>
+            <text x="455" y="14" fill="rgba(255,255,255,0.55)" font-size="9">销售额</text>
+            <line x1="510" y1="10" x2="520" y2="10" stroke="#FFE000" stroke-width="2" stroke-dasharray="3,2"/>
+            <text x="525" y="14" fill="rgba(255,255,255,0.55)" font-size="9">AI接待量</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Heatmap: Category × Hour -->
+      <div class="chart-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">品类咨询热力图 · 今日小时分布</div>
+            <div class="card-subtitle">AI 客服会话量 · 颜色越深=咨询越密集</div>
+          </div>
+          <span class="card-badge badge-ai">AI 洞察</span>
+        </div>
+        <div class="heatmap-grid">
+          <!-- Header: hours -->
+          <div class="hm-label"></div>
+          <div class="hm-label">6</div><div class="hm-label">7</div><div class="hm-label">8</div>
+          <div class="hm-label">9</div><div class="hm-label">10</div><div class="hm-label">11</div>
+          <div class="hm-label">12</div><div class="hm-label">13</div><div class="hm-label">14</div>
+          <div class="hm-label">15</div><div class="hm-label">16</div><div class="hm-label">17</div>
+
+          <!-- TV -->
+          <div class="hm-row-label">TV</div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.15)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.25)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.45)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.70)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.85)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.6)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.9)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.7)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.75)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.55)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.40)"></div>
+          <div class="hm-cell" style="background:rgba(0,61,165,0.20)"></div>
+
+          <!-- Laptop -->
+          <div class="hm-row-label">笔记本</div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.10)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.20)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.35)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.55)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.5)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.75)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.85)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.95)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.70)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.50)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.35)"></div>
+          <div class="hm-cell" style="background:rgba(0,200,81,0.15)"></div>
+
+          <!-- Phone -->
+          <div class="hm-row-label">手机</div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.15)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.30)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.50)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.65)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.80)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.65)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.75)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.60)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.45)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.30)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.20)"></div>
+          <div class="hm-cell" style="background:rgba(107,70,193,0.10)"></div>
+
+          <!-- Appliance -->
+          <div class="hm-row-label">家电</div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.10)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.15)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.25)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.40)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.55)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.70)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.55)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.80)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.65)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.45)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.30)"></div>
+          <div class="hm-cell" style="background:rgba(245,124,0,0.15)"></div>
+
+          <!-- Gaming -->
+          <div class="hm-row-label">游戏</div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.08)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.12)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.18)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.25)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.35)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.50)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.65)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.75)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.6)"></div>
+          <div class="hm-cell" style="background:rgba(229,62,62,0.80)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.85)"></div>
+          <div class="hm-cell" style="background:rgba(255,224,0,0.95)"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.3);">低</div>
+          <div style="display:flex;gap:2px;">
+            <div style="width:14px;height:8px;border-radius:2px;background:rgba(0,61,165,0.15)"></div>
+            <div style="width:14px;height:8px;border-radius:2px;background:rgba(0,61,165,0.35)"></div>
+            <div style="width:14px;height:8px;border-radius:2px;background:rgba(0,61,165,0.60)"></div>
+            <div style="width:14px;height:8px;border-radius:2px;background:rgba(255,224,0,0.65)"></div>
+            <div style="width:14px;height:8px;border-radius:2px;background:rgba(255,224,0,0.95)"></div>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.3);">高</div>
+          <div style="flex:1"></div>
+          <div style="font-size:11px;color:rgba(255,224,0,0.7);">★ 黄色 = 峰值时段</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: AI Panel + Donut + Gauge -->
+    <div class="side-grid">
+
+      <!-- AI Insights -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <div class="ai-title">GenAI 智能助手洞察</div>
+            <div class="ai-sub">Accenture AI · 实时分析 · 置信度 ≥ 87%</div>
+          </div>
+        </div>
+        <div class="ai-insights">
+          <div class="insight-item insight-yellow">
+            <div class="insight-icon">📈</div>
+            <div class="insight-text"><strong>销售增长驱动</strong>：AI 助手将笔记本品类客单价提升 <strong>+$127</strong>，"附件推荐"功能贡献本季度 GMV 的 <strong>8.3%</strong></div>
+          </div>
+          <div class="insight-item insight-green">
+            <div class="insight-icon">✅</div>
+            <div class="insight-text"><strong>服务效率</strong>：89.3% 查询由 AI 独立解决，人工升级率降至 <strong>10.7%</strong>，节省坐席成本 <strong>$4.2M/季</strong></div>
+          </div>
+          <div class="insight-item insight-red">
+            <div class="insight-icon">⚠️</div>
+            <div class="insight-text"><strong>风险预警</strong>：TV 品类"安装问题"咨询今日上升 <strong>+41%</strong>，建议在产品页增加安装视频引导</div>
+          </div>
+          <div class="insight-item insight-blue">
+            <div class="insight-icon">🎯</div>
+            <div class="insight-text"><strong>转化机会</strong>：识别到 <strong>38K</strong> 个"对比观望"用户，个性化 Offer 推送预估可转化 <strong>+$18M</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Donut -->
+      <div class="chart-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">渠道销售占比</div>
+            <div class="card-subtitle">在线 · 门店 · 电话 · App</div>
+          </div>
+          <span class="card-badge badge-live">本季度</span>
+        </div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" width="100" height="100" viewBox="0 0 100 100">
+            <!-- Online 48% -->
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#003DA5" stroke-width="14"
+              stroke-dasharray="105.6 219.8" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+            <!-- Store 31% -->
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#FFE000" stroke-width="14"
+              stroke-dasharray="68.1 257.3" stroke-dashoffset="-105.6" transform="rotate(-90 50 50)"/>
+            <!-- App 14% -->
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#00C851" stroke-width="14"
+              stroke-dasharray="30.8 294.6" stroke-dashoffset="-173.7" transform="rotate(-90 50 50)"/>
+            <!-- Phone 7% -->
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#A78BFA" stroke-width="14"
+              stroke-dasharray="15.4 310" stroke-dashoffset="-204.5" transform="rotate(-90 50 50)"/>
+            <text x="50" y="48" text-anchor="middle" fill="white" font-size="11" font-weight="900">全渠道</text>
+            <text x="50" y="60" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8">Q1 2025</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#003DA5;"></div>
+              <div class="legend-label">在线 bestbuy.com</div>
+              <div class="legend-pct">48%</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#FFE000;"></div>
+              <div class="legend-label">线下门店</div>
+              <div class="legend-pct">31%</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#00C851;"></div>
+              <div class="legend-label">Best Buy App</div>
+              <div class="legend-pct">14%</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#A78BFA;"></div>
+              <div class="legend-label">电话订购</div>
+              <div class="legend-pct">7%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Service Gauges -->
+      <div class="chart-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">AI 客服核心指标</div>
+            <div class="card-subtitle">GenAI 虚拟助手 · 实时达成率</div>
+          </div>
+          <span class="card-badge badge-ai">AI</span>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <div class="gauge-name">🎯 首次解决率 FCR</div>
+              <div class="gauge-val" style="color:#00C851;">89.3%</div>
+            </div>
+            <div class="gauge-bg">
+              <div class="gauge-fill" style="width:89.3%;background:linear-gradient(90deg,#00C851,#00E564);"></div>
+            </div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <div class="gauge-name">⚡ 意图识别准确率</div>
+              <div class="gauge-val" style="color:#4D89E0;">94.7%</div>
+            </div>
+            <div class="gauge-bg">
+              <div class="gauge-fill" style="width:94.7%;background:linear-gradient(90deg,#003DA5,#5B9CF6);"></div>
+            </div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <div class="gauge-name">😊 对话满意度</div>
+              <div class="gauge-val" style="color:#FFE000;">91.2%</div>
+            </div>
+            <div class="gauge-bg">
+              <div class="gauge-fill" style="width:91.2%;background:linear-gradient(90deg,#CCB300,#FFE000);"></div>
+            </div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <div class="gauge-name">⬆️ 人工升级率</div>
+              <div class="gauge-val" style="color:#F6AD55;">10.7%</div>
+            </div>
+            <div class="gauge-bg">
+              <div class="gauge-fill" style="width:10.7%;background:linear-gradient(90deg,#F57C00,#F6AD55);"></div>
+            </div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <div class="gauge-name">🛒 AI 推荐转化率</div>
+              <div class="gauge-val" style="color:#A78BFA;">23.4%</div>
+            </div>
+            <div class="gauge-bg">
+              <div class="gauge-fill" style="width:23.4%;background:linear-gradient(90deg,#6B46C1,#A78BFA);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- Top Products Table -->
+    <div class="chart-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">热销商品 Top 10</div>
+          <div class="card-subtitle">本季度 · AI 助手推荐成交占比</div>
+        </div>
+        <span class="card-badge badge-new">本季</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:24px">#</th>
+            <th>商品</th>
+            <th style="text-align:right">销售额</th>
+            <th style="text-align:right;width:80px">AI占比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-rank">1</td>
+            <td><div class="td-prod">Samsung 75" QLED 4K TV</div><span class="td-cat">TV · 显示器</span></td>
+            <td class="td-num" style="color:#FFE000;">$18.4M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:72%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">72%</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-rank">2</td>
+            <td><div class="td-prod">Apple MacBook Pro M3</div><span class="td-cat">笔记本电脑</span></td>
+            <td class="td-num" style="color:#FFE000;">$14.2M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:68%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">68%</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-rank">3</td>
+            <td><div class="td-prod">iPhone 16 Pro Max</div><span class="td-cat">手机 · 智能设备</span></td>
+            <td class="td-num" style="color:#5B9CF6;">$13.7M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:55%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">55%</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-rank">4</td>
+            <td><div class="td-prod">LG 65" OLED evo C4</div><span class="td-cat">TV · 显示器</span></td>
+            <td class="td-num" style="color:#5B9CF6;">$11.1M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:61%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">61%</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-rank">5</td>
+            <td><div class="td-prod">Sony WH-1000XM5 耳机</div><span class="td-cat">音频 · 配件</span></td>
+            <td class="td-num" style="color:#00C851;">$8.3M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:84%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">84%</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-rank">6</td>
+            <td><div class="td-prod">PlayStation 5 Slim</div><span class="td-cat">游戏 · 主机</span></td>
+            <td class="td-num" style="color:#00C851;">$7.9M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:42%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">42%</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-rank">7</td>
+            <td><div class="td-prod">Dell XPS 15 Laptop</div><span class="td-cat">笔记本电脑</span></td>
+            <td class="td-num" style="color:rgba(255,255,255,0.6);">$6.6M</td>
+            <td>
+              <div class="td-bar-wrap"><div class="td-bar-bg"><div class="td-bar-fill" style="width:58%"></div></div></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-align:right;margin-top:2px;">58%</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Purchase Funnel -->
+    <div class="chart-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">AI 辅助购买漏斗</div>
+          <div class="card-subtitle">在线渠道 · 本季度用户路径分析</div>
+        </div>
+        <span class="card-badge badge-ai">AI 追踪</span>
+      </div>
+      <div class="funnel">
+        <div class="funnel-step">
+          <div class="funnel-label">页面浏览</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#003DA5,#0055CC);">
+              <span>100%</span>
+            </div>
+          </div>
+          <div class="funnel-num" style="color:#5B9CF6;">24.8M</div>
+          <div class="funnel-drop"></div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label" style="color:rgba(255,255,255,0.7);">↓ AI 触达</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:68%;background:linear-gradient(90deg,#004AB8,#0060E0);">
+              <span>68%</span>
+            </div>
+          </div>
+          <div class="funnel-num" style="color:#5B9CF6;">16.8M</div>
+          <div class="funnel-drop" style="color:#00C851;">-32%</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label" style="color:rgba(255,255,255,0.7);">↓ 加入购物车</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:42%;background:linear-gradient(90deg,#CCB300,#FFE000);color:#003DA5;">
+              <span>42%</span>
+            </div>
+          </div>
+          <div class="funnel-num" style="color:#FFE000;">10.4M</div>
+          <div class="funnel-drop">-26pp</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label" style="color:rgba(255,255,255,0.7);">↓ 结账发起</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:28%;background:linear-gradient(90deg,#00A040,#00C851);">
+              <span>28%</span>
+            </div>
+          </div>
+          <div class="funnel-num" style="color:#00C851;">6.9M</div>
+          <div class="funnel-drop">-14pp</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label" style="color:rgba(255,255,255,0.7);">↓ 订单完成</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:22%;background:linear-gradient(90deg,#6B46C1,#A78BFA);">
+              <span>22%</span>
+            </div>
+          </div>
+          <div class="funnel-num" style="color:#A78BFA;">5.5M</div>
+          <div class="funnel-drop">-6pp</div>
+        </div>
+        <div style="margin-top:14px;background:rgba(0,200,81,0.08);border-radius:8px;padding:10px 12px;border:1px solid rgba(0,200,81,0.2);">
+          <div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:4px;">🤖 AI 干预提升</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);">AI 触达用户最终转化率 <strong style="color:var(--green);">32.7%</strong>，较未触达用户高 <strong style="color:#FFE000;">+11.3pp</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regional Bar Chart -->
+    <div class="chart-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">各地区销售额对比</div>
+          <div class="card-subtitle">北美 10 大市场 · Q1 vs Q4 对比</div>
+        </div>
+        <span class="card-badge badge-live">对比</span>
+      </div>
+      <div class="bar-chart">
+        <svg viewBox="0 0 280 170" preserveAspectRatio="xMidYMid meet">
+          <!-- Background gridlines -->
+          <line x1="45" y1="10" x2="275" y2="10" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="45" y1="40" x2="275" y2="40" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="45" y1="70" x2="275" y2="70" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="45" y1="100" x2="275" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="45" y1="130" x2="275" y2="130" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+          <!-- NYC -->
+          <text x="40" y="25" fill="rgba(255,255,255,0.45)" font-size="8" text-anchor="end">New York</text>
+          <rect x="45" y="14" width="152" height="11" rx="2" fill="#003DA5" opacity="0.9"/>
+          <rect x="45" y="26" width="130" height="11" rx="2" fill="rgba(0,61,165,0.4)"/>
+          <text x="202" y="22" fill="#FFE000" font-size="8" font-weight="700">$0.62B</text>
+
+          <!-- LA -->
+          <text x="40" y="53" fill="rgba(255,255,255,0.45)" font-size="8" text-anchor="end">Los Angeles</text>
+          <rect x="45" y="42" width="132" height="11" rx="2" fill="#003DA5" opacity="0.9"/>
+          <rect x="45" y="54" width="110" height="11" rx="2" fill="rgba(0,61,165,0.4)"/>
+          <text x="182" y="50" fill="#FFE000" font-size="8" font-weight="700">$0.54B</text>
+
+          <!-- Chicago -->
+          <text x="40" y="81" fill="rgba(255,255,255,0.45)" font-size="8" text-anchor="end">Chicago</text>
+          <rect x="45" y="70" width="118" height="11" rx="2" fill="#003DA5" opacity="0.9"/>
+          <rect x="45" y="82" width="98" height="11" rx="2" fill="rgba(0,61,165,0.4)"/>
+          <text x="168" y="78" fill="#5B9CF6" font-size="8" font-weight="700">$0.48B</text>
+
+          <!-- Houston -->
+          <text x="40" y="109" fill="rgba(255,255,255,0.45)" font-size="8" text-anchor="end">Houston</text>
+          <rect x="45" y="98" width="104" height="11" rx="2" fill="#CCB300" opacity="0.9"/>
+          <rect x="45" y="110" width="88" height="11" rx="2" fill="rgba(204,179,0,0.35)"/>
+          <text x="154" y="106" fill="#FFE000" font-size="8" font-weight="700">$0.42B</text>
+
+          <!-- Seattle -->
+          <text x="40" y="137" fill="rgba(255,255,255,0.45)" font-size="8" text-anchor="end">Seattle</text>
+          <rect x="45" y="126" width="96" height="11" rx="2" fill="#00A040" opacity="0.9"/>
+          <rect x="45" y="138" width="80" height="11" rx="2" fill="rgba(0,160,64,0.35)"/>
+          <text x="146" y="134" fill="#00C851" font-size="8" font-weight="700">$0.39B</text>
+
+          <!-- Legend -->
+          <rect x="45" y="155" width="10" height="6" rx="1" fill="#003DA5"/>
+          <text x="59" y="161" fill="rgba(255,255,255,0.5)" font-size="8">Q1 2025</text>
+          <rect x="115" y="155" width="10" height="6" rx="1" fill="rgba(0,61,165,0.4)"/>
+          <text x="129" y="161" fill="rgba(255,255,255,0.5)" font-size="8">Q4 2024</text>
+        </svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;background:rgba(0,61,165,0.1);padding:8px 10px;border-radius:6px;">
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);">全渠道合计</div>
+        <div style="font-size:18px;font-weight:900;color:#FFE000;margin-left:auto;">$4.28B</div>
+        <div style="font-size:12px;color:#00C851;font-weight:700;">▲ +7.4%</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER BAR -->
+  <div class="footer-bar">
+    <div>
+      <strong>Best Buy Co., Inc.</strong>
+      <span class="footer-dot"></span>AI 零售运营智能看板 v2.1
+      <span class="footer-dot"></span>数据刷新：每 5 分钟
+    </div>
+    <div>
+      数据来源：OMS · CRM · GenAI 客服平台 · POS 系统
+      <span class="footer-dot"></span>Powered by <strong>Accenture Analytics</strong>
+      <span class="footer-dot"></span>GenAI: Accenture AI Refinery™
+    </div>
+    <div>机密文件 · 仅限内部使用</div>
+  </div>
+
+</div>
+
+<script>
+  // Live clock
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const el = document.getElementById('clock');
+    if (el) el.textContent = `更新于 ${h}:${m}:${s}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Button toggle
+  document.querySelectorAll('.ctrl-btn:not(.yellow-btn)').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.ctrl-btn:not(.yellow-btn)').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

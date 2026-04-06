@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Team · 漫画办公室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+
+  :root {
+    --purple: #A100FF;
+    --purple-dark: #7200B5;
+    --purple-light: #C84DFF;
+    --black: #000000;
+    --dark: #1A1A1A;
+    --white: #FFFFFF;
+    --yellow: #FFE566;
+    --skin: #FDDBB4;
+    --skin-dark: #E8B88A;
+    --hair-black: #2C1810;
+    --hair-brown: #6B3A2A;
+    --hair-yellow: #F4C430;
+    --wall-office: #F0EDE8;
+    --wall-meeting: #E8F0F8;
+    --wall-cafe: #FEF6E8;
+    --floor: #D4C4A8;
+    --desk: #C8A96E;
+    --desk-dark: #A07848;
+    --screen-blue: #1A3A6B;
+    --screen-glow: #4A9EFF;
+    --plant: #4CAF50;
+    --coffee: #6B3A1F;
+    --border-comic: #1A1A1A;
+    --shadow: rgba(0,0,0,0.15);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Noto Sans SC', 'Comic Sans MS', cursive, sans-serif;
+    background: #F5F0E8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── COMIC GLOBALS ─── */
+  .comic-border {
+    border: 3px solid var(--border-comic);
+    box-shadow: 4px 4px 0 var(--border-comic);
+  }
+  .speech-bubble {
+    position: absolute;
+    background: var(--white);
+    border: 2.5px solid var(--border-comic);
+    border-radius: 16px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--dark);
+    white-space: nowrap;
+    box-shadow: 2px 2px 0 var(--border-comic);
+    z-index: 10;
+    line-height: 1.4;
+    animation: float 3s ease-in-out infinite;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 18px;
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 10px solid var(--border-comic);
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -7px; left: 19px;
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 9px solid var(--white);
+    z-index: 1;
+  }
+  .bubble-right::after { left: auto; right: 18px; }
+  .bubble-right::before { left: auto; right: 19px; }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes float2 {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes blink-eye {
+    0%,90%,100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+  }
+  @keyframes typing {
+    0%,100% { opacity:1; }
+    50% { opacity:0.3; }
+  }
+  @keyframes screen-flicker {
+    0%,100% { opacity:1; }
+    97% { opacity:1; }
+    98% { opacity:0.8; }
+    99% { opacity:1; }
+  }
+  @keyframes steam {
+    0% { transform: translateY(0) scale(1); opacity:0.7; }
+    100% { transform: translateY(-16px) scale(1.3); opacity:0; }
+  }
+  @keyframes walk {
+    0%,100% { transform: translateX(0); }
+    50% { transform: translateX(6px); }
+  }
+
+  /* ─── TOP BANNER ─── */
+  .top-banner {
+    background: var(--black);
+    color: var(--white);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 4px solid var(--purple);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .banner-logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: var(--white);
+    border: 2px solid var(--purple-light);
+  }
+  .banner-title { font-size: 18px; font-weight: 900; }
+  .banner-title span { color: var(--purple-light); }
+  .banner-subtitle { font-size: 11px; color: rgba(255,255,255,0.5); margin-top:1px; }
+  .banner-right {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .day-tag {
+    background: var(--purple); color: var(--white);
+    font-size: 12px; font-weight: 800; padding: 5px 14px;
+    border-radius: 20px; border: 2px solid var(--purple-light);
+  }
+  .status-dot {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: rgba(255,255,255,0.7);
+  }
+  .dot-green { width:8px; height:8px; border-radius:50%; background:#00E676; animation: blink-eye 2s infinite; }
+
+  /* ─── OFFICE CONTAINER ─── */
+  .office-container {
+    max-width: 1200px;
+    margin: 32px auto;
+    padding: 0 24px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ─── FLOOR LABEL ─── */
+  .floor-label {
+    background: var(--black);
+    color: var(--yellow);
+    font-size: 13px; font-weight: 900;
+    padding: 8px 20px;
+    border-radius: 8px 8px 0 0;
+    border: 3px solid var(--border-comic);
+    border-bottom: none;
+    display: inline-block;
+    letter-spacing: 1px;
+  }
+
+  /* ─── ROOM ─── */
+  .room {
+    border: 3px solid var(--border-comic);
+    position: relative;
+    overflow: visible;
+  }
+  .room-label {
+    position: absolute;
+    top: -1px; left: -1px;
+    background: var(--purple);
+    color: var(--white);
+    font-size: 11px; font-weight: 900;
+    padding: 4px 12px;
+    border: 2px solid var(--border-comic);
+    letter-spacing: .5px;
+    z-index: 5;
+  }
+  .room-label.yellow { background: var(--yellow); color: var(--dark); }
+  .room-label.green  { background: #2E7D32; }
+  .room-label.blue   { background: #1565C0; }
+
+  /* ─── ROOMS LAYOUT ─── */
+  .floor-row {
+    display: grid;
+    gap: 0;
+  }
+  .floor-top {
+    grid-template-columns: 2fr 1.2fr 1fr;
+  }
+  .floor-bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ─── MAIN OFFICE ─── */
+  .main-office {
+    background: var(--wall-office);
+    min-height: 380px;
+    padding: 48px 24px 24px;
+    position: relative;
+  }
+  /* floor stripe */
+  .main-office::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 24px;
+    background: repeating-linear-gradient(90deg, var(--floor) 0, var(--floor) 40px, #C0AE94 40px, #C0AE94 42px);
+    border-top: 2px solid var(--border-comic);
+  }
+
+  /* ─── DESK ─── */
+  .desk-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    padding: 16px 8px;
+  }
+  .desk {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .desk-top {
+    width: 110px; height: 12px;
+    background: var(--desk);
+    border: 2.5px solid var(--border-comic);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 3px 0 var(--desk-dark);
+    position: relative;
+    z-index: 2;
+  }
+  .desk-legs {
+    display: flex; justify-content: space-between;
+    width: 90px;
+  }
+  .desk-leg {
+    width: 8px; height: 22px;
+    background: var(--desk-dark);
+    border: 2px solid var(--border-comic);
+    border-top: none;
+  }
+
+  /* ─── MONITOR ─── */
+  .monitor-wrap {
+    position: absolute;
+    top: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    z-index: 3;
+  }
+  .monitor {
+    width: 72px; height: 52px;
+    background: var(--screen-blue);
+    border: 3px solid var(--border-comic);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    animation: screen-flicker 8s infinite;
+  }
+  .monitor-screen {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 4px;
+    gap: 3px;
+  }
+  .screen-bar {
+    height: 5px; border-radius: 2px; opacity: 0.9;
+  }
+  .screen-chart {
+    flex: 1;
+    display: flex; align-items: flex-end; gap: 2px; padding-top: 2px;
+  }
+  .chart-bar-s {
+    flex: 1; border-radius: 1px 1px 0 0;
+    animation: typing 1.5s infinite;
+  }
+  .monitor-stand {
+    width: 8px; height: 14px;
+    background: var(--desk-dark);
+    border: 2px solid var(--border-comic);
+    border-top: none;
+  }
+  .monitor-base {
+    width: 28px; height: 5px;
+    background: var(--desk);
+    border: 2px solid var(--border-comic);
+    border-radius: 2px;
+  }
+
+  /* ─── CHARACTER (SVG-based) ─── */
+  .character {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    bottom: 32px;
+    cursor: pointer;
+    transition: transform .2s;
+  }
+  .character:hover { transform: scale(1.08); }
+  .character svg { filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.2)); }
+
+  /* ─── MEETING ROOM ─── */
+  .meeting-room {
+    background: var(--wall-meeting);
+    min-height: 380px;
+    padding: 48px 16px 24px;
+    border-left: none;
+    position: relative;
+  }
+  .meeting-room::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 24px;
+    background: repeating-linear-gradient(90deg, #B8C8D8 0, #B8C8D8 40px, #A0B0C0 40px, #A0B0C0 42px);
+    border-top: 2px solid var(--border-comic);
+  }
+  .meeting-table {
+    width: 88%;
+    height: 80px;
+    background: linear-gradient(180deg, #E8D5A0, #C8A86E);
+    border: 3px solid var(--border-comic);
+    border-radius: 40px;
+    margin: 30px auto 0;
+    position: relative;
+    box-shadow: 0 6px 0 var(--desk-dark), 0 6px 0 2px var(--border-comic);
+  }
+  .whiteboard {
+    width: 82%; height: 68px;
+    background: #F8FFF8;
+    border: 3px solid var(--border-comic);
+    border-radius: 4px;
+    margin: 0 auto 8px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .wb-line {
+    height: 4px; border-radius: 2px; margin-bottom: 5px;
+  }
+  .wb-diagram {
+    display: flex; align-items: center; gap: 4px; margin-top: 4px;
+  }
+  .wb-box {
+    width: 20px; height: 14px;
+    background: rgba(0,0,0,0.08);
+    border: 1.5px solid rgba(0,0,0,0.4);
+    border-radius: 2px;
+  }
+  .wb-arrow {
+    font-size: 10px; color: var(--purple); font-weight: 900;
+  }
+
+  /* ─── CAFÉ / BREAK ROOM ─── */
+  .cafe-room {
+    background: var(--wall-cafe);
+    min-height: 380px;
+    padding: 48px 16px 24px;
+    border-left: none;
+    position: relative;
+  }
+  .cafe-room::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 24px;
+    background: repeating-linear-gradient(90deg, #E8D0A0 0, #E8D0A0 40px, #D0B888 40px, #D0B888 42px);
+    border-top: 2px solid var(--border-comic);
+  }
+  .counter {
+    width: 90%;
+    height: 55px;
+    background: linear-gradient(180deg, #C8A86E, #A07848);
+    border: 3px solid var(--border-comic);
+    border-radius: 6px;
+    margin: 20px auto 0;
+    position: relative;
+  }
+  .counter-items {
+    position: absolute;
+    top: -28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+  .coffee-machine {
+    width: 36px; height: 44px;
+    background: var(--dark);
+    border: 2.5px solid var(--border-comic);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 6px; gap: 4px;
+  }
+  .cm-screen {
+    width: 22px; height: 12px;
+    background: #0A4A2A;
+    border: 1.5px solid var(--border-comic);
+    border-radius: 2px;
+  }
+  .cm-button {
+    width: 8px; height: 8px;
+    background: var(--purple);
+    border-radius: 50%;
+    border: 1.5px solid var(--border-comic);
+  }
+  .cm-spout {
+    position: absolute;
+    bottom: -8px; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 10px;
+    background: #888;
+    border: 1px solid var(--border-comic);
+  }
+  .coffee-cup {
+    width: 20px; height: 18px;
+    background: var(--white);
+    border: 2px solid var(--border-comic);
+    border-radius: 0 0 5px 5px;
+    position: relative;
+    overflow: visible;
+  }
+  .coffee-cup::after {
+    content: '';
+    position: absolute;
+    top: 4px; right: -7px;
+    width: 7px; height: 8px;
+    border: 2px solid var(--border-comic);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+  }
+  .cup-fill {
+    position: absolute;
+    bottom: 2px; left: 2px; right: 2px; height: 6px;
+    background: var(--coffee);
+    border-radius: 0 0 3px 3px;
+  }
+  .steam {
+    position: absolute;
+    top: -14px; left: 50%;
+    display: flex; gap: 3px;
+    transform: translateX(-40%);
+  }
+  .steam-line {
+    width: 3px; height: 8px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 2px;
+    animation: steam 1.5s ease-out infinite;
+  }
+  .steam-line:nth-child(2) { animation-delay: .3s; height: 10px; }
+  .steam-line:nth-child(3) { animation-delay: .6s; }
+
+  /* ─── BOTTOM FLOOR ─── */
+  .lounge-room {
+    background: #EEE8F5;
+    min-height: 220px;
+    padding: 44px 24px 24px;
+    border-top: none;
+    position: relative;
+  }
+  .lounge-room::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 20px;
+    background: repeating-linear-gradient(90deg, #CCC0D8 0, #CCC0D8 40px, #B8A8CC 40px, #B8A8CC 42px);
+    border-top: 2px solid var(--border-comic);
+  }
+  .server-room {
+    background: #1A1A2E;
+    min-height: 220px;
+    padding: 44px 24px 24px;
+    border-top: none;
+    border-left: none;
+    position: relative;
+  }
+  .server-room::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 20px;
+    background: repeating-linear-gradient(90deg, #0A0A1E 0, #0A0A1E 40px, #141428 40px, #141428 42px);
+    border-top: 2px solid var(--border-comic);
+  }
+  .server-rack {
+    width: 52px; height: 110px;
+    background: #0D0D20;
+    border: 2.5px solid #444;
+    border-radius: 4px;
+    padding: 4px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .rack-unit {
+    height: 12px; border-radius: 2px;
+    border: 1px solid #333;
+    display: flex; align-items: center; padding: 0 4px; gap: 3px;
+  }
+  .rack-led { width: 4px; height: 4px; border-radius: 50%; }
+  .led-green { background: #00E676; box-shadow: 0 0 4px #00E676; animation: typing .8s infinite; }
+  .led-yellow { background: #FFE000; box-shadow: 0 0 4px #FFE000; animation: typing 1.2s infinite; }
+  .led-red { background: #FF1744; }
+
+  /* ─── SOFA / LOUNGE ─── */
+  .sofa {
+    display: flex; align-items: flex-end; gap: 0;
+    position: absolute; bottom: 32px;
+  }
+  .sofa-arm {
+    width: 18px; height: 38px;
+    background: var(--purple);
+    border: 2.5px solid var(--border-comic);
+    border-radius: 4px;
+    box-shadow: 2px 2px 0 var(--border-comic);
+  }
+  .sofa-seat {
+    width: 120px; height: 28px;
+    background: var(--purple-light);
+    border: 2.5px solid var(--border-comic);
+    border-top: none;
+    box-shadow: 2px 2px 0 var(--border-comic);
+  }
+  .sofa-back {
+    position: absolute;
+    top: 0; left: 18px;
+    width: 120px; height: 22px;
+    background: var(--purple);
+    border: 2.5px solid var(--border-comic);
+    border-radius: 2px 2px 0 0;
+    box-shadow: 2px 2px 0 var(--border-comic);
+  }
+
+  /* ─── PLANTS ─── */
+  .plant {
+    display: flex; flex-direction: column; align-items: center;
+    position: absolute;
+  }
+  .plant-pot {
+    width: 22px; height: 18px;
+    background: #A0522D;
+    border: 2px solid var(--border-comic);
+    clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+  }
+  .plant-leaves {
+    position: relative; margin-bottom: 2px;
+  }
+  .leaf {
+    width: 14px; height: 20px;
+    background: var(--plant);
+    border: 2px solid var(--border-comic);
+    border-radius: 50% 50% 50% 0;
+    position: absolute;
+  }
+  .leaf-r { transform: rotate(30deg); right: -8px; bottom: 0; }
+  .leaf-l { transform: rotate(-30deg) scaleX(-1); left: -8px; bottom: 0; }
+  .leaf-c { transform: rotate(-10deg); left: -2px; bottom: 4px; background: #388E3C; }
+
+  /* ─── WINDOW ─── */
+  .window-comic {
+    position: absolute;
+    background: linear-gradient(135deg, #B3D9FF 30%, #E8F4FF);
+    border: 3px solid var(--border-comic);
+    border-radius: 4px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+    overflow: hidden;
+  }
+  .window-pane {
+    border: 1.5px solid var(--border-comic);
+  }
+  .window-cross {
+    position: absolute; top: 50%; left: 0; right: 0;
+    height: 3px; background: var(--border-comic);
+    transform: translateY(-50%);
+  }
+  .window-cross2 {
+    position: absolute; top: 0; bottom: 0; left: 50%;
+    width: 3px; background: var(--border-comic);
+    transform: translateX(-50%);
+  }
+  /* cloud in window */
+  .cloud-mini {
+    position: absolute; top: 6px; left: 4px;
+    width: 28px; height: 14px;
+  }
+
+  /* ─── NAME TAGS ─── */
+  .name-tag {
+    background: var(--yellow);
+    border: 2px solid var(--border-comic);
+    border-radius: 10px;
+    font-size: 10px; font-weight: 900;
+    padding: 2px 8px;
+    color: var(--dark);
+    position: absolute;
+    bottom: -16px;
+    white-space: nowrap;
+    box-shadow: 1px 1px 0 var(--border-comic);
+    z-index: 10;
+  }
+
+  /* ─── AI EFFECT LABELS ─── */
+  .ai-effect {
+    position: absolute;
+    background: var(--purple);
+    color: var(--white);
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px;
+    border: 2px solid var(--border-comic);
+    border-radius: 4px;
+    box-shadow: 2px 2px 0 var(--border-comic);
+    z-index: 8;
+    letter-spacing: .5px;
+  }
+
+  /* ─── TOOLTIP on hover ─── */
+  .char-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 110%;
+    left: 50%; transform: translateX(-50%);
+    background: var(--black);
+    color: var(--white);
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid var(--purple);
+    white-space: nowrap;
+    z-index: 20;
+    box-shadow: 3px 3px 0 var(--purple-dark);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .character:hover .char-tooltip { display: block; }
+
+  /* ─── FOOTER ─── */
+  .office-footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--dark);
+    font-size: 12px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BANNER -->
+<div class="top-banner">
+  <div class="banner-logo">
+    <div class="logo-mark">Ac</div>
+    <div>
+      <div class="banner-title">AI <span>Team</span> Office</div>
+      <div class="banner-subtitle">Shanghai · AI Innovation Hub · Floor 28</div>
+    </div>
+  </div>
+  <div class="banner-right">
+    <div class="status-dot"><div class="dot-green"></div>11人在线</div>
+    <div class="day-tag">🤖 周三 · Sprint Day</div>
+  </div>
+</div>
+
+<div class="office-container">
+  <div class="floor-label">▌ 28F  AI 创新工作室</div>
+
+  <!-- ═══ FLOOR 1: TOP ROW ═══ -->
+  <div class="floor-row floor-top">
+
+    <!-- ████ MAIN OPEN OFFICE ████ -->
+    <div class="room main-office comic-border">
+      <div class="room-label">💻 开放工位区 · Open Office</div>
+
+      <!-- Window left -->
+      <div class="window-comic" style="top:28px;left:20px;width:56px;height:44px;">
+        <div class="window-cross"></div><div class="window-cross2"></div>
+        <!-- little cloud -->
+        <svg style="position:absolute;top:4px;left:3px;width:24px;height:12px" viewBox="0 0 24 12">
+          <ellipse cx="12" cy="9" rx="10" ry="5" fill="white" stroke="#ccc" stroke-width="1"/>
+          <ellipse cx="8" cy="8" rx="6" ry="4" fill="white"/>
+          <ellipse cx="16" cy="8" rx="5" ry="3.5" fill="white"/>
+        </svg>
+      </div>
+
+      <!-- Window right -->
+      <div class="window-comic" style="top:28px;right:20px;width:56px;height:44px;">
+        <div class="window-cross"></div><div class="window-cross2"></div>
+      </div>
+
+      <!-- Plant corner left -->
+      <div class="plant" style="bottom:28px;left:10px;z-index:4;">
+        <div class="plant-leaves" style="width:20px;height:28px;">
+          <div class="leaf leaf-r"></div>
+          <div class="leaf leaf-l"></div>
+          <div class="leaf leaf-c"></div>
+        </div>
+        <div class="plant-pot"></div>
+      </div>
+
+      <!-- Plant corner right -->
+      <div class="plant" style="bottom:28px;right:10px;z-index:4;">
+        <div class="plant-leaves" style="width:20px;height:24px;">
+          <div class="leaf leaf-r" style="background:#4CAF50;"></div>
+          <div class="leaf leaf-l" style="background:#388E3C;"></div>
+          <div class="leaf leaf-c" style="height:16px;"></div>
+        </div>
+        <div class="plant-pot"></div>
+      </div>
+
+      <!-- ─ DESK ROW ─ -->
+      <div class="desk-area">
+
+        <!-- DESK 1: Alex - AI工程师 -->
+        <div class="desk" style="position:relative;align-items:center;">
+          <!-- Speech bubble -->
+          <div class="speech-bubble" style="top:-80px;left:20px;animation-delay:.2s">
+            🤖 模型跑完了！<br>准确率 <b style="color:var(--purple)">96.8%</b>
+          </div>
+          <!-- Character: Alex - 黑发男 -->
+          <svg width="54" height="88" viewBox="0 0 54 88" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;" class="character" style="">
+            <!-- body -->
+            <rect x="16" y="42" width="22" height="28" rx="3" fill="#A100FF" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- shirt collar -->
+            <polygon points="27,42 22,52 27,48 32,52" fill="white" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- arms -->
+            <rect x="6" y="44" width="10" height="20" rx="4" fill="#A100FF" stroke="#1A1A1A" stroke-width="2"/>
+            <rect x="38" y="44" width="10" height="20" rx="4" fill="#A100FF" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- hands -->
+            <ellipse cx="11" cy="66" rx="5" ry="4" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+            <ellipse cx="43" cy="66" rx="5" ry="4" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- legs -->
+            <rect x="18" y="68" width="8" height="18" rx="3" fill="#2C3E50" stroke="#1A1A1A" stroke-width="2"/>
+            <rect x="28" y="68" width="8" height="18" rx="3" fill="#2C3E50" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- shoes -->
+            <ellipse cx="22" cy="86" rx="6" ry="3" fill="#1A1A1A" stroke="#000" stroke-width="1"/>
+            <ellipse cx="32" cy="86" rx="6" ry="3" fill="#1A1A1A" stroke="#000" stroke-width="1"/>
+            <!-- neck -->
+            <rect x="23" y="36" width="8" height="8" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- head -->
+            <ellipse cx="27" cy="26" rx="14" ry="15" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- hair -->
+            <ellipse cx="27" cy="14" rx="14" ry="7" fill="#2C1810" stroke="#1A1A1A" stroke-width="1.5"/>
+            <rect x="13" y="14" width="28" height="6" rx="0" fill="#2C1810"/>
+            <!-- eyes -->
+            <ellipse cx="22" cy="26" rx="2.5" ry="3" fill="#1A1A1A" style="animation:blink-eye 4s infinite"/>
+            <ellipse cx="32" cy="26" rx="2.5" ry="3" fill="#1A1A1A" style="animation:blink-eye 4s 0.5s infinite"/>
+            <ellipse cx="22.8" cy="25" rx="1" ry="1" fill="white"/>
+            <ellipse cx="32.8" cy="25" rx="1" ry="1" fill="white"/>
+            <!-- mouth smile -->
+            <path d="M23 33 Q27 36 31 33" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- glasses -->
+            <rect x="18" y="23" width="8" height="6" rx="2" fill="none" stroke="#1A1A1A" stroke-width="1.5"/>
+            <rect x="28" y="23" width="8" height="6" rx="2" fill="none" stroke="#1A1A1A" stroke-width="1.5"/>
+            <line x1="26" y1="26" x2="28" y2="26" stroke="#1A1A1A" stroke-width="1.5"/>
+          </svg>
+          <div class="name-tag" style="bottom:-14px;left:50%;transform:translateX(-50%)">Alex · AI工程师</div>
+          <!-- Monitor on desk -->
+          <div class="monitor-wrap" style="top:-62px;">
+            <div class="monitor">
+              <div class="monitor-screen">
+                <div class="screen-bar" style="background:#A100FF;width:80%;"></div>
+                <div class="screen-bar" style="background:#4A9EFF;width:60%;"></div>
+                <div class="screen-chart">
+                  <div class="chart-bar-s" style="background:#00E676;height:80%;animation-delay:0s;"></div>
+                  <div class="chart-bar-s" style="background:#00E676;height:50%;animation-delay:.2s;"></div>
+                  <div class="chart-bar-s" style="background:#FFE566;height:90%;animation-delay:.4s;"></div>
+                  <div class="chart-bar-s" style="background:#A100FF;height:70%;animation-delay:.6s;"></div>
+                  <div class="chart-bar-s" style="background:#4A9EFF;height:60%;animation-delay:.8s;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="monitor-stand"></div>
+            <div class="monitor-base"></div>
+          </div>
+          <div class="desk-top"></div>
+          <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+        </div>
+
+        <!-- DESK 2: May - 产品经理 (female) -->
+        <div class="desk" style="position:relative;align-items:center;">
+          <div class="speech-bubble" style="top:-82px;right:-10px;animation-delay:.8s;">
+            📋 需求确认了！<br>下午开<b style="color:#1565C0">评审会</b>
+          </div>
+          <!-- Character: May 黄发女 -->
+          <svg width="52" height="88" viewBox="0 0 52 88" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;">
+            <!-- dress/body -->
+            <polygon points="14,42 38,42 42,70 10,70" fill="#E91E8C" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- collar detail -->
+            <polygon points="26,42 22,50 26,46 30,50" fill="white" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- arms -->
+            <rect x="5" y="44" width="9" height="18" rx="4" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+            <rect x="38" y="44" width="9" height="18" rx="4" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- hands holding tablet -->
+            <ellipse cx="9.5" cy="63" rx="4.5" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+            <ellipse cx="42.5" cy="63" rx="4.5" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- legs -->
+            <rect x="17" y="68" width="7" height="16" rx="3" fill="#880E4F" stroke="#1A1A1A" stroke-width="2"/>
+            <rect x="28" y="68" width="7" height="16" rx="3" fill="#880E4F" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- heels -->
+            <ellipse cx="20.5" cy="84" rx="5" ry="2.5" fill="#1A1A1A" stroke="#000" stroke-width="1"/>
+            <ellipse cx="31.5" cy="84" rx="5" ry="2.5" fill="#1A1A1A" stroke="#000" stroke-width="1"/>
+            <!-- neck -->
+            <rect x="22" y="36" width="8" height="8" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- head -->
+            <ellipse cx="26" cy="25" rx="13" ry="14" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- hair long yellow -->
+            <ellipse cx="26" cy="13" rx="13" ry="7" fill="#F4C430" stroke="#1A1A1A" stroke-width="1.5"/>
+            <rect x="13" y="13" width="26" height="8" rx="0" fill="#F4C430"/>
+            <!-- side hair -->
+            <ellipse cx="13" cy="24" rx="3" ry="8" fill="#F4C430" stroke="#1A1A1A" stroke-width="1.5"/>
+            <ellipse cx="39" cy="24" rx="3" ry="8" fill="#F4C430" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- eyes bigger -->
+            <ellipse cx="21" cy="25" rx="3" ry="3.5" fill="#1A1A1A" style="animation:blink-eye 5s 1s infinite"/>
+            <ellipse cx="31" cy="25" rx="3" ry="3.5" fill="#1A1A1A" style="animation:blink-eye 5s 1s infinite"/>
+            <ellipse cx="21.8" cy="24" rx="1.2" ry="1.2" fill="white"/>
+            <ellipse cx="31.8" cy="24" rx="1.2" ry="1.2" fill="white"/>
+            <!-- eyelashes -->
+            <line x1="18" y1="21" x2="19" y2="20" stroke="#1A1A1A" stroke-width="1"/>
+            <line x1="21" y1="21" x2="21" y2="20" stroke="#1A1A1A" stroke-width="1"/>
+            <line x1="24" y1="21" x2="23" y2="20" stroke="#1A1A1A" stroke-width="1"/>
+            <!-- blush -->
+            <ellipse cx="17" cy="29" rx="3" ry="2" fill="#FFB3BA" opacity="0.6"/>
+            <ellipse cx="35" cy="29" rx="3" ry="2" fill="#FFB3BA" opacity="0.6"/>
+            <!-- mouth -->
+            <path d="M22 32 Q26 35 30 32" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="name-tag" style="bottom:-14px;left:50%;transform:translateX(-50%)">May · 产品经理</div>
+          <!-- Monitor -->
+          <div class="monitor-wrap" style="top:-62px;">
+            <div class="monitor">
+              <div class="monitor-screen">
+                <div class="screen-bar" style="background:#E91E8C;width:90%;"></div>
+                <div class="screen-bar" style="background:rgba(255,255,255,0.3);width:70%;"></div>
+                <div class="screen-bar" style="background:rgba(255,255,255,0.3);width:50%;margin-top:2px;"></div>
+                <div class="screen-bar" style="background:rgba(255,255,255,0.2);width:80%;margin-top:2px;"></div>
+              </div>
+            </div>
+            <div class="monitor-stand"></div>
+            <div class="monitor-base"></div>
+          </div>
+          <div class="desk-top"></div>
+          <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+        </div>
+
+        <!-- DESK 3: Tom - 数据科学家 -->
+        <div class="desk" style="position:relative;align-items:center;">
+          <div class="speech-bubble bubble-right" style="top:-88px;right:0px;animation-delay:1.4s;">
+            📊 数据清洗<br>搞定了！差<br><b style="color:var(--purple)">Qoder</b> 生成报告
+          </div>
+          <!-- Character: Tom 棕发男 -->
+          <svg width="54" height="88" viewBox="0 0 54 88" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;">
+            <!-- body navy -->
+            <rect x="16" y="42" width="22" height="28" rx="3" fill="#1565C0" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- tie -->
+            <polygon points="27,43 24,52 27,60 30,52" fill="#FF5722" stroke="#1A1A1A" stroke-width="1"/>
+            <!-- arms -->
+            <rect x="6" y="44" width="10" height="20" rx="4" fill="#1565C0" stroke="#1A1A1A" stroke-width="2"/>
+            <rect x="38" y="44" width="10" height="20" rx="4" fill="#1565C0" stroke="#1A1A1A" stroke-width="2"/>
+            <ellipse cx="11" cy="65" rx="5" ry="4" fill="#E8B88A" stroke="#1A1A1A" stroke-width="1.5"/>
+            <ellipse cx="43" cy="65" rx="5" ry="4" fill="#E8B88A" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- legs -->
+            <rect x="18" y="68" width="8" height="18" rx="3" fill="#37474F" stroke="#1A1A1A" stroke-width="2"/>
+            <rect x="28" y="68" width="8" height="18" rx="3" fill="#37474F" stroke="#1A1A1A" stroke-width="2"/>
+            <ellipse cx="22" cy="86" rx="6" ry="3" fill="#263238" stroke="#000" stroke-width="1"/>
+            <ellipse cx="32" cy="86" rx="6" ry="3" fill="#263238" stroke="#000" stroke-width="1"/>
+            <!-- neck -->
+            <rect x="23" y="36" width="8" height="8" rx="2" fill="#E8B88A" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- head tanned -->
+            <ellipse cx="27" cy="25" rx="14" ry="15" fill="#E8B88A" stroke="#1A1A1A" stroke-width="2"/>
+            <!-- hair brown -->
+            <ellipse cx="27" cy="13" rx="13" ry="7" fill="#6B3A2A" stroke="#1A1A1A" stroke-width="1.5"/>
+            <rect x="14" y="13" width="26" height="6" rx="0" fill="#6B3A2A"/>
+            <!-- stubble -->
+            <ellipse cx="27" cy="34" rx="6" ry="3" fill="rgba(107,58,42,0.2)"/>
+            <!-- eyes -->
+            <ellipse cx="22" cy="25" rx="2.5" ry="3" fill="#2C1810" style="animation:blink-eye 3.5s 0.8s infinite"/>
+            <ellipse cx="32" cy="25" rx="2.5" ry="3" fill="#2C1810" style="animation:blink-eye 3.5s 0.8s infinite"/>
+            <ellipse cx="22.8" cy="24" rx="1" ry="1" fill="white"/>
+            <ellipse cx="32.8" cy="24" rx="1" ry="1" fill="white"/>
+            <!-- brows -->
+            <path d="M19 20 Q22 18 25 20" fill="none" stroke="#6B3A2A" stroke-width="1.5"/>
+            <path d="M29 20 Q32 18 35 20" fill="none" stroke="#6B3A2A" stroke-width="1.5"/>
+            <!-- mouth -->
+            <line x1="23" y1="33" x2="31" y2="33" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="name-tag" style="bottom:-14px;left:50%;transform:translateX(-50%)">Tom · 数据科学家</div>
+          <!-- Monitor dual -->
+          <div class="monitor-wrap" style="top:-58px;left:calc(50% - 44px)">
+            <div class="monitor" style="width:64px;height:46px;">
+              <div class="monitor-screen">
+                <div style="width:100%;height:100%;display:flex;align-items:flex-end;gap:2px;padding:3px;">
+                  <div style="flex:1;background:#A100FF;height:60%;border-radius:1px;"></div>
+                  <div style="flex:1;background:#4A9EFF;height:80%;border-radius:1px;"></div>
+                  <div style="flex:1;background:#00E676;height:45%;border-radius:1px;"></div>
+                  <div style="flex:1;background:#FFE566;height:70%;border-radius:1px;"></div>
+                  <div style="flex:1;background:#FF5722;height:55%;border-radius:1px;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="monitor-stand"></div>
+            <div class="monitor-base"></div>
+          </div>
+          <div class="desk-top"></div>
+          <div class="desk-legs"><div class="desk-leg"></div><div class="desk-leg"></div></div>
+        </div>
+
+      </div><!-- /desk-area -->
+
+      <!-- AI effect label -->
+      <div class="ai-effect" style="top:86px;right:80px;font-size:9px;">✨ Qoder AI 在线</div>
+
+    </div><!-- /main-office -->
+
+    <!-- ████ MEETING ROOM ████ -->
+    <div class="room meeting-room comic-border">
+      <div class="room-label blue">🗣 会议室 · Meeting Room A</div>
+
+      <!-- Whiteboard -->
+      <div class="whiteboard">
+        <div class="wb-line" style="background:#A100FF;width:85%;"></div>
+        <div class="wb-line" style="background:rgba(0,0,0,0.15);width:70%;"></div>
+        <div class="wb-diagram">
+          <div class="wb-box"></div>
+          <div class="wb-arrow">→</div>
+          <div class="wb-box" style="background:rgba(161,0,255,0.15);border-color:var(--purple);"></div>
+          <div class="wb-arrow">→</div>
+          <div class="wb-box"></div>
+        </div>
+        <div style="position:absolute;top:4px;right:6px;font-size:9px;color:rgba(0,0,0,0.4);font-weight:700;">Sprint #14</div>
+      </div>
+
+      <!-- Meeting table with chairs around -->
+      <div class="meeting-table">
+        <!-- Laptop on table -->
+        <div style="position:absolute;top:10px;left:20px;width:38px;height:26px;background:#2C2C2C;border:2px solid var(--border-comic);border-radius:3px 3px 0 0;overflow:hidden;">
+          <div style="width:100%;height:100%;background:#1A3A6B;display:flex;flex-direction:column;gap:2px;padding:3px;">
+            <div style="height:4px;background:#A100FF;border-radius:1px;"></div>
+            <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:1px;"></div>
+            <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:70%;"></div>
+          </div>
+        </div>
+        <!-- Notebook -->
+        <div style="position:absolute;top:8px;right:16px;width:24px;height:28px;background:#FFE566;border:2px solid var(--border-comic);border-radius:2px;">
+          <div style="width:18px;height:2px;background:rgba(0,0,0,0.2);margin:5px auto;"></div>
+          <div style="width:18px;height:2px;background:rgba(0,0,0,0.2);margin:3px auto;"></div>
+          <div style="width:14px;height:2px;background:rgba(0,0,0,0.2);margin:3px auto;"></div>
+        </div>
+        <!-- Coffee cups on table -->
+        <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:8px;">
+          <div style="width:12px;height:11px;background:white;border:1.5px solid var(--border-comic);border-radius:0 0 3px 3px;position:relative;">
+            <div style="position:absolute;bottom:2px;left:1px;right:1px;height:4px;background:var(--coffee);border-radius:0 0 2px 2px;"></div>
+          </div>
+          <div style="width:12px;height:11px;background:white;border:1.5px solid var(--border-comic);border-radius:0 0 3px 3px;position:relative;">
+            <div style="position:absolute;bottom:2px;left:1px;right:1px;height:4px;background:var(--coffee);border-radius:0 0 2px 2px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Characters around table -->
+      <!-- Sam: standing presenting -->
+      <svg width="44" height="72" viewBox="0 0 44 72" style="position:absolute;bottom:28px;left:12px;z-index:4;" class="character">
+        <rect x="12" y="32" width="20" height="24" rx="3" fill="#006064" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="4" y="34" width="8" height="16" rx="3" fill="#006064" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="32" y="34" width="8" height="16" rx="3" fill="#006064" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="8" cy="51" rx="4" ry="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <!-- arm raised pointing -->
+        <line x1="36" y1="34" x2="42" y2="24" stroke="#006064" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="42" cy="22" rx="4" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="14" y="54" width="6" height="14" rx="3" fill="#263238" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="24" y="54" width="6" height="14" rx="3" fill="#263238" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="17" cy="68" rx="5" ry="2.5" fill="#1A1A1A"/>
+        <ellipse cx="27" cy="68" rx="5" ry="2.5" fill="#1A1A1A"/>
+        <rect x="18" y="26" width="8" height="7" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="22" cy="18" rx="11" ry="12" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="22" cy="8" rx="10" ry="6" fill="#1A1A1A" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="12" y="8" width="20" height="5" rx="0" fill="#1A1A1A"/>
+        <ellipse cx="18" cy="18" rx="2" ry="2.5" fill="#1A1A1A" style="animation:blink-eye 4.5s infinite"/>
+        <ellipse cx="26" cy="18" rx="2" ry="2.5" fill="#1A1A1A" style="animation:blink-eye 4.5s infinite"/>
+        <ellipse cx="18.8" cy="17" rx=".8" ry=".8" fill="white"/>
+        <ellipse cx="26.8" cy="17" rx=".8" ry=".8" fill="white"/>
+        <path d="M19 24 Q22 27 25 24" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+        <div class="char-tooltip">Sam · Tech Lead<br>正在演讲架构方案</div>
+      </svg>
+      <div style="position:absolute;bottom:12px;left:8px;font-size:9px;background:var(--yellow);border:1.5px solid var(--border-comic);border-radius:8px;padding:1px 6px;font-weight:900;white-space:nowrap;">Sam · Tech Lead</div>
+
+      <!-- Lisa: sitting taking notes -->
+      <svg width="40" height="64" viewBox="0 0 40 64" style="position:absolute;bottom:26px;right:10px;z-index:4;" class="character">
+        <rect x="10" y="30" width="20" height="22" rx="3" fill="#B71C1C" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="3" y="32" width="7" height="15" rx="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="30" y="32" width="7" height="15" rx="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="6.5" cy="48" rx="3.5" ry="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="33.5" cy="48" rx="3.5" ry="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="12" y="50" width="6" height="12" rx="3" fill="#880E4F" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="22" y="50" width="6" height="12" rx="3" fill="#880E4F" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="15" cy="62" rx="4.5" ry="2" fill="#1A1A1A"/>
+        <ellipse cx="25" cy="62" rx="4.5" ry="2" fill="#1A1A1A"/>
+        <rect x="16" y="24" width="8" height="7" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="20" cy="16" rx="11" ry="12" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="20" cy="6" rx="10" ry="6" fill="#8B4513" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="9" cy="16" rx="2.5" ry="7" fill="#8B4513" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="31" cy="16" rx="2.5" ry="7" fill="#8B4513" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="16" cy="16" rx="2.5" ry="3" fill="#1A1A1A" style="animation:blink-eye 6s 2s infinite"/>
+        <ellipse cx="24" cy="16" rx="2.5" ry="3" fill="#1A1A1A" style="animation:blink-eye 6s 2s infinite"/>
+        <ellipse cx="16.8" cy="15" rx=".8" ry=".8" fill="white"/>
+        <ellipse cx="24.8" cy="15" rx=".8" ry=".8" fill="white"/>
+        <ellipse cx="12" cy="20" rx="2.5" ry="1.5" fill="#FFB3BA" opacity=".6"/>
+        <ellipse cx="28" cy="20" rx="2.5" ry="1.5" fill="#FFB3BA" opacity=".6"/>
+        <path d="M17 22 Q20 24.5 23 22" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute;bottom:12px;right:6px;font-size:9px;background:var(--yellow);border:1.5px solid var(--border-comic);border-radius:8px;padding:1px 6px;font-weight:900;white-space:nowrap;">Lisa · 咨询顾问</div>
+
+      <!-- Speech from table area -->
+      <div class="speech-bubble" style="top:58px;left:30px;animation-delay:2s;font-size:10px;">
+        这个方案<b style="color:var(--purple)">用Qoder</b>来做！
+      </div>
+
+    </div><!-- /meeting-room -->
+
+    <!-- ████ CAFÉ / BREAK ROOM ████ -->
+    <div class="room cafe-room comic-border">
+      <div class="room-label yellow">☕ 咖啡间 · Break Room</div>
+
+      <!-- Window -->
+      <div class="window-comic" style="top:28px;right:16px;width:50px;height:38px;">
+        <div class="window-cross"></div><div class="window-cross2"></div>
+      </div>
+
+      <!-- Counter with coffee machine -->
+      <div style="position:relative;">
+        <div class="counter">
+          <div class="counter-items">
+            <!-- coffee machine -->
+            <div class="coffee-machine">
+              <div class="cm-screen"></div>
+              <div class="cm-button"></div>
+              <div class="cm-spout"></div>
+            </div>
+            <!-- cups -->
+            <div style="position:relative;margin-left:8px;">
+              <div class="steam">
+                <div class="steam-line"></div>
+                <div class="steam-line"></div>
+                <div class="steam-line"></div>
+              </div>
+              <div class="coffee-cup"><div class="cup-fill"></div></div>
+            </div>
+            <div class="coffee-cup" style="margin-left:4px;margin-bottom:-2px;"><div class="cup-fill"></div></div>
+            <!-- snack box -->
+            <div style="width:28px;height:22px;background:#FFE566;border:2px solid var(--border-comic);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;">🍪</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Character: Jay relaxing with phone -->
+      <svg width="46" height="80" viewBox="0 0 46 80" style="position:absolute;bottom:28px;left:14px;z-index:4;" class="character">
+        <!-- casual hoodie -->
+        <rect x="13" y="36" width="20" height="24" rx="4" fill="#FF6F00" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="23" cy="40" rx="4" ry="3" fill="#E65100" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="4" y="38" width="9" height="18" rx="4" fill="#FF6F00" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="33" y="38" width="9" height="18" rx="4" fill="#FF6F00" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- hand holding phone -->
+        <ellipse cx="8" cy="57" rx="4" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="4" y="50" width="8" height="12" rx="2" fill="#1A1A1A" stroke="#333" stroke-width="1.5"/>
+        <rect x="5" y="51" width="6" height="9" rx="1" fill="#4A9EFF"/>
+        <ellipse cx="37" cy="57" rx="4" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <!-- legs casual -->
+        <rect x="15" y="58" width="7" height="18" rx="3" fill="#4A148C" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="24" y="58" width="7" height="18" rx="3" fill="#4A148C" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="18.5" cy="76" rx="6" ry="3" fill="#212121" stroke="#000" stroke-width="1"/>
+        <ellipse cx="27.5" cy="76" rx="6" ry="3" fill="#212121" stroke="#000" stroke-width="1"/>
+        <!-- neck -->
+        <rect x="19" y="30" width="8" height="8" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <!-- head -->
+        <ellipse cx="23" cy="20" rx="12" ry="13" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- cap -->
+        <ellipse cx="23" cy="9" rx="12" ry="6" fill="#A100FF" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="11" y="9" width="24" height="5" rx="0" fill="#A100FF"/>
+        <!-- cap brim -->
+        <rect x="8" y="13" width="30" height="4" rx="2" fill="#7200B5" stroke="#1A1A1A" stroke-width="1.5"/>
+        <!-- eyes relaxed -->
+        <path d="M19 20 Q21 18 23 20" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"/>
+        <path d="M23 20 Q25 18 27 20" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"/>
+        <!-- big smile -->
+        <path d="M19 27 Q23 31 27 27" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute;bottom:12px;left:8px;font-size:9px;background:var(--yellow);border:1.5px solid var(--border-comic);border-radius:8px;padding:1px 6px;font-weight:900;white-space:nowrap;">Jay · UX设计师</div>
+
+      <!-- Speech bubble from Jay -->
+      <div class="speech-bubble" style="top:30px;left:6px;animation-delay:2.5s;font-size:10px;">
+        😄 AI生成的UI<br>太<b style="color:var(--purple)">帅</b>了！
+      </div>
+
+      <!-- Plant on counter -->
+      <div class="plant" style="bottom:62px;right:12px;z-index:5;">
+        <div class="plant-leaves" style="width:18px;height:22px;">
+          <div class="leaf" style="width:12px;height:16px;background:#4CAF50;left:3px;bottom:0;border-radius:50% 50% 50% 0;"></div>
+          <div class="leaf" style="width:10px;height:14px;background:#388E3C;right:0;bottom:0;transform:rotate(40deg);"></div>
+        </div>
+        <div class="plant-pot" style="width:18px;height:14px;"></div>
+      </div>
+
+    </div><!-- /cafe -->
+
+  </div><!-- /floor-top -->
+
+  <!-- ═══ FLOOR 2: BOTTOM ROW ═══ -->
+  <div class="floor-row floor-bottom">
+
+    <!-- ████ LOUNGE / COLLAB ZONE ████ -->
+    <div class="room lounge-room comic-border" style="border-top:3px solid var(--border-comic);">
+      <div class="room-label" style="background:#6A1B9A;">🛋 创意休息区 · Lounge</div>
+
+      <!-- Sofa -->
+      <div class="sofa" style="left:20px;bottom:28px;">
+        <div class="sofa-back"></div>
+        <div class="sofa-arm"></div>
+        <div class="sofa-seat"></div>
+        <div class="sofa-arm"></div>
+      </div>
+
+      <!-- Low coffee table -->
+      <div style="position:absolute;bottom:36px;left:64px;width:80px;height:14px;background:#C8A96E;border:2.5px solid var(--border-comic);border-radius:4px;box-shadow:0 3px 0 var(--desk-dark),0 3px 0 2px var(--border-comic);">
+        <!-- items on table -->
+        <div style="position:absolute;top:-18px;left:8px;width:14px;height:14px;background:var(--yellow);border:1.5px solid var(--border-comic);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;">📱</div>
+        <div style="position:absolute;top:-16px;right:8px;width:12px;height:10px;background:white;border:1.5px solid var(--border-comic);border-radius:0 0 3px 3px;overflow:hidden;">
+          <div style="width:100%;height:100%;background:#1A3A6B;"></div>
+        </div>
+      </div>
+
+      <!-- Character Nina sitting on sofa -->
+      <svg width="42" height="68" viewBox="0 0 42 68" style="position:absolute;bottom:50px;left:26px;z-index:5;" class="character">
+        <rect x="11" y="30" width="20" height="22" rx="3" fill="#00695C" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="21" cy="34" rx="3.5" ry="2.5" fill="#004D40" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="3" y="32" width="8" height="14" rx="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="31" y="32" width="8" height="14" rx="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="7" cy="47" rx="4" ry="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="35" cy="47" rx="4" ry="3" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <!-- legs sitting -->
+        <rect x="13" y="50" width="7" height="14" rx="3" fill="#1A237E" stroke="#1A1A1A" stroke-width="1.5" transform="rotate(10 16 50)"/>
+        <rect x="22" y="50" width="7" height="14" rx="3" fill="#1A237E" stroke="#1A1A1A" stroke-width="1.5" transform="rotate(-5 25 50)"/>
+        <ellipse cx="17" cy="64" rx="5" ry="2.5" fill="#1A1A1A"/>
+        <ellipse cx="27" cy="64" rx="5" ry="2.5" fill="#1A1A1A"/>
+        <rect x="17" y="24" width="8" height="7" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="21" cy="15" rx="11" ry="12" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- black bob hair -->
+        <ellipse cx="21" cy="5" rx="11" ry="6" fill="#1A1A1A" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="10" y="5" width="22" height="7" rx="0" fill="#1A1A1A"/>
+        <rect x="9" y="7" width="4" height="12" rx="2" fill="#1A1A1A"/>
+        <rect x="29" y="7" width="4" height="12" rx="2" fill="#1A1A1A"/>
+        <!-- fringe -->
+        <rect x="12" y="11" width="18" height="5" rx="2" fill="#1A1A1A"/>
+        <ellipse cx="17" cy="16" rx="2" ry="2.5" fill="#1A1A1A" style="animation:blink-eye 4s 3s infinite"/>
+        <ellipse cx="25" cy="16" rx="2" ry="2.5" fill="#1A1A1A" style="animation:blink-eye 4s 3s infinite"/>
+        <ellipse cx="17.8" cy="15" rx=".8" ry=".8" fill="white"/>
+        <ellipse cx="25.8" cy="15" rx=".8" ry=".8" fill="white"/>
+        <ellipse cx="13" cy="19" rx="2" ry="1.5" fill="#FFB3BA" opacity=".6"/>
+        <ellipse cx="29" cy="19" rx="2" ry="1.5" fill="#FFB3BA" opacity=".6"/>
+        <path d="M18 22 Q21 24 24 22" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute;bottom:34px;left:16px;font-size:9px;background:var(--yellow);border:1.5px solid var(--border-comic);border-radius:8px;padding:1px 6px;font-weight:900;white-space:nowrap;">Nina · PM</div>
+
+      <!-- Character Kai walking -->
+      <svg width="44" height="80" viewBox="0 0 44 80" style="position:absolute;bottom:28px;right:60px;z-index:4;animation:walk 1.2s ease-in-out infinite;" class="character">
+        <rect x="12" y="36" width="20" height="24" rx="3" fill="#C62828" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="3" y="38" width="9" height="18" rx="4" fill="#C62828" stroke="#1A1A1A" stroke-width="2" transform="rotate(-15 7 38)"/>
+        <rect x="32" y="38" width="9" height="18" rx="4" fill="#C62828" stroke="#1A1A1A" stroke-width="2" transform="rotate(10 36 38)"/>
+        <ellipse cx="7" cy="57" rx="4.5" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="37" cy="55" rx="4.5" ry="3.5" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="14" y="58" width="7" height="18" rx="3" fill="#1B5E20" stroke="#1A1A1A" stroke-width="2" transform="rotate(8 17 58)"/>
+        <rect x="23" y="58" width="7" height="18" rx="3" fill="#1B5E20" stroke="#1A1A1A" stroke-width="2" transform="rotate(-6 26 58)"/>
+        <ellipse cx="18" cy="76" rx="6" ry="3" fill="#1A1A1A"/>
+        <ellipse cx="28" cy="74" rx="6" ry="3" fill="#1A1A1A"/>
+        <rect x="18" y="30" width="8" height="7" rx="2" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="1.5"/>
+        <ellipse cx="22" cy="20" rx="12" ry="13" fill="#FDDBB4" stroke="#1A1A1A" stroke-width="2"/>
+        <ellipse cx="22" cy="8" rx="11" ry="7" fill="#2C1810" stroke="#1A1A1A" stroke-width="1.5"/>
+        <rect x="11" y="8" width="22" height="7" rx="0" fill="#2C1810"/>
+        <ellipse cx="18" cy="20" rx="2.5" ry="3" fill="#1A1A1A" style="animation:blink-eye 3s 1.5s infinite"/>
+        <ellipse cx="26" cy="20" rx="2.5" ry="3" fill="#1A1A1A" style="animation:blink-eye 3s 1.5s infinite"/>
+        <ellipse cx="18.8" cy="19" rx="1" ry="1" fill="white"/>
+        <ellipse cx="26.8" cy="19" rx="1" ry="1" fill="white"/>
+        <line x1="18" y1="27" x2="26" y2="27" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute;bottom:12px;right:54px;font-size:9px;background:var(--yellow);border:1.5px solid var(--border-comic);border-radius:8px;padding:1px 6px;font-weight:900;white-space:nowrap;">Kai · 工程师</div>
+
+      <div class="speech-bubble" style="top:20px;right:16px;animation-delay:3s;font-size:10px;">
+        💡 刚用<b style="color:var(--purple)">Qoder</b><br>写完了单测！
+      </div>
+
+    </div><!-- /lounge -->
+
+    <!-- ████ SERVER / AI ROOM ████ -->
+    <div class="room server-room comic-border" style="border-top:3px solid var(--border-comic);">
+      <div class="room-label" style="background:#00BFA5;color:#000;">🖥 AI 计算中心 · Server Room</div>
+
+      <!-- Server racks -->
+      <div style="display:flex;gap:16px;justify-content:center;margin-top:16px;">
+        <!-- Rack 1 -->
+        <div class="server-rack">
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green" style="animation-delay:.2s"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-yellow"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green" style="animation-delay:.4s"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green" style="animation-delay:.6s"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-red"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+        </div>
+        <!-- Rack 2 -->
+        <div class="server-rack">
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green" style="animation-delay:.1s"></div><div style="flex:1;height:2px;background:#A100FF;border-radius:1px;opacity:.4;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green" style="animation-delay:.3s"></div><div style="flex:1;height:2px;background:#A100FF;border-radius:1px;opacity:.4;"></div></div>
+          <div class="rack-unit" style="background:#1A0D28;"><div class="rack-led" style="background:#A100FF;box-shadow:0 0 4px #A100FF;animation:typing .6s infinite;width:4px;height:4px;border-radius:50%;"></div><div style="flex:1;height:2px;background:#A100FF;border-radius:1px;opacity:.7;"></div></div>
+          <div class="rack-unit" style="background:#1A0D28;"><div class="rack-led" style="background:#A100FF;box-shadow:0 0 4px #A100FF;animation:typing .9s infinite;width:4px;height:4px;border-radius:50%;"></div><div style="flex:1;height:2px;background:#A100FF;border-radius:1px;opacity:.7;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-yellow" style="animation-delay:.5s"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+          <div class="rack-unit" style="background:#0D1B3E;"><div class="rack-led led-green" style="animation-delay:.7s"></div><div style="flex:1;height:2px;background:#1A3A6B;border-radius:1px;"></div></div>
+        </div>
+        <!-- Rack 3 - AI GPU -->
+        <div class="server-rack" style="border-color:rgba(161,0,255,0.5);box-shadow:0 0 10px rgba(161,0,255,0.3);">
+          <div style="text-align:center;font-size:8px;color:#A100FF;font-weight:900;letter-spacing:.5px;margin-bottom:2px;">GPU</div>
+          <div class="rack-unit" style="background:#1A0D28;height:16px;border-color:#A100FF;">
+            <div class="rack-led" style="background:#A100FF;box-shadow:0 0 6px #A100FF;animation:typing .4s infinite;width:4px;height:4px;border-radius:50%;"></div>
+            <div style="flex:1;height:3px;background:linear-gradient(90deg,#A100FF,#4A9EFF);border-radius:1px;opacity:.8;"></div>
+          </div>
+          <div class="rack-unit" style="background:#1A0D28;height:16px;border-color:#A100FF;">
+            <div class="rack-led" style="background:#A100FF;box-shadow:0 0 6px #A100FF;animation:typing .5s infinite;width:4px;height:4px;border-radius:50%;"></div>
+            <div style="flex:1;height:3px;background:linear-gradient(90deg,#A100FF,#4A9EFF);border-radius:1px;opacity:.8;"></div>
+          </div>
+          <div class="rack-unit" style="background:#1A0D28;height:16px;border-color:#A100FF;">
+            <div class="rack-led" style="background:#00E676;box-shadow:0 0 4px #00E676;animation:typing .7s infinite;width:4px;height:4px;border-radius:50%;"></div>
+            <div style="flex:1;height:3px;background:linear-gradient(90deg,#00E676,#4A9EFF);border-radius:1px;opacity:.8;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status panel -->
+      <div style="background:#0A0A1E;border:2px solid #333;border-radius:6px;padding:10px 14px;margin:14px auto;max-width:220px;">
+        <div style="font-size:9px;color:#00BFA5;font-weight:900;letter-spacing:1px;margin-bottom:8px;">▌ AI SYSTEM STATUS</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.6);">Qoder Agent</span>
+            <span style="font-size:10px;font-weight:800;color:#00E676;">● ONLINE</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.6);">LLM API</span>
+            <span style="font-size:10px;font-weight:800;color:#00E676;">● ONLINE</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.6);">GPU Cluster</span>
+            <span style="font-size:10px;font-weight:800;color:#A100FF;animation:typing .8s infinite;display:inline-block;">● RUNNING</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.6);">Model v3.2</span>
+            <span style="font-size:10px;font-weight:800;color:#FFE000;">● TRAINING</span>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.08);margin:3px 0;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.5);">CPU</span>
+            <div style="width:60px;height:5px;background:rgba(255,255,255,0.1);border-radius:3px;">
+              <div style="width:72%;height:100%;background:linear-gradient(90deg,#4A9EFF,#A100FF);border-radius:3px;animation:typing 2s infinite;"></div>
+            </div>
+            <span style="font-size:10px;color:#4A9EFF;">72%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.5);">GPU Mem</span>
+            <div style="width:60px;height:5px;background:rgba(255,255,255,0.1);border-radius:3px;">
+              <div style="width:88%;height:100%;background:linear-gradient(90deg,#A100FF,#FF1744);border-radius:3px;animation:typing 1.2s infinite;"></div>
+            </div>
+            <span style="font-size:10px;color:#A100FF;">88%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating AI sparkle -->
+      <div style="position:absolute;top:24px;right:16px;font-size:28px;animation:float2 2s ease-in-out infinite;">✨</div>
+      <div style="position:absolute;top:60px;right:10px;font-size:16px;animation:float2 2.5s 1s ease-in-out infinite;">🤖</div>
+
+      <!-- Speech bubble -->
+      <div class="speech-bubble" style="top:14px;left:16px;font-size:10px;background:#0A0A1E;color:#A100FF;border-color:#A100FF;animation-delay:1s;">
+        <span style="color:#A100FF;">GPU使用率 <b>88%</b></span><br>
+        <span style="color:#00E676;font-size:9px;">模型训练中...</span>
+      </div>
+
+    </div><!-- /server-room -->
+
+  </div><!-- /floor-bottom -->
+
+  <!-- LEGEND / TEAM LIST -->
+  <div style="margin-top:28px;background:white;border:3px solid var(--border-comic);border-radius:12px;padding:20px 28px;box-shadow:4px 4px 0 var(--border-comic);">
+    <div style="font-size:14px;font-weight:900;color:var(--dark);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      <span style="background:var(--purple);color:white;padding:2px 10px;border-radius:20px;font-size:12px;">👥 团队成员</span>
+      AI Team · Shanghai
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;background:#F5F0FF;border:2px solid var(--purple);border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">👨‍💻</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">Alex</div>
+          <div style="font-size:10px;color:#666;">AI 工程师 · 开放工位</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#FFF0F5;border:2px solid #E91E8C;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">👩‍💼</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">May</div>
+          <div style="font-size:10px;color:#666;">产品经理 · 开放工位</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#EFF8FF;border:2px solid #1565C0;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">📊</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">Tom</div>
+          <div style="font-size:10px;color:#666;">数据科学家 · 开放工位</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#E8FAF5;border:2px solid #006064;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">🗣️</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">Sam</div>
+          <div style="font-size:10px;color:#666;">Tech Lead · 会议室</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#FFF3F3;border:2px solid #B71C1C;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">📝</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">Lisa</div>
+          <div style="font-size:10px;color:#666;">咨询顾问 · 会议室</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#FFF8E8;border:2px solid #FF6F00;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">🎨</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">Jay</div>
+          <div style="font-size:10px;color:#666;">UX 设计师 · 咖啡间</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#F3EFF8;border:2px solid #6A1B9A;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">🛋️</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;">Nina · Kai</div>
+          <div style="font-size:10px;color:#666;">PM + 工程师 · 休息区</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#0A0A1E;border:2px solid #A100FF;border-radius:8px;padding:8px 12px;">
+        <span style="font-size:18px;">🤖</span>
+        <div>
+          <div style="font-size:12px;font-weight:900;color:#A100FF;">Qoder AI</div>
+          <div style="font-size:10px;color:#888;">AI助手 · 全员协作</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's activity -->
+    <div style="margin-top:16px;border-top:2px dashed rgba(0,0,0,0.1);padding-top:14px;">
+      <div style="font-size:12px;font-weight:900;color:var(--dark);margin-bottom:8px;">📅 今日 Sprint Day 动态</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="background:#F5F0FF;border:2px solid var(--purple);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;">✅ Alex: 模型准确率 96.8%</div>
+        <div style="background:#FFF0F5;border:2px solid #E91E8C;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;">📋 May: 需求评审下午 3:00</div>
+        <div style="background:#EFF8FF;border:2px solid #1565C0;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;">📊 Tom: 数据清洗完成</div>
+        <div style="background:#E8FAF5;border:2px solid #006064;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;">🗣 Sam: 架构方案演讲中</div>
+        <div style="background:#FFF3F3;border:2px solid #C62828;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;">📝 Lisa: 记录会议纪要</div>
+        <div style="background:#FFF8E8;border:2px solid #FF6F00;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;">🎨 Jay: UI原型完成</div>
+        <div style="background:#0A0A1E;border:2px solid #A100FF;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#A100FF;">🤖 Qoder: 全员 AI 协作中</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /office-container -->
+
+<div class="office-footer">
+  © AI Innovation Hub · Shanghai 28F · Powered by <strong style="color:var(--purple)">Qoder AI</strong> · Sprint Week 14
+</div>
+
+<script>
+  // Add hover interactivity for characters
+  document.querySelectorAll('.character').forEach(char => {
+    char.addEventListener('mouseenter', function() {
+      this.style.filter = 'drop-shadow(0 0 8px rgba(161,0,255,0.6))';
+    });
+    char.addEventListener('mouseleave', function() {
+      this.style.filter = 'drop-shadow(2px 2px 0 rgba(0,0,0,0.2))';
+    });
+  });
+
+  // Animate speech bubbles cycling
+  const bubbles = document.querySelectorAll('.speech-bubble');
+  let idx = 0;
+  setInterval(() => {
+    bubbles.forEach((b, i) => {
+      b.style.opacity = (i === idx % bubbles.length) ? '1' : '0.4';
+    });
+    idx++;
+  }, 2200);
+</script>
+</body>
+</html>

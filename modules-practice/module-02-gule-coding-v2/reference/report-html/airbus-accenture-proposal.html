@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>空客中国智能制造改造方案 | Accenture</title>
+  <style>
+    :root {
+      --purple: #a100ff;
+      --purple-dark: #7800c4;
+      --black: #000000;
+      --gray-dark: #1a1a1a;
+      --gray-mid: #4a4a4a;
+      --gray-light: #f5f5f5;
+      --gray-border: #d8d8d8;
+      --white: #ffffff;
+      --page-bg: #d6d6d6;
+      --page-w: 794px;
+      --font: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--page-bg);
+      color: var(--gray-dark);
+      line-height: 1.6;
+      padding: 32px 0 64px;
+    }
+
+    /* ── 工具栏 ── */
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 52px;
+      border-bottom: 2px solid var(--purple);
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 20px; }
+    .toolbar-logo { display: flex; align-items: center; gap: 10px; }
+    .toolbar-tri {
+      width: 22px; height: 22px;
+      background: var(--purple);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+    .toolbar-brand { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; }
+    .toolbar-divider { width: 1px; height: 22px; background: #333; }
+    .toolbar-doc { color: #999; font-size: 12px; }
+    .toolbar-right { display: flex; align-items: center; gap: 10px; }
+    .toolbar-btn {
+      background: rgba(255,255,255,0.08); border: 1px solid #333;
+      color: #ccc; font-size: 11px; font-weight: 600;
+      padding: 5px 14px; cursor: pointer; letter-spacing: 0.06em;
+      transition: all 0.2s;
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .toolbar-btn.primary { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .toolbar-btn.primary:hover { background: var(--purple-dark); }
+
+    /* ── 页面主体 ── */
+    .doc-pages { margin-top: 52px; }
+    .page {
+      width: var(--page-w);
+      min-height: 1123px;
+      background: var(--white);
+      margin: 24px auto;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      page-break-after: always;
+      overflow: hidden;
+    }
+
+    /* ══ 封面页 ══ */
+    .cover-page {
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .cover-top-bar {
+      background: var(--black);
+      height: 8px;
+      border-bottom: 3px solid var(--purple);
+    }
+    .cover-body {
+      flex: 1; padding: 60px 64px 40px;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    /* 装饰三角 */
+    .cover-deco {
+      position: absolute;
+      right: 0; top: 0;
+      width: 240px; height: 240px;
+      overflow: hidden; pointer-events: none;
+    }
+    .cover-deco::before {
+      content: '';
+      position: absolute; right: 0; top: 0;
+      border-style: solid;
+      border-width: 0 240px 240px 0;
+      border-color: transparent rgba(161,0,255,0.06) transparent transparent;
+    }
+    .cover-deco-tri {
+      position: absolute; right: 40px; top: 40px;
+      width: 60px; height: 60px;
+      background: var(--purple);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      opacity: 0.9;
+    }
+    .cover-deco-tri2 {
+      position: absolute; right: 24px; top: 112px;
+      width: 36px; height: 36px;
+      background: var(--purple);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      opacity: 0.35;
+    }
+
+    .cover-client-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--purple);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cover-client-label::before { content: ''; width: 20px; height: 2px; background: var(--purple); }
+
+    .cover-client-name {
+      font-size: 13px; font-weight: 700; color: var(--gray-mid);
+      margin-bottom: 48px; letter-spacing: 0.04em;
+    }
+
+    .cover-title {
+      font-size: 36px; font-weight: 900;
+      line-height: 1.2; color: var(--black);
+      max-width: 520px; margin-bottom: 12px;
+    }
+    .cover-title .accent { color: var(--purple); }
+    .cover-subtitle {
+      font-size: 15px; color: var(--gray-mid);
+      margin-bottom: 56px; font-weight: 400;
+    }
+
+    .cover-divider { width: 48px; height: 3px; background: var(--purple); margin-bottom: 40px; }
+
+    .cover-meta-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 0; border-top: 1px solid var(--gray-border); margin-bottom: auto;
+    }
+    .cover-meta-item {
+      padding: 20px 0 20px;
+      border-right: 1px solid var(--gray-border);
+      padding-right: 24px; padding-left: 0;
+    }
+    .cover-meta-item:first-child { padding-left: 0; }
+    .cover-meta-item:last-child { border-right: none; padding-left: 24px; }
+    .cover-meta-item:nth-child(2) { padding-left: 24px; }
+    .cover-meta-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+    .cover-meta-value { font-size: 13px; font-weight: 700; color: var(--gray-dark); }
+
+    .cover-footer {
+      padding: 28px 64px;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cover-footer-logo { display: flex; align-items: center; gap: 10px; }
+    .cover-footer-tri { width: 20px; height: 20px; background: var(--purple); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+    .cover-footer-brand { color: var(--white); font-size: 14px; font-weight: 700; letter-spacing: 0.06em; }
+    .cover-footer-copy { color: #555; font-size: 11px; }
+
+    /* ══ 正文页通用 ══ */
+    .page-header {
+      height: 56px;
+      background: var(--black);
+      padding: 0 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 3px solid var(--purple);
+    }
+    .page-header-left { display: flex; align-items: center; gap: 12px; }
+    .ph-tri { width: 16px; height: 16px; background: var(--purple); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+    .ph-brand { color: var(--white); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+    .ph-divider { width: 1px; height: 16px; background: #333; }
+    .ph-section { color: #888; font-size: 11px; letter-spacing: 0.04em; }
+    .page-header-right { color: #555; font-size: 10px; }
+
+    .page-content { padding: 44px 52px; }
+
+    .page-footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px;
+      border-top: 2px solid var(--purple);
+    }
+    .pf-left { color: #555; font-size: 10px; }
+    .pf-right { color: #555; font-size: 10px; }
+    .pf-page { color: var(--purple); font-weight: 700; font-size: 11px; }
+
+    /* ══ 正文元素 ══ */
+    .section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--purple);
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .section-label::before { content: ''; width: 14px; height: 2px; background: var(--purple); }
+
+    h2.doc-h2 {
+      font-size: 24px; font-weight: 900; color: var(--black);
+      line-height: 1.3; margin-bottom: 6px;
+    }
+    h2.doc-h2 .purple { color: var(--purple); }
+
+    .doc-desc {
+      font-size: 13px; color: var(--gray-mid);
+      line-height: 1.8; margin-bottom: 28px;
+      max-width: 580px;
+    }
+
+    .rule-line { width: 100%; height: 1px; background: var(--gray-border); margin: 28px 0; }
+
+    h3.doc-h3 {
+      font-size: 14px; font-weight: 900; color: var(--black);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h3.doc-h3::before {
+      content: ''; width: 4px; height: 16px;
+      background: var(--purple); flex-shrink: 0;
+    }
+
+    /* 信息框 */
+    .info-box {
+      background: var(--gray-light);
+      border-left: 4px solid var(--purple);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 13px; color: var(--gray-dark); line-height: 1.8;
+    }
+    .info-box .box-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--purple); margin-bottom: 6px;
+    }
+
+    /* 评分雷达替代：六维评分表格 */
+    .score-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px; margin-bottom: 24px;
+    }
+    .score-item {
+      border: 1px solid var(--gray-border);
+      padding: 14px 16px;
+      position: relative; overflow: hidden;
+    }
+    .score-item::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+    }
+    .score-item.high::before { background: #C8102E; }
+    .score-item.mid::before { background: #FFB800; }
+    .score-item.ok::before { background: #00874A; }
+    .score-name { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 8px; }
+    .score-val { font-size: 28px; font-weight: 900; line-height: 1; color: var(--black); }
+    .score-unit { font-size: 13px; font-weight: 400; color: #999; }
+    .score-bar-bg { height: 3px; background: #eee; margin-top: 8px; }
+    .score-bar-fill { height: 100%; }
+    .score-bar-fill.high { background: #C8102E; }
+    .score-bar-fill.mid { background: #FFB800; }
+    .score-bar-fill.ok { background: #00874A; }
+    .score-tag {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      padding: 2px 6px; margin-top: 6px; letter-spacing: 0.06em;
+    }
+    .score-tag.high { background: rgba(200,16,46,0.08); color: #C8102E; }
+    .score-tag.mid { background: rgba(255,184,0,0.1); color: #B8840A; }
+    .score-tag.ok { background: rgba(0,135,74,0.08); color: #00874A; }
+
+    /* 问题优先矩阵表格 */
+    .doc-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+    .doc-table th {
+      background: var(--black); color: var(--white);
+      text-align: left; padding: 10px 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      border-right: 1px solid #333;
+    }
+    .doc-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--gray-border);
+      border-right: 1px solid var(--gray-border);
+      vertical-align: top; line-height: 1.6;
+    }
+    .doc-table tr:last-child td { border-bottom: none; }
+    .doc-table td:first-child { font-weight: 700; color: var(--gray-dark); }
+    .doc-table tr:nth-child(even) td { background: #fafafa; }
+
+    .priority-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px;
+    }
+    .p-high { background: #C8102E; }
+    .p-mid { background: #FFB800; }
+    .p-low { background: #00874A; }
+
+    /* 改造建议卡 */
+    .proposal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .proposal-card { border: 1px solid var(--gray-border); padding: 18px 20px; position: relative; }
+    .proposal-card::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; width: 3px; height: 100%;
+      background: var(--purple);
+    }
+    .proposal-phase {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--purple); margin-bottom: 6px;
+    }
+    .proposal-title { font-size: 13px; font-weight: 900; margin-bottom: 8px; color: var(--black); }
+    .proposal-list { list-style: none; }
+    .proposal-list li {
+      font-size: 12px; color: var(--gray-mid);
+      display: flex; gap: 8px; align-items: flex-start;
+      padding: 3px 0;
+    }
+    .proposal-list li::before { content: '›'; color: var(--purple); font-weight: 900; flex-shrink: 0; }
+    .proposal-effort {
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--gray-border);
+      font-size: 11px; color: #999;
+    }
+    .proposal-effort span { color: var(--purple); font-weight: 700; }
+
+    /* Mermaid 架构图替代：SVG 示意 */
+    .arch-box {
+      background: var(--black);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    .arch-box-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--purple); margin-bottom: 16px; }
+
+    /* 简报高亮框 */
+    .brief-box {
+      border: 1.5px solid var(--purple);
+      padding: 24px 28px; margin-bottom: 20px;
+      position: relative;
+    }
+    .brief-box::before {
+      content: attr(data-label);
+      position: absolute; top: -10px; left: 20px;
+      background: var(--white);
+      padding: 0 8px;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--purple);
+    }
+    .brief-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+    .brief-row:last-child { margin-bottom: 0; }
+    .brief-tag {
+      font-size: 9px; font-weight: 900; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 8px;
+      background: var(--black); color: var(--white);
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .brief-tag.purple { background: var(--purple); }
+    .brief-text { font-size: 13px; color: var(--gray-dark); line-height: 1.7; }
+    .brief-text strong { color: var(--black); }
+
+    /* 时间轴 */
+    .timeline { margin-bottom: 24px; }
+    .tl-row { display: flex; gap: 0; align-items: flex-start; margin-bottom: 0; }
+    .tl-left { display: flex; flex-direction: column; align-items: center; width: 40px; flex-shrink: 0; }
+    .tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--purple); border: 2px solid var(--white); outline: 2px solid var(--purple); margin-top: 12px; flex-shrink: 0; }
+    .tl-dot.gray { background: #ccc; outline-color: #ccc; }
+    .tl-line { width: 2px; flex: 1; background: #e0e0e0; min-height: 20px; }
+    .tl-row:last-child .tl-line { display: none; }
+    .tl-card { flex: 1; margin: 4px 0 4px 12px; border: 1px solid var(--gray-border); padding: 12px 16px; }
+    .tl-phase { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
+    .tl-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .tl-desc { font-size: 12px; color: var(--gray-mid); line-height: 1.7; }
+
+    /* 工作量汇总 */
+    .effort-row {
+      display: flex; align-items: center; gap: 0;
+      border: 1px solid var(--gray-border); margin-bottom: 8px;
+    }
+    .effort-phase {
+      padding: 10px 14px; background: var(--black); color: var(--white);
+      font-size: 11px; font-weight: 700; min-width: 80px;
+    }
+    .effort-bar-wrap { flex: 1; height: 100%; padding: 10px 14px; position: relative; }
+    .effort-bar {
+      height: 6px; background: var(--purple); border-radius: 0;
+      position: relative;
+    }
+    .effort-bar .bar-label {
+      position: absolute; right: 0; top: -20px;
+      font-size: 11px; font-weight: 700; color: var(--purple);
+      white-space: nowrap;
+    }
+    .effort-note { font-size: 11px; color: var(--gray-mid); margin-top: 4px; }
+
+    /* 保密提示 */
+    .confidential-ribbon {
+      background: rgba(161,0,255,0.05);
+      border: 1px solid rgba(161,0,255,0.15);
+      padding: 8px 16px;
+      font-size: 10px; color: #888;
+      text-align: center; margin-bottom: 24px;
+      letter-spacing: 0.06em;
+    }
+
+    /* 签字区 */
+    .sign-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 32px; }
+    .sign-item { border-top: 1px solid var(--gray-border); padding-top: 12px; }
+    .sign-role { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #999; margin-bottom: 24px; }
+    .sign-name { font-size: 12px; font-weight: 700; color: var(--gray-dark); }
+    .sign-date { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar { display: none; }
+      .doc-pages { margin-top: 0; }
+      .page { margin: 0; box-shadow: none; page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 工具栏 ── -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="toolbar-logo">
+      <div class="toolbar-tri"></div>
+      <span class="toolbar-brand">Accenture</span>
+    </div>
+    <div class="toolbar-divider"></div>
+    <span class="toolbar-doc">空客中国智能制造改造方案 · 技术评估报告 v1.0</span>
+  </div>
+  <div class="toolbar-right">
+    <button class="toolbar-btn" onclick="window.print()">⎙ 打印 / 导出 PDF</button>
+    <button class="toolbar-btn primary">提交客户审阅</button>
+  </div>
+</div>
+
+<div class="doc-pages">
+
+<!-- ══════════════════════════════════════ -->
+<!-- PAGE 1：封面 -->
+<!-- ══════════════════════════════════════ -->
+<div class="page cover-page">
+  <div class="cover-top-bar"></div>
+  <div class="cover-body">
+    <div class="cover-deco">
+      <div class="cover-deco-tri"></div>
+      <div class="cover-deco-tri2"></div>
+    </div>
+
+    <div class="cover-client-label">Client Engagement · Confidential</div>
+    <div class="cover-client-name">空客中国 Airbus China · 天津工厂 · 2026 年 3 月</div>
+
+    <div class="cover-title">
+      天津工厂装配检测系统<br>
+      <span class="accent">技术尽调与改造方案</span>
+    </div>
+    <div class="cover-subtitle">Technology Due Diligence &amp; Transformation Proposal</div>
+
+    <div class="cover-divider"></div>
+
+    <div style="font-size:13px;color:var(--gray-mid);line-height:1.9;max-width:500px;margin-bottom:48px;">
+      本报告为埃森哲数字工程团队进驻空客中国天津工厂后，
+      在 <strong style="color:var(--black);">24 小时</strong> 内完成遗留系统全面技术评估的交付成果。
+      涵盖六维体检报告、风险优先矩阵、改造路线图与工作量估算，
+      面向客户 IT 总监汇报使用。
+    </div>
+
+    <div class="cover-meta-grid">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">文档版本</div>
+        <div class="cover-meta-value">v1.0 · 初稿</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">评估日期</div>
+        <div class="cover-meta-value">2026-03-07</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">负责团队</div>
+        <div class="cover-meta-value">埃森哲数字工程</div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--gray-border);">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:8px;">参与人员</div>
+      <div style="font-size:12px;color:var(--gray-mid);">
+        张伟（项目经理） · 李明远（技术架构师） · 王芳（AI 工程师） · 陈磊（质量评估专家）
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-logo">
+      <div class="cover-footer-tri"></div>
+      <span class="cover-footer-brand">Accenture</span>
+    </div>
+    <div class="cover-footer-copy">© 2026 Accenture. 本文件含保密信息，仅供空客中国指定人员阅览。</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- PAGE 2：执行摘要 -->
+<!-- ══════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">执行摘要 · Executive Summary</span>
+    </div>
+    <div class="page-header-right">空客中国 · 技术评估报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="confidential-ribbon">⚠ 保密文件 · CONFIDENTIAL — 仅供空客中国项目相关人员使用</div>
+
+    <div class="section-label">Executive Summary</div>
+    <h2 class="doc-h2">执行摘要：<span class="purple">一张纸说清现状与建议</span></h2>
+    <p class="doc-desc">
+      埃森哲团队于 2026 年 3 月 6 日进驻空客中国天津工厂，
+      在 24 小时内完成对装配检测遗留系统的全面技术评估。
+      以下为面向 IT 总监的核心结论，正文各章节提供详细支撑数据。
+    </p>
+
+    <div class="brief-box" data-label="系统现状">
+      <div class="brief-row">
+        <div class="brief-tag">背景</div>
+        <div class="brief-text">
+          天津工厂装配检测系统建于 <strong>2015 年</strong>，累计运行 <strong>11 年</strong>，
+          代码混用 Java / Python / Shell 三种语言，总代码量约 <strong>12 万行</strong>，
+          历经 5 次人员换届，<strong>原始文档缺失率超 80%</strong>，
+          模块间依赖关系完全依赖口口相传。
+        </div>
+      </div>
+      <div class="brief-row">
+        <div class="brief-tag purple">结论</div>
+        <div class="brief-text">
+          系统整体处于<strong>高风险区</strong>，综合评分 <strong>4.8 / 10</strong>。
+          建议在 6 个月内完成分阶段改造，核心路径为：遗留系统文档补全 → 模块解耦 → AI 能力注入 → 云端运维体系建立。
+          维持现状将面临每年约 <strong>120 万元</strong>的隐性维护成本风险。
+        </div>
+      </div>
+    </div>
+
+    <h3 class="doc-h3">核心风险 Top 3（按业务影响排序）</h3>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th width="28">优先级</th>
+          <th>风险描述</th>
+          <th width="100">业务影响</th>
+          <th width="80">修复难度</th>
+          <th width="80">建议时限</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="priority-dot p-high"></span>高</td>
+          <td>安全漏洞：API 接口无鉴权，内网可任意调用，存在数据篡改风险</td>
+          <td style="color:#C8102E;font-weight:700;">生产线停摆</td>
+          <td>中（2周）</td>
+          <td style="font-weight:700;">立即</td>
+        </tr>
+        <tr>
+          <td><span class="priority-dot p-high"></span>高</td>
+          <td>依赖健康：Java 8 EOL、Python 2.7 不再维护，5 个组件含已知 CVE</td>
+          <td style="color:#C8102E;font-weight:700;">安全合规</td>
+          <td>中（3周）</td>
+          <td style="font-weight:700;">本月内</td>
+        </tr>
+        <tr>
+          <td><span class="priority-dot p-mid"></span>中</td>
+          <td>性能风险：数据库 N+1 查询，高峰期响应延迟 12 秒，影响装配线等待</td>
+          <td style="color:#B8840A;font-weight:700;">效率损失</td>
+          <td>低（1周）</td>
+          <td style="font-weight:700;">Q2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rule-line"></div>
+
+    <h3 class="doc-h3">改造建议（分阶段）</h3>
+    <div class="proposal-grid">
+      <div class="proposal-card">
+        <div class="proposal-phase">Phase 1 · 0-8 周</div>
+        <div class="proposal-title">止血 · 安全加固与文档补全</div>
+        <ul class="proposal-list">
+          <li>API 鉴权机制补全，消除零日漏洞</li>
+          <li>依赖升级：Java 8 → 17，Python 2.7 → 3.11</li>
+          <li>核心模块文档补写（AI 辅助）</li>
+          <li>建立基础运维监控</li>
+        </ul>
+        <div class="proposal-effort">预估工作量：<span>12 人天</span> · 风险降低 60%</div>
+      </div>
+      <div class="proposal-card">
+        <div class="proposal-phase">Phase 2 · 8-24 周</div>
+        <div class="proposal-title">升级 · 模块解耦与 AI 能力注入</div>
+        <ul class="proposal-list">
+          <li>单体系统拆分为 3 个核心微服务</li>
+          <li>引入计算机视觉 AI 检测模型</li>
+          <li>数据库 N+1 查询优化</li>
+          <li>云端 ECS 部署 + Qoder CLI 智能运维</li>
+        </ul>
+        <div class="proposal-effort">预估工作量：<span>56 人天</span> · 性能提升 300%</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="box-label">工作量汇总</div>
+      Phase 1（止血）12 人天 + Phase 2（升级）56 人天 = <strong>共 68 人天</strong>，
+      按 6 人团队估算约 <strong>12 周</strong>完成。
+      如采用 AI 辅助开发（Qoder IDE），预计可压缩至 <strong>8 周</strong>，节省约 40% 工时。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · 保密文件 · 2026-03-07</div>
+    <div class="pf-page">2</div>
+    <div class="pf-right">空客中国 · 技术评估报告</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- PAGE 3：六维技术体检报告 -->
+<!-- ══════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">六维技术体检报告 · 6-Dimension Assessment</span>
+    </div>
+    <div class="page-header-right">空客中国 · 技术评估报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Technical Assessment</div>
+    <h2 class="doc-h2">六维技术体检：<span class="purple">综合评分 4.8 / 10</span></h2>
+    <p class="doc-desc">
+      基于 RepoWiki 全量代码扫描 + AI 智能分析，对装配检测遗留系统六个维度进行独立评分。
+      红色（≤4）为高风险，黄色（5-6）为需关注，绿色（≥7）为基本健康。
+    </p>
+
+    <div class="score-grid">
+      <div class="score-item high">
+        <div class="score-name">架构质量</div>
+        <div class="score-val">3<span class="score-unit"> / 10</span></div>
+        <div class="score-bar-bg"><div class="score-bar-fill high" style="width:30%"></div></div>
+        <span class="score-tag high">高风险</span>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.6;">
+          单体架构，3个核心模块耦合度极高，任何修改均需全量回归测试
+        </div>
+      </div>
+      <div class="score-item high">
+        <div class="score-name">安全合规</div>
+        <div class="score-val">2<span class="score-unit"> / 10</span></div>
+        <div class="score-bar-bg"><div class="score-bar-fill high" style="width:20%"></div></div>
+        <span class="score-tag high">极高风险</span>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.6;">
+          API 无鉴权、SQL 注入漏洞、硬编码密钥 3 处，内网可任意访问
+        </div>
+      </div>
+      <div class="score-item mid">
+        <div class="score-name">代码质量</div>
+        <div class="score-val">5<span class="score-unit"> / 10</span></div>
+        <div class="score-bar-bg"><div class="score-bar-fill mid" style="width:50%"></div></div>
+        <span class="score-tag mid">需关注</span>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.6;">
+          圈复杂度偏高（平均 18），注释覆盖率仅 12%，命名规范不统一
+        </div>
+      </div>
+      <div class="score-item mid">
+        <div class="score-name">性能风险</div>
+        <div class="score-val">4<span class="score-unit"> / 10</span></div>
+        <div class="score-bar-bg"><div class="score-bar-fill high" style="width:40%"></div></div>
+        <span class="score-tag high">高风险</span>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.6;">
+          N+1 查询问题导致高峰响应 12 秒，无缓存策略，无限流保护
+        </div>
+      </div>
+      <div class="score-item high">
+        <div class="score-name">文档完整性</div>
+        <div class="score-val">1<span class="score-unit"> / 10</span></div>
+        <div class="score-bar-bg"><div class="score-bar-fill high" style="width:10%"></div></div>
+        <span class="score-tag high">极高风险</span>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.6;">
+          API 文档缺失率 95%，模块说明全部依赖人工记忆，无架构图
+        </div>
+      </div>
+      <div class="score-item mid">
+        <div class="score-name">依赖健康</div>
+        <div class="score-val">4<span class="score-unit"> / 10</span></div>
+        <div class="score-bar-bg"><div class="score-bar-fill high" style="width:40%"></div></div>
+        <span class="score-tag high">高风险</span>
+        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.6;">
+          Java 8 EOL、Python 2.7 停维，5 个依赖含已知 CVE 漏洞
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-line" style="margin:20px 0;"></div>
+
+    <h3 class="doc-h3">最高优先级深挖：安全合规（评分 2/10）</h3>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>问题文件 / 模块</th>
+          <th>问题描述</th>
+          <th width="100">业务影响</th>
+          <th width="80">修复工时</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>api/detection.py L47</td>
+          <td>REST API 端点无任何身份验证，内网可直接 POST 控制装配线参数</td>
+          <td style="color:#C8102E;font-weight:700;">生产停线风险</td>
+          <td>3 人天</td>
+        </tr>
+        <tr>
+          <td>db/connect.java L23</td>
+          <td>数据库密码硬编码在源代码中，已提交 Git 历史</td>
+          <td style="color:#C8102E;font-weight:700;">数据泄露</td>
+          <td>0.5 人天</td>
+        </tr>
+        <tr>
+          <td>query/report.py L112</td>
+          <td>拼接 SQL 字符串，存在 SQL 注入漏洞（OWASP A03:2021）</td>
+          <td style="color:#B8840A;font-weight:700;">数据篡改</td>
+          <td>2 人天</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <div class="box-label">AI 辅助扫描说明</div>
+      以上评估由 <strong>Qoder RepoWiki</strong> 全量扫描 + 智能体模式深度分析完成，
+      总扫描代码量 12 万行，耗时 <strong>47 分钟</strong>（传统人工梳理预估 3~5 天）。
+      评分依据已保存至评估报告附件，可供客户审查。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · 保密文件 · 2026-03-07</div>
+    <div class="pf-page">3</div>
+    <div class="pf-right">空客中国 · 技术评估报告</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- PAGE 4：架构图 + 风险矩阵 -->
+<!-- ══════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">系统架构图 · 风险优先矩阵</span>
+    </div>
+    <div class="page-header-right">空客中国 · 技术评估报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">System Architecture</div>
+    <h2 class="doc-h2">当前系统架构：<span class="purple">AI 生成 Mermaid 图</span></h2>
+    <p class="doc-desc" style="margin-bottom:16px;">
+      由 Qoder AI 基于代码扫描自动生成，反映现有系统真实模块关系。
+    </p>
+
+    <div class="arch-box">
+      <div class="arch-box-label">天津工厂装配检测系统 · 现有架构（As-Is）</div>
+      <svg viewBox="0 0 670 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+        <defs>
+          <marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#a100ff"/>
+          </marker>
+          <marker id="arr-gray" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#555"/>
+          </marker>
+        </defs>
+        <!-- 背景 -->
+        <rect width="670" height="280" fill="#000"/>
+        <!-- 网格 -->
+        <defs>
+          <pattern id="g" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#a100ff" stroke-width="0.3" opacity="0.15"/>
+          </pattern>
+        </defs>
+        <rect width="670" height="280" fill="url(#g)"/>
+
+        <!-- 前端层 -->
+        <rect x="20" y="20" width="630" height="52" rx="2" fill="#111" stroke="#333" stroke-width="1"/>
+        <text x="30" y="36" fill="#666" font-size="8" font-weight="700" letter-spacing="2">前端层</text>
+        <rect x="60" y="38" width="120" height="26" rx="2" fill="#1a1a2e" stroke="#a100ff" stroke-width="1"/>
+        <text x="120" y="55" fill="#c0c0ff" font-size="10" font-weight="700" text-anchor="middle">Web 控制台</text>
+        <rect x="260" y="38" width="120" height="26" rx="2" fill="#1a1a2e" stroke="#555" stroke-width="1"/>
+        <text x="320" y="55" fill="#888" font-size="10" text-anchor="middle">移动 App（停用）</text>
+        <rect x="460" y="38" width="140" height="26" rx="2" fill="#1a1a2e" stroke="#555" stroke-width="1"/>
+        <text x="530" y="55" fill="#888" font-size="10" text-anchor="middle">MES 接口（文档缺失）</text>
+
+        <!-- 业务层 -->
+        <rect x="20" y="90" width="630" height="82" rx="2" fill="#111" stroke="#333" stroke-width="1"/>
+        <text x="30" y="106" fill="#666" font-size="8" font-weight="700" letter-spacing="2">业务层（Java + Python 混合）</text>
+        <rect x="60" y="108" width="110" height="56" rx="2" fill="#1a0030" stroke="#a100ff" stroke-width="1.5"/>
+        <text x="115" y="130" fill="#c060ff" font-size="10" font-weight="700" text-anchor="middle">装配检测</text>
+        <text x="115" y="146" fill="#7040a0" font-size="9" text-anchor="middle">Python/YOLO</text>
+        <text x="115" y="158" fill="#C8102E" font-size="8" text-anchor="middle">★ 核心模块</text>
+
+        <rect x="200" y="108" width="110" height="56" rx="2" fill="#0a1a00" stroke="#555" stroke-width="1"/>
+        <text x="255" y="130" fill="#6aaa6a" font-size="10" font-weight="700" text-anchor="middle">质量评分</text>
+        <text x="255" y="146" fill="#3a6a3a" font-size="9" text-anchor="middle">Java 8</text>
+        <text x="255" y="158" fill="#888" font-size="8" text-anchor="middle">耦合度高</text>
+
+        <rect x="340" y="108" width="110" height="56" rx="2" fill="#0a1a00" stroke="#555" stroke-width="1"/>
+        <text x="395" y="130" fill="#6aaa6a" font-size="10" font-weight="700" text-anchor="middle">报表生成</text>
+        <text x="395" y="146" fill="#3a6a3a" font-size="9" text-anchor="middle">Java 8</text>
+        <text x="395" y="158" fill="#888" font-size="8" text-anchor="middle">无缓存</text>
+
+        <rect x="480" y="108" width="150" height="56" rx="2" fill="#1a1000" stroke="#FFB800" stroke-width="1"/>
+        <text x="555" y="130" fill="#FFB800" font-size="10" font-weight="700" text-anchor="middle">告警通知</text>
+        <text x="555" y="146" fill="#806000" font-size="9" text-anchor="middle">Shell Script</text>
+        <text x="555" y="158" fill="#888" font-size="8" text-anchor="middle">无监控体系</text>
+
+        <!-- 连线 -->
+        <line x1="115" y1="164" x2="255" y2="164" stroke="#a100ff" stroke-width="1" marker-end="url(#arr)" opacity="0.6"/>
+        <line x1="255" y1="164" x2="395" y2="164" stroke="#a100ff" stroke-width="1" marker-end="url(#arr)" opacity="0.6"/>
+        <line x1="395" y1="136" x2="480" y2="136" stroke="#555" stroke-width="1" marker-end="url(#arr-gray)" opacity="0.5"/>
+
+        <!-- 数据层 -->
+        <rect x="20" y="190" width="630" height="72" rx="2" fill="#111" stroke="#333" stroke-width="1"/>
+        <text x="30" y="206" fill="#666" font-size="8" font-weight="700" letter-spacing="2">数据层</text>
+        <rect x="60" y="208" width="120" height="40" rx="2" fill="#0a0a1a" stroke="#444" stroke-width="1"/>
+        <text x="120" y="228" fill="#888" font-size="10" text-anchor="middle">MySQL 5.6</text>
+        <text x="120" y="242" fill="#C8102E" font-size="8" text-anchor="middle">⚠ EOL 已停维护</text>
+
+        <rect x="220" y="208" width="120" height="40" rx="2" fill="#0a0a1a" stroke="#444" stroke-width="1"/>
+        <text x="280" y="228" fill="#888" font-size="10" text-anchor="middle">本地文件存储</text>
+        <text x="280" y="242" fill="#888" font-size="8" text-anchor="middle">无备份策略</text>
+
+        <rect x="380" y="208" width="120" height="40" rx="2" fill="#0a0a1a" stroke="#444" stroke-width="1"/>
+        <text x="440" y="228" fill="#888" font-size="10" text-anchor="middle">检测日志</text>
+        <text x="440" y="242" fill="#888" font-size="8" text-anchor="middle">磁盘占用 78%</text>
+
+        <!-- 竖向连线 -->
+        <line x1="120" y1="72" x2="120" y2="108" stroke="#a100ff" stroke-width="1" marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="115" y1="164" x2="115" y2="208" stroke="#555" stroke-width="1" marker-end="url(#arr-gray)" opacity="0.4"/>
+        <line x1="270" y1="164" x2="270" y2="208" stroke="#555" stroke-width="1" marker-end="url(#arr-gray)" opacity="0.4"/>
+      </svg>
+    </div>
+
+    <div class="section-label">Risk Matrix</div>
+    <h3 class="doc-h3">风险优先矩阵（影响程度 × 修复难度）</h3>
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>问题</th>
+          <th width="80">影响</th>
+          <th width="80">难度</th>
+          <th width="100">处置策略</th>
+          <th width="70">责任人</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="priority-dot p-high"></span>API 无鉴权 · SQL 注入</td>
+          <td style="color:#C8102E;font-weight:700;">极高</td>
+          <td>低</td>
+          <td><span style="color:var(--purple);font-weight:700;">立即处理（Quick Win）</span></td>
+          <td>安全工程师</td>
+        </tr>
+        <tr>
+          <td><span class="priority-dot p-high"></span>Java 8 / Python 2.7 EOL</td>
+          <td style="color:#C8102E;font-weight:700;">高</td>
+          <td>中</td>
+          <td><span style="color:#C8102E;font-weight:700;">重点规划（Phase 1）</span></td>
+          <td>架构师</td>
+        </tr>
+        <tr>
+          <td><span class="priority-dot p-mid"></span>数据库 N+1 查询</td>
+          <td style="color:#B8840A;font-weight:700;">中</td>
+          <td>低</td>
+          <td><span style="color:#00874A;font-weight:700;">闲时处理（Phase 2）</span></td>
+          <td>后端工程师</td>
+        </tr>
+        <tr>
+          <td><span class="priority-dot p-mid"></span>文档缺失 80%+</td>
+          <td style="color:#B8840A;font-weight:700;">中</td>
+          <td>低（AI辅助）</td>
+          <td><span style="color:var(--purple);font-weight:700;">立即处理（AI 生成）</span></td>
+          <td>全员</td>
+        </tr>
+        <tr>
+          <td><span class="priority-dot p-low"></span>模块解耦重构</td>
+          <td style="color:#888;">低</td>
+          <td>高</td>
+          <td><span style="color:#888;">暂时搁置（Phase 3）</span></td>
+          <td>架构师</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · 保密文件 · 2026-03-07</div>
+    <div class="pf-page">4</div>
+    <div class="pf-right">空客中国 · 技术评估报告</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- PAGE 5：改造路线图 + AI 工具说明 -->
+<!-- ══════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">改造路线图 · Transformation Roadmap</span>
+    </div>
+    <div class="page-header-right">空客中国 · 技术评估报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Transformation Roadmap</div>
+    <h2 class="doc-h2">6 个月改造路线图</h2>
+    <p class="doc-desc">基于评估结果制定三阶段改造计划，AI 工具辅助开发可压缩约 40% 工时。</p>
+
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card">
+          <div class="tl-phase">Phase 1 · Week 1–8 · 止血</div>
+          <div class="tl-title">安全加固 + 文档补全 + 基础运维</div>
+          <div class="tl-desc">
+            修复 API 鉴权、SQL 注入 3 处高危漏洞；升级 Java 8 → 17、Python 2.7 → 3.11；
+            使用 Qoder AI 自动生成 API 文档（目标覆盖率从 5% → 80%）；
+            部署阿里云 ECS，配置 Qoder CLI 基础运维监控体系。
+            <br><strong style="color:var(--purple);">里程碑：安全漏洞清零，系统合规通过</strong>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card">
+          <div class="tl-phase">Phase 2 · Week 8–20 · 升级</div>
+          <div class="tl-title">性能优化 + AI 能力注入 + 云端部署</div>
+          <div class="tl-desc">
+            消除数据库 N+1 查询，引入 Redis 缓存层（响应时间预期从 12秒 → 1秒）；
+            接入计算机视觉 AI 检测模型（YOLO v8），替代人工目视检测；
+            拆分 3 个核心微服务，建立 CI/CD 流水线；
+            Qoder CLI 构建 GPU 监控、模型推理延迟、数据管道三套智能运维脚本。
+            <br><strong style="color:var(--purple);">里程碑：AI 检测准确率 ≥ 95%，装配线等待时间降低 80%</strong>
+          </div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-dot gray"></div>
+          <div class="tl-line" style="display:none;"></div>
+        </div>
+        <div class="tl-card" style="border-color:#ddd;">
+          <div class="tl-phase" style="color:#aaa;">Phase 3 · Week 20–24 · 未来规划</div>
+          <div class="tl-title" style="color:#aaa;">完整微服务化 + 数字孪生接入（待定）</div>
+          <div class="tl-desc" style="color:#aaa;">
+            根据 Phase 2 稳定情况评估，考虑接入天津工厂数字孪生平台、
+            引入大模型辅助装配质量预测。具体范围待客户决策确认。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-line"></div>
+
+    <div class="section-label">AI Tooling</div>
+    <h3 class="doc-h3">本次评估使用的 AI 工具说明</h3>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>工具</th>
+          <th>用途</th>
+          <th width="100">传统耗时</th>
+          <th width="100">实际耗时</th>
+          <th width="80">节省</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Qoder RepoWiki</td>
+          <td>全量代码扫描，自动生成项目概览、模块关系、技术栈清单</td>
+          <td>3~5 天</td>
+          <td style="color:var(--purple);font-weight:700;">47 分钟</td>
+          <td style="color:#00874A;font-weight:700;">97%</td>
+        </tr>
+        <tr>
+          <td>Qoder AI Agent</td>
+          <td>六维体检报告生成、风险优先矩阵、深度模块分析</td>
+          <td>2 天</td>
+          <td style="color:var(--purple);font-weight:700;">1.5 小时</td>
+          <td style="color:#00874A;font-weight:700;">93%</td>
+        </tr>
+        <tr>
+          <td>Qoder Mermaid</td>
+          <td>架构图、时序图、数据流图自动生成</td>
+          <td>半天</td>
+          <td style="color:var(--purple);font-weight:700;">20 分钟</td>
+          <td style="color:#00874A;font-weight:700;">94%</td>
+        </tr>
+        <tr>
+          <td>Qoder CLI</td>
+          <td>云端 ECS 部署、智能运维脚本生成、异常自动排查</td>
+          <td>1~2 天</td>
+          <td style="color:var(--purple);font-weight:700;">2 小时</td>
+          <td style="color:#00874A;font-weight:700;">88%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <div class="box-label">总体结论</div>
+      本次技术评估证明，借助 <strong>Qoder AI 工具链</strong>，埃森哲团队在 <strong>24 小时</strong>内完成了
+      传统方式需要 <strong>2~3 周</strong>才能完成的技术尽调工作。
+      AI 辅助开发不仅压缩了时间成本，更显著提升了评估覆盖率（代码覆盖 100% vs 传统抽样 30%）。
+      建议空客中国在后续改造阶段持续引入 AI Coding 工具，实现研发效率的系统性提升。
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · 保密文件 · 2026-03-07</div>
+    <div class="pf-page">5</div>
+    <div class="pf-right">空客中国 · 技术评估报告</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- PAGE 6：签字页 -->
+<!-- ══════════════════════════════════════ -->
+<div class="page" style="min-height:600px;">
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="ph-tri"></div>
+      <span class="ph-brand">Accenture</span>
+      <div class="ph-divider"></div>
+      <span class="ph-section">审批确认 · Approval</span>
+    </div>
+    <div class="page-header-right">空客中国 · 技术评估报告 v1.0</div>
+  </div>
+
+  <div class="page-content">
+    <div class="section-label">Document Approval</div>
+    <h2 class="doc-h2">文档审批 &amp; 版本记录</h2>
+    <p class="doc-desc">本报告需客户 IT 总监及埃森哲项目经理双方确认后生效。</p>
+
+    <div class="rule-line"></div>
+
+    <table class="doc-table" style="margin-bottom:36px;">
+      <thead>
+        <tr>
+          <th>版本</th>
+          <th>日期</th>
+          <th>修订内容</th>
+          <th width="100">作者</th>
+          <th width="80">状态</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v1.0</td>
+          <td>2026-03-07</td>
+          <td>初稿：基于进驻后 24 小时全量扫描结果</td>
+          <td>李明远</td>
+          <td style="color:var(--purple);font-weight:700;">待审阅</td>
+        </tr>
+        <tr>
+          <td>v1.1</td>
+          <td>待定</td>
+          <td>根据客户启动会反馈修订</td>
+          <td>—</td>
+          <td style="color:#aaa;">计划中</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sign-grid">
+      <div class="sign-item">
+        <div class="sign-role">埃森哲项目经理</div>
+        <div style="height:40px;border-bottom:1px solid #ccc;margin-bottom:8px;"></div>
+        <div class="sign-name">张伟</div>
+        <div class="sign-date">日期：____________</div>
+      </div>
+      <div class="sign-item">
+        <div class="sign-role">埃森哲技术负责人</div>
+        <div style="height:40px;border-bottom:1px solid #ccc;margin-bottom:8px;"></div>
+        <div class="sign-name">李明远</div>
+        <div class="sign-date">日期：____________</div>
+      </div>
+      <div class="sign-item">
+        <div class="sign-role">空客中国 IT 总监（客户）</div>
+        <div style="height:40px;border-bottom:1px solid #ccc;margin-bottom:8px;"></div>
+        <div class="sign-name">____________</div>
+        <div class="sign-date">日期：____________</div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:20px 24px;border:1px solid var(--gray-border);background:var(--gray-light);">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#999;margin-bottom:10px;">免责声明</div>
+      <p style="font-size:11px;color:#888;line-height:1.8;">
+        本报告基于埃森哲团队于 2026 年 3 月 6-7 日对所提供代码库及环境的技术分析，
+        评估结论仅代表当前时点的系统状态。埃森哲对本报告中基于 AI 工具生成的内容已进行人工审核，
+        但不对因环境变更、信息不完整或第三方系统导致的差异承担责任。
+        本报告为保密文件，未经埃森哲书面授权不得对外披露。
+      </p>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="pf-left">Accenture · 保密文件 · 2026-03-07</div>
+    <div class="pf-page">6</div>
+    <div class="pf-right">空客中国 · 技术评估报告</div>
+  </div>
+</div>
+
+</div><!-- /doc-pages -->
+
+</body>
+</html>

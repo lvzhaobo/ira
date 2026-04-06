@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Buy AI - 知识库管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bestbuy-blue: #003da6;
+            --bestbuy-yellow: #ffe600;
+            --bestbuy-dark: #1d252c;
+            --bestbuy-gray: #f4f6f8;
+            --bestbuy-light-gray: #e8ecf0;
+            --success-green: #00a651;
+            --warning-orange: #ff6b00;
+            --danger-red: #dc2626;
+            --tech-highlight: #e0f2fe;
+            --tech-border: #0ea5e9;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bestbuy-gray);
+            color: var(--bestbuy-text);
+        }
+        .header {
+            background: var(--bestbuy-blue);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            font-weight: 800;
+            font-size: 24px;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            border-color: var(--bestbuy-yellow);
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--bestbuy-light-gray);
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 14px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--bestbuy-gray);
+            border-left-color: var(--bestbuy-blue);
+        }
+        .nav-item.active {
+            font-weight: 600;
+            color: var(--bestbuy-blue);
+        }
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            color: #5c6c7c;
+            margin-bottom: 24px;
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--tech-highlight);
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--tech-border);
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .section.tech-highlight {
+            border: 2px solid var(--tech-border);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--bestbuy-blue);
+            color: white;
+        }
+        .btn-secondary {
+            background: white;
+            color: var(--bestbuy-blue);
+            border: 1px solid var(--bestbuy-blue);
+        }
+        .tech-note {
+            background: var(--tech-highlight);
+            border-left: 4px solid var(--tech-border);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tech-note-title {
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tech-note ul {
+            margin-left: 20px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.8;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+            padding-bottom: 12px;
+        }
+        .tab {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #5c6c7c;
+        }
+        .tab.active {
+            background: var(--bestbuy-blue);
+            color: white;
+        }
+        .search-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--bestbuy-light-gray);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--bestbuy-light-gray);
+        }
+        th {
+            font-weight: 600;
+            color: #5c6c7c;
+            font-size: 12px;
+            text-transform: uppercase;
+            background: var(--bestbuy-gray);
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-synced {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bestbuy-light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--bestbuy-blue);
+            border-radius: 4px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--bestbuy-light-gray);
+        }
+        .metric-card.tech-highlight {
+            border: 2px solid var(--tech-border);
+        }
+        .metric-label {
+            font-size: 13px;
+            color: #5c6c7c;
+            margin-bottom: 8px;
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .metric-change {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bestbuy-gray);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--bestbuy-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .step-desc {
+            font-size: 13px;
+            color: #5c6c7c;
+        }
+        .step-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .action-link {
+            color: var(--bestbuy-blue);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .action-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div class="logo">best buy</div>
+            <span style="color:white;opacity:0.8;font-size:14px;">AI Assistant 管理平台</span>
+        </div>
+        <nav>
+            <a href="index.html" class="nav-btn">客户视图</a>
+            <a href="admin-dashboard.html" class="nav-btn">管理员视图</a>
+            <a href="knowledge-base.html" class="nav-btn active">知识库管理</a>
+            <a href="integration-monitor.html" class="nav-btn">系统集成监控</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="nav-item">📊 系统概览</div>
+            <div class="nav-item">💬 对话分析</div>
+            <div class="nav-item">🤖 模型管理</div>
+            <div class="nav-item">👥 客服管理</div>
+            <div class="nav-item">📈 业务指标</div>
+            <div class="nav-item active">⚙️ 知识库管理</div>
+            <div class="nav-item">🔔 告警中心</div>
+            <div class="nav-item">📋 日志审计</div>
+        </aside>
+
+        <main class="main-content">
+            <h1 class="page-title">知识库管理</h1>
+            <p class="page-subtitle">管理RAG检索所需的产品文档、FAQ、政策等知识资产</p>
+
+            <!-- 核心指标 -->
+            <div class="card-grid">
+                <div class="metric-card tech-highlight">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span class="metric-label">向量索引文档数</span>
+                        <span class="tech-badge">Pinecone</span>
+                    </div>
+                    <div class="metric-value">128,456</div>
+                    <div class="metric-change" style="color:var(--success-green);">↑ 2,345 今日新增</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">知识库覆盖率</div>
+                    <div class="metric-value">78.5%</div>
+                    <div class="metric-change" style="color:var(--warning-orange);">目标: 90%</div>
+                </div>
+                <div class="metric-card tech-highlight">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span class="metric-label">平均向量维度</span>
+                        <span class="tech-badge">Embedding</span>
+                    </div>
+                    <div class="metric-value">1,536</div>
+                    <div class="metric-change" style="color:#5c6c7c;">text-embedding-3-large</div>
+                </div>
+            </div>
+
+            <!-- 数据处理Pipeline -->
+            <div class="section tech-highlight">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">📥 文档处理 Pipeline</h3>
+                        <span class="tech-badge" style="margin-top:8px;display:inline-flex;">核心技术: RAG数据流</span>
+                    </div>
+                    <button class="btn btn-primary">+ 上传新文档</button>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 关键技术难点: 数据清洗与分块</div>
+                    <ul>
+                        <li><strong>多格式解析：</strong> PDF/Word/HTML/Excel等不同格式的内容提取</li>
+                        <li><strong>智能分块(Chunking)：</strong> 按语义边界分割，避免切断关键信息</li>
+                        <li><strong>元数据标注：</strong> 产品类别、版本、有效期等标签用于过滤</li>
+                        <li><strong>增量更新：</strong> 文档变更时只更新变更部分，而非全量重建</li>
+                    </ul>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">文档上传</div>
+                        <div class="step-desc">支持 PDF, Word, Excel, HTML, Markdown 格式</div>
+                    </div>
+                    <span class="step-status" style="background:#d1fae5;color:#065f46;">✓ 完成</span>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">内容提取 & OCR</div>
+                        <div class="step-desc">提取文本内容，图片使用OCR识别，表格转为结构化数据</div>
+                    </div>
+                    <span class="step-status" style="background:#d1fae5;color:#065f46;">✓ 完成</span>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">数据清洗</div>
+                        <div class="step-desc">去除页眉页脚、修复编码问题、标准化格式</div>
+                    </div>
+                    <span class="step-status" style="background:#fef3c7;color:#92400e;">⏳ 处理中</span>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">智能分块 (Chunking)</div>
+                        <div class="step-desc">按语义边界分割文档，块大小: 512 tokens，重叠: 128 tokens</div>
+                    </div>
+                    <span class="step-status" style="background:var(--bestbuy-light-gray);color:#5c6c7c;">⏸️ 等待</span>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">向量化 (Embedding)</div>
+                        <div class="step-desc">使用 text-embedding-3-large 模型生成 1536维向量</div>
+                    </div>
+                    <span class="step-status" style="background:var(--bestbuy-light-gray);color:#5c6c7c;">⏸️ 等待</span>
+                    <span class="tech-badge">OpenAI API</span>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <div class="step-title">索引写入</div>
+                        <div class="step-desc">写入 Pinecone 向量数据库，建立元数据索引</div>
+                    </div>
+                    <span class="step-status" style="background:var(--bestbuy-light-gray);color:#5c6c7c;">⏸️ 等待</span>
+                    <span class="tech-badge">Pinecone</span>
+                </div>
+            </div>
+
+            <!-- 知识分类 -->
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">📚 知识分类</h3>
+                    <button class="btn btn-secondary">管理分类</button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active">全部文档</button>
+                    <button class="tab">产品文档</button>
+                    <button class="tab">FAQ</button>
+                    <button class="tab">政策条款</button>
+                    <button class="tab">技术支持</button>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="搜索文档名称、内容关键词...">
+                    <button class="btn btn-primary">搜索</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>文档名称</th>
+                            <th>分类</th>
+                            <th>同步状态</th>
+                            <th>向量状态</th>
+                            <th>最后更新</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sony WH-1000XM5 用户手册.pdf</td>
+                            <td>产品文档</td>
+                            <td><span class="status-badge status-synced">● 已同步</span></td>
+                            <td><span class="status-badge status-synced">✓ 已索引</span></td>
+                            <td>2024-03-04 14:32</td>
+                            <td><a href="#" class="action-link">查看</a> <a href="#" class="action-link">重新索引</a></td>
+                        </tr>
+                        <tr>
+                            <td>退换货政策 v2.3.docx</td>
+                            <td>政策条款</td>
+                            <td><span class="status-badge status-synced">● 已同步</span></td>
+                            <td><span class="status-badge status-synced">✓ 已索引</span></td>
+                            <td>2024-03-04 10:15</td>
+                            <td><a href="#" class="action-link">查看</a> <a href="#" class="action-link">重新索引</a></td>
+                        </tr>
+                        <tr>
+                            <td>iPhone 15 常见问题 FAQ.html</td>
+                            <td>FAQ</td>
+                            <td><span class="status-badge status-pending">⏳ 待处理</span></td>
+                            <td><span class="status-badge status-pending">⏳ 待索引</span></td>
+                            <td>2024-03-04 09:00</td>
+                            <td><a href="#" class="action-link">查看</a> <a href="#" class="action-link">取消</a></td>
+                        </tr>
+                        <tr>
+                            <td>Geek Squad 服务价格表.xlsx</td>
+                            <td>技术支持</td>
+                            <td><span class="status-badge status-error">✗ 同步失败</span></td>
+                            <td><span class="status-badge status-error">✗ 索引失败</span></td>
+                            <td>2024-03-03 16:45</td>
+                            <td><a href="#" class="action-link">查看错误</a> <a href="#" class="action-link">重试</a></td>
+                        </tr>
+                        <tr>
+                            <td>My Best Buy 会员权益说明.md</td>
+                            <td>政策条款</td>
+                            <td><span class="status-badge status-synced">● 已同步</span></td>
+                            <td><span class="status-badge status-synced">✓ 已索引</span></td>
+                            <td>2024-03-03 11:20</td>
+                            <td><a href="#" class="action-link">查看</a> <a href="#" class="action-link">重新索引</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 检索测试 -->
+            <div class="section tech-highlight">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">🧪 检索效果测试</h3>
+                        <span class="tech-badge" style="margin-top:8px;display:inline-flex;">关键技术: RAG调优</span>
+                    </div>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-title">⚡ 技术要点: 检索质量优化</div>
+                    <ul>
+                        <li><strong>混合检索：</strong> 向量相似度 + BM25关键词检索融合，提升召回率</li>
+                        <li><strong>重排序(Rerank)：</strong> 使用Cross-Encoder对Top-K结果精细排序</li>
+                        <li><strong>元数据过滤：</strong> 按产品类别、时间范围等条件预过滤，减少噪声</li>
+                        <li><strong>查询改写：</strong> 使用LLM扩展同义词、纠正拼写错误</li>
+                    </ul>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="输入测试查询，如: '耳机怎么连接蓝牙'">
+                    <button class="btn btn-primary">测试检索</button>
+                </div>
+
+                <div style="background:var(--bestbuy-gray);padding:20px;border-radius:8px;">
+                    <div style="font-weight:600;margin-bottom:12px;">查询: "Sony耳机降噪功能怎么开"</div>
+                    <div style="font-size:13px;color:#5c6c7c;margin-bottom:16px;">
+                        检索耗时: 45ms | 召回文档: 5 | 重排序后: 3
+                    </div>
+
+                    <div style="background:white;padding:16px;border-radius:8px;margin-bottom:12px;border-left:4px solid var(--success-green);">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                            <span style="font-weight:600;">Sony WH-1000XM5 用户手册 - 降噪设置</span>
+                            <span style="color:var(--success-green);font-weight:600;">相似度: 0.94</span>
+                        </div>
+                        <div style="font-size:13px;color:#5c6c7c;">
+                            "要开启降噪功能，请按住耳机上的NC/AMB按钮，直到听到提示音。您也可以通过Sony Headphones Connect App调整降噪级别..."
+                        </div>
+                    </div>
+
+                    <div style="background:white;padding:16px;border-radius:8px;margin-bottom:12px;border-left:4px solid var(--bestbuy-blue);">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                            <span style="font-weight:600;">耳机常见问题 FAQ</span>
+                            <span style="color:var(--bestbuy-blue);font-weight:600;">相似度: 0.87</span>
+                        </div>
+                        <div style="font-size:13px;color:#5c6c7c;">
+                            "Q: 如何切换降噪模式？ A: 大部分Sony降噪耳机支持通过物理按钮或配套App切换..."
+                        </div>
+                    </div>
+
+                    <div style="background:white;padding:16px;border-radius:8px;border-left:4px solid var(--bestbuy-light-gray);">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                            <span style="font-weight:600;">Geek Squad 技术支持指南</span>
+                            <span style="color:#5c6c7c;font-weight:600;">相似度: 0.72</span>
+                        </div>
+                        <div style="font-size:13px;color:#5c6c7c;">
+                            "如果降噪功能无法正常工作，建议先检查固件是否为最新版本..."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>埃森哲 AI Workshop · 后续学习路径指南</title>
+<style>
+:root{
+  --acc-purple:#a100ff;--acc-purple-dark:#7200b2;--acc-purple-light:#f3e6ff;
+  --black:#000;--dark:#111;--gray-dark:#1a1a1a;--gray-mid:#4a4a4a;
+  --gray-light:#f5f5f5;--gray-border:#e0e0e0;--white:#fff;
+  --green:#00a651;--green-light:#e6f7ed;
+  --blue:#0057b7;--blue-light:#e6eef8;
+  --orange:#e67e22;--orange-light:#fef6ed;
+  --red:#c0392b;--red-light:#fdf0ef;
+  --teal:#00897b;--teal-light:#e0f5f3;
+  --gold:#b8860b;--gold-light:#fdf8e6;
+  --font:'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'Courier New','Consolas',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--gray-light);color:var(--gray-dark);line-height:1.6;}
+
+/* TOPBAR */
+.topbar{background:var(--black);height:52px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.tb-logo{display:flex;align-items:center;gap:12px;}
+.tb-mark{width:32px;height:32px;background:var(--acc-purple);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fff;}
+.tb-brand{color:#fff;font-size:15px;font-weight:700;}
+.tb-sep{color:rgba(255,255,255,.2);margin:0 8px;}
+.tb-sub{color:rgba(255,255,255,.45);font-size:12px;}
+.tb-back{color:rgba(255,255,255,.5);font-size:13px;text-decoration:none;}
+.tb-back:hover{color:var(--acc-purple);}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#000 0%,#1a0033 55%,#0a1a3d 100%);padding:64px 48px 52px;position:relative;overflow:hidden;}
+.hero::after{content:'NEXT';position:absolute;right:0;bottom:-16px;font-size:160px;font-weight:900;color:rgba(161,0,255,.04);pointer-events:none;letter-spacing:-.05em;}
+.hero-inner{max-width:820px;}
+.hero-kicker{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--acc-purple);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.hero-kicker::before{content:'';display:inline-block;width:28px;height:2px;background:var(--acc-purple);}
+.hero h1{font-size:42px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;}
+.hero h1 em{font-style:normal;color:var(--acc-purple);}
+.hero-desc{font-size:15px;color:rgba(255,255,255,.65);max-width:640px;line-height:1.9;margin-bottom:36px;}
+.hero-pills{display:flex;gap:10px;flex-wrap:wrap;}
+.hero-pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.8);font-size:12px;padding:5px 14px;font-weight:600;}
+
+/* NAV TABS */
+.page-nav{background:#111;border-bottom:1px solid rgba(255,255,255,.06);padding:0 48px;display:flex;position:sticky;top:52px;z-index:100;overflow-x:auto;}
+.pn-btn{padding:14px 20px;font-size:12px;font-weight:700;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:.2s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font);}
+.pn-btn:hover{color:rgba(255,255,255,.8);}
+.pn-btn.active{color:var(--acc-purple);border-bottom-color:var(--acc-purple);}
+
+/* PANELS */
+.panel{display:none;padding:52px 48px;max-width:1020px;margin:0 auto;}
+.panel.active{display:block;}
+
+/* SECTION */
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--acc-purple);margin-bottom:8px;}
+.sec-title{font-size:28px;font-weight:900;color:var(--black);margin-bottom:12px;line-height:1.2;}
+.sec-desc{font-size:14px;color:var(--gray-mid);max-width:740px;line-height:1.85;margin-bottom:32px;}
+
+/* PHASE TRACK */
+.track{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--gray-border);margin-bottom:36px;}
+.track-col{background:var(--white);padding:28px 24px;}
+.track-phase{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.phase-now{color:var(--green);}
+.phase-soon{color:var(--blue);}
+.phase-adv{color:var(--acc-purple);}
+.track-title{font-size:18px;font-weight:900;color:var(--black);margin-bottom:6px;}
+.track-sub{font-size:12px;color:var(--gray-mid);margin-bottom:14px;font-style:italic;}
+.track-items{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.track-items li{font-size:13px;color:var(--gray-dark);display:flex;gap:8px;align-items:flex-start;}
+.track-items li::before{content:'›';font-weight:700;flex-shrink:0;margin-top:1px;}
+.phase-now+.track-title~.track-items li::before{color:var(--green);}
+.phase-soon+.track-title~.track-items li::before{color:var(--blue);}
+.phase-adv+.track-title~.track-items li::before{color:var(--acc-purple);}
+.track-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;margin-top:12px;}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.badge-purple{background:var(--acc-purple-light);color:var(--acc-purple-dark);}
+
+/* LAB CARDS */
+.lab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px;}
+.lab-card{background:var(--white);border:1px solid var(--gray-border);overflow:hidden;}
+.lab-card-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.lab-id{font-size:12px;font-weight:900;font-family:var(--mono);}
+.lab-status{font-size:11px;font-weight:700;padding:3px 9px;}
+.status-done{background:var(--green-light);color:var(--green);}
+.status-next{background:var(--blue-light);color:var(--blue);}
+.status-adv{background:var(--acc-purple-light);color:var(--acc-purple-dark);}
+.status-opt{background:var(--gray-light);color:var(--gray-mid);}
+.lab-title{font-size:15px;font-weight:800;color:var(--black);padding:0 18px 8px;}
+.lab-desc{font-size:13px;color:var(--gray-mid);padding:0 18px 14px;line-height:1.7;}
+.lab-tags{padding:0 18px 14px;display:flex;gap:6px;flex-wrap:wrap;}
+.lab-tag{font-size:11px;font-weight:700;padding:2px 8px;background:var(--gray-light);color:var(--gray-mid);}
+.lab-action{padding:10px 18px;background:var(--gray-light);border-top:1px solid var(--gray-border);font-size:12px;color:var(--gray-mid);display:flex;align-items:center;gap:6px;}
+.lab-action strong{color:var(--gray-dark);}
+
+/* DIM HEADER */
+.dim-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:16px 20px;border-left:4px solid var(--acc-purple);}
+.dim-num{width:40px;height:40px;background:var(--acc-purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0;}
+.dim-info{}
+.dim-title{font-size:17px;font-weight:900;color:var(--black);}
+.dim-sub{font-size:13px;color:var(--gray-mid);}
+
+/* SKILL MATRIX */
+.skill-matrix{width:100%;border-collapse:collapse;margin-bottom:28px;font-size:13px;}
+.skill-matrix th{background:var(--black);color:#fff;padding:10px 14px;text-align:left;font-size:12px;font-weight:700;}
+.skill-matrix td{padding:10px 14px;border-bottom:1px solid var(--gray-border);vertical-align:top;}
+.skill-matrix tr:hover td{background:var(--acc-purple-light);}
+.level-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;}
+.dot-l1{background:#00a651;}
+.dot-l2{background:#0057b7;}
+.dot-l3{background:var(--acc-purple);}
+.dot-l4{background:var(--orange);}
+
+/* CHECKLIST */
+.checklist{background:var(--white);border:1px solid var(--gray-border);padding:24px;margin-bottom:24px;}
+.cl-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--gray-mid);margin-bottom:14px;}
+.cl-item{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--gray-border);}
+.cl-item:last-child{border-bottom:none;}
+.cl-box{width:18px;height:18px;border:2px solid var(--gray-border);flex-shrink:0;margin-top:1px;}
+.cl-text{font-size:13px;color:var(--gray-dark);line-height:1.6;}
+.cl-text strong{color:var(--black);}
+.cl-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;margin-left:6px;vertical-align:middle;}
+.tag-must{background:var(--red-light);color:var(--red);}
+.tag-rec{background:var(--blue-light);color:var(--blue);}
+.tag-opt{background:var(--gray-light);color:var(--gray-mid);}
+
+/* TIPS */
+.tip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px;}
+.tip{padding:20px;border-left:3px solid var(--gray-border);}
+.tip-green{border-left-color:var(--green);background:var(--green-light);}
+.tip-blue{border-left-color:var(--blue);background:var(--blue-light);}
+.tip-orange{border-left-color:var(--orange);background:var(--orange-light);}
+.tip-purple{border-left-color:var(--acc-purple);background:var(--acc-purple-light);}
+.tip-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.tip-green .tip-title{color:var(--green);}
+.tip-blue .tip-title{color:var(--blue);}
+.tip-orange .tip-title{color:var(--orange);}
+.tip-purple .tip-title{color:var(--acc-purple-dark);}
+.tip p{font-size:13px;color:var(--gray-dark);line-height:1.7;}
+
+/* RESOURCE CARD */
+.resource-row{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.resource-item{background:var(--white);border:1px solid var(--gray-border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.res-left{}
+.res-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--acc-purple);margin-bottom:4px;}
+.res-title{font-size:14px;font-weight:800;color:var(--black);margin-bottom:4px;}
+.res-desc{font-size:12px;color:var(--gray-mid);}
+.res-btn{background:var(--black);color:#fff;font-size:12px;font-weight:700;padding:8px 18px;text-decoration:none;white-space:nowrap;flex-shrink:0;}
+.res-btn:hover{background:var(--acc-purple);}
+
+/* ROADMAP */
+.roadmap{display:flex;flex-direction:column;gap:0;}
+.rm-row{display:flex;gap:0;}
+.rm-time{width:100px;flex-shrink:0;padding:16px 14px;border-right:2px solid var(--acc-purple);text-align:right;}
+.rm-time-label{font-size:11px;font-weight:800;color:var(--acc-purple);text-transform:uppercase;}
+.rm-time-sub{font-size:11px;color:var(--gray-mid);}
+.rm-dot{width:14px;height:14px;border-radius:50%;background:var(--acc-purple);flex-shrink:0;margin-top:18px;margin-left:-8px;margin-right:8px;}
+.rm-content{flex:1;padding:14px 18px;background:var(--white);border-bottom:1px solid var(--gray-border);}
+.rm-title{font-size:14px;font-weight:800;color:var(--black);margin-bottom:6px;}
+.rm-items{display:flex;gap:10px;flex-wrap:wrap;}
+.rm-chip{font-size:11px;font-weight:700;padding:3px 10px;background:var(--gray-light);color:var(--gray-mid);}
+.rm-chip-done{background:var(--green-light);color:var(--green);}
+.rm-chip-next{background:var(--blue-light);color:var(--blue);}
+.rm-chip-adv{background:var(--acc-purple-light);color:var(--acc-purple-dark);}
+
+/* HIGHLIGHT */
+.highlight{background:var(--acc-purple);color:#fff;padding:16px 24px;margin-bottom:24px;display:flex;align-items:center;gap:12px;}
+.hl-num{font-size:28px;font-weight:900;}
+.hl-text{font-size:14px;font-weight:700;}
+
+hr{border:none;border-top:1px solid var(--gray-border);margin:32px 0;}
+
+/* QUOTE */
+.quote{border-left:4px solid var(--acc-purple);padding:14px 20px;background:var(--acc-purple-light);margin-bottom:24px;}
+.quote p{font-size:14px;color:var(--gray-dark);line-height:1.8;font-style:italic;}
+.quote-src{font-size:12px;font-weight:700;color:var(--acc-purple);margin-top:8px;}
+
+/* ROLE PATHS */
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--gray-border);margin-bottom:28px;}
+.role-col{background:var(--white);padding:22px 18px;}
+.role-icon{font-size:28px;margin-bottom:8px;}
+.role-name{font-size:14px;font-weight:900;color:var(--black);margin-bottom:4px;}
+.role-sub{font-size:12px;color:var(--gray-mid);margin-bottom:14px;}
+.role-path{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.role-path li{font-size:12px;color:var(--gray-dark);display:flex;gap:6px;align-items:flex-start;}
+.role-path li::before{content:'→';color:var(--acc-purple);font-weight:700;flex-shrink:0;}
+
+@media(max-width:768px){
+  .hero{padding:40px 24px 36px;}
+  .panel{padding:32px 24px;}
+  .track{grid-template-columns:1fr;}
+  .lab-grid{grid-template-columns:1fr;}
+  .tip-grid{grid-template-columns:1fr;}
+  .role-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo">
+    <div class="tb-mark">A</div>
+    <span class="tb-brand">埃森哲 AI Workshop</span>
+    <span class="tb-sep">|</span>
+    <span class="tb-sub">后续学习路径指南</span>
+  </div>
+  <a href="index.html" class="tb-back">← 返回资源导航</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker">Post-Workshop · Learning Roadmap</div>
+    <h1>Workshop 结束了，<br><em>真正的进阶才开始</em></h1>
+    <p class="hero-desc">你已经完成了埃森哲 AI Workshop 的核心实验。本指南帮你从"能用 Qoder"进阶到"真正把 AI 融入项目交付"——包括接下来该深挖哪些实验、如何在客户项目中落地、以及进阶学习的完整路径图。</p>
+    <div class="hero-pills">
+      <span class="hero-pill">3 大进阶维度</span>
+      <span class="hero-pill">8 个 SDLC 实验</span>
+      <span class="hero-pill">5 个技术栈实验</span>
+      <span class="hero-pill">角色专属路径</span>
+      <span class="hero-pill">真实客户案例库</span>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE NAV -->
+<nav class="page-nav">
+  <button class="pn-btn active" onclick="show('p1',this)">01 · 你现在在哪里</button>
+  <button class="pn-btn" onclick="show('p2',this)">02 · 三大进阶维度</button>
+  <button class="pn-btn" onclick="show('p3',this)">03 · 按角色的学习路径</button>
+  <button class="pn-btn" onclick="show('p4',this)">04 · 下周就能做的事</button>
+  <button class="pn-btn" onclick="show('p5',this)">05 · 客户案例参考库</button>
+  <button class="pn-btn" onclick="show('p6',this)">06 · 进阶路线图</button>
+</nav>
+
+<!-- PANEL 1: 你现在在哪里 -->
+<div class="panel active" id="p1">
+  <div class="sec-label">Where You Are Now</div>
+  <h2 class="sec-title">Workshop 结束后，你掌握了什么？</h2>
+  <p class="sec-desc">在 Workshop 中，你体验了 Qoder 在真实客户场景中的完整 Lab 体系（Lab-A1 到 Lab-A6）。这是埃森哲顾问最核心的 AI 交付工具链——但从"体验过"到"能独立用于客户项目"，还有一段有意义的路要走。</p>
+
+  <div class="track">
+    <div class="track-col">
+      <div class="track-phase phase-now">✅ 已完成</div>
+      <div class="track-title">Workshop 阶段</div>
+      <div class="track-sub">Lab-A1 到 Lab-A6 体验</div>
+      <ul class="track-items">
+        <li>用 Qoder 扫描客户项目（技术尽调）</li>
+        <li>生成 PRD 需求文档与验收条件</li>
+        <li>Qoder 驱动代码生成实操演示</li>
+        <li>高管汇报材料 AI 生成</li>
+        <li>体验了真实客户案例（航空/金融/零售等）</li>
+        <li>理解了 Rules 文件的核心价值</li>
+      </ul>
+      <div class="track-badge badge-green">你现在在这里</div>
+    </div>
+    <div class="track-col">
+      <div class="track-phase phase-soon">→ 接下来 1 个月</div>
+      <div class="track-title">项目落地阶段</div>
+      <div class="track-sub">把 Qoder 用到真实项目中</div>
+      <ul class="track-items">
+        <li>在真实客户项目中配置 .qoder/rules/</li>
+        <li>建立项目专属的 RepoWiki 知识库</li>
+        <li>用 Qoder 生成单元测试（Lab-A3 延伸）</li>
+        <li>探索 CLI 模式集成到 CI/CD 流水线</li>
+        <li>AI 辅助 Code Review 实战（Lab 4）</li>
+        <li>参与 Lab 4/5/7/8 等进阶实验</li>
+      </ul>
+      <div class="track-badge badge-blue">下一阶段目标</div>
+    </div>
+    <div class="track-col">
+      <div class="track-phase phase-adv">→ 3 个月后</div>
+      <div class="track-title">深度进阶阶段</div>
+      <div class="track-sub">成为团队 AI 落地领路人</div>
+      <ul class="track-items">
+        <li>构建 MCP 工具集成（Lab T1）</li>
+        <li>设计企业级 SKILL 资产体系（Lab T2）</li>
+        <li>构建 RAG 知识库（Lab T4）</li>
+        <li>主导团队 AI Coding 治理框架建设</li>
+        <li>向客户交付可量化的 AI ROI 报告</li>
+        <li>成为埃森哲 AI CoE 贡献者</li>
+      </ul>
+      <div class="track-badge badge-purple">进阶目标</div>
+    </div>
+  </div>
+
+  <div class="quote">
+    <p>"从 Workshop 到真正的项目落地，关键不是技术——而是建立一套'AI 优先'的工作习惯：每天打开项目前先问 Qoder，而不是等到遇到困难再想起来用。"</p>
+    <div class="quote-src">— 埃森哲 AI Coding 团队经验总结</div>
+  </div>
+
+  <div class="sec-label" style="margin-top:8px;">自我评估</div>
+  <div class="checklist">
+    <div class="cl-title">Workshop 产出物检查清单</div>
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text"><strong>我已经在自己的项目中创建了 .qoder/rules/ 目录</strong><span class="cl-tag tag-must">必须</span><br>这是 Qoder 个性化的基础，没有 Rules 等于放弃了 80% 的能力</div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text"><strong>我完成了至少 1 个真实业务需求的 PRD 生成并经过评审</strong><span class="cl-tag tag-must">必须</span><br>Lab-A2 的核心输出物，能确认 AI 的需求理解是否准确</div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text"><strong>我用 Qoder 生成了至少 1 个功能模块的代码并通过 Review</strong><span class="cl-tag tag-must">必须</span><br>Lab-A3 的关键验证：你才是代码的主人，AI 是副驾驶</div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text"><strong>我参加了客户项目的 RepoWiki 扫描并设计了"暗桩验证"</strong><span class="cl-tag tag-rec">推荐</span><br>确认 AI 回答是基于项目真实代码，而非通用知识</div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text"><strong>我向客户或团队分享了至少 1 个 Qoder 使用场景的演示</strong><span class="cl-tag tag-rec">推荐</span><br>传播 AI 使用文化，比自己会用更重要</div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text"><strong>我了解了 MCP 协议的基本概念并尝试了至少 1 个 MCP 工具</strong><span class="cl-tag tag-opt">可选</span><br>Lab T1 的预备知识，进阶学习的起点</div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 2: 三大进阶维度 -->
+<div class="panel" id="p2">
+  <div class="sec-label">Three Learning Dimensions</div>
+  <h2 class="sec-title">三大进阶维度 — 选择你的路径</h2>
+  <p class="sec-desc">埃森哲 AI 实验体系沿三个正交维度组织。Workshop 主要覆盖了<strong>维度三（客户交付场景 Lab-F）</strong>，接下来你可以根据自己的角色和项目需求，选择深入任意维度。</p>
+
+  <!-- DIM 1 -->
+  <div class="dim-header">
+    <div class="dim-num">1</div>
+    <div class="dim-info">
+      <div class="dim-title">维度一：SDLC 全链路 AI 赋能（Lab 1–8）</div>
+      <div class="dim-sub">让现有研发流程更高效 · 适合所有角色 · 覆盖从规划到运维的全研发周期</div>
+    </div>
+  </div>
+  <div class="lab-grid">
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--green-light);">
+        <span class="lab-id" style="color:var(--green);">Lab 1</span>
+        <span class="lab-status status-done">已有实验材料</span>
+      </div>
+      <div class="lab-title">项目扫描 · 技术尽调 · 架构分析</div>
+      <div class="lab-desc">RepoWiki 扫描、四层剥洋葱法、架构可视化、代码健康体检报告。Workshop Lab-A1 对应此实验。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">RepoWiki</span>
+        <span class="lab-tag">@RepoWiki</span>
+        <span class="lab-tag">Mermaid图</span>
+        <span class="lab-tag">架构评估</span>
+      </div>
+      <div class="lab-action"><strong>建议：</strong>用自己的真实项目重做一遍，对比客户案例中的产出物</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--green-light);">
+        <span class="lab-id" style="color:var(--green);">Lab 2</span>
+        <span class="lab-status status-done">已有实验材料</span>
+      </div>
+      <div class="lab-title">需求分析 · PRD 生成 · 多角色评审</div>
+      <div class="lab-desc">Plan 模式需求拆解、GWT 验收条件生成、开发/合规/UX 多角色评审模拟。Workshop Lab-A2 对应此实验。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">Plan 模式</span>
+        <span class="lab-tag">GWT 验收</span>
+        <span class="lab-tag">PRD 生成</span>
+        <span class="lab-tag">多角色评审</span>
+      </div>
+      <div class="lab-action"><strong>延伸练习：</strong>为真实需求生成 PRD 并邀请 3 个角色（开发/PM/测试）评审</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--green-light);">
+        <span class="lab-id" style="color:var(--green);">Lab 3</span>
+        <span class="lab-status status-done">已有实验材料</span>
+      </div>
+      <div class="lab-title">AI 驱动编码 · Rules 配置 · TDD 实战</div>
+      <div class="lab-desc">基于 PRD 的 Agent 模式代码生成、.qoder/rules 业务约束注入、测试驱动开发、边界测试生成。Workshop Lab-A3 核心。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">Agent 模式</span>
+        <span class="lab-tag">Rules 配置</span>
+        <span class="lab-tag">TDD</span>
+        <span class="lab-tag">边界测试</span>
+      </div>
+      <div class="lab-action"><strong>关键动作：</strong>为你负责的模块配置专属 Rules 文件并提交 Git</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--blue-light);">
+        <span class="lab-id" style="color:var(--blue);">Lab 4</span>
+        <span class="lab-status status-next">进阶推荐</span>
+      </div>
+      <div class="lab-title">AI 辅助 Code Review · GitHub MCP</div>
+      <div class="lab-desc">Qoder 驱动的代码审查：Diff 分析、安全漏洞扫描、pre-commit Hook 集成、GitHub MCP 自动化 Review 工作流。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">GitHub MCP</span>
+        <span class="lab-tag">Diff 分析</span>
+        <span class="lab-tag">安全扫描</span>
+        <span class="lab-tag">pre-commit</span>
+      </div>
+      <div class="lab-action"><strong>价值：</strong>Code Review 效率提升最快的单点，半天实验即可落地</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--blue-light);">
+        <span class="lab-id" style="color:var(--blue);">Lab 5</span>
+        <span class="lab-status status-next">进阶推荐</span>
+      </div>
+      <div class="lab-title">测试工程全链路 · 四层测试金字塔</div>
+      <div class="lab-desc">单元测试自动补全（JUnit/Pytest）、集成测试 API 用例生成、Playwright MCP E2E 测试、JMeter/k6 性能测试 AI 辅助。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">JUnit 5</span>
+        <span class="lab-tag">Playwright MCP</span>
+        <span class="lab-tag">E2E 测试</span>
+        <span class="lab-tag">性能测试</span>
+      </div>
+      <div class="lab-action"><strong>快速见效：</strong>用 Qoder 为一个现有函数批量生成边界测试，15 分钟体验价值</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--blue-light);">
+        <span class="lab-id" style="color:var(--blue);">Lab 7</span>
+        <span class="lab-status status-next">进阶推荐</span>
+      </div>
+      <div class="lab-title">规范治理 · Rules 体系 · SKILL 封装</div>
+      <div class="lab-desc">团队级 Rules 文件设计、Command 自定义指令封装、架构决策记录（ADR）AI 生成、企业 Prompt 资产管理体系。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">Rules 体系</span>
+        <span class="lab-tag">Command</span>
+        <span class="lab-tag">ADR</span>
+        <span class="lab-tag">SKILL 封装</span>
+      </div>
+      <div class="lab-action"><strong>团队价值：</strong>Rules 写一次，全团队永久受益，是 AI 知识资产化的核心</div>
+    </div>
+  </div>
+
+  <!-- DIM 2 -->
+  <div class="dim-header" style="border-left-color:var(--blue);">
+    <div class="dim-num" style="background:var(--blue);">2</div>
+    <div class="dim-info">
+      <div class="dim-title">维度二：AI 应用开发技术栈（Lab T1–T5）</div>
+      <div class="dim-sub">构建 AI 原生产品 · 适合技术架构师和高级开发者 · 系统学习 MCP / SKILL / Agent / RAG</div>
+    </div>
+  </div>
+  <div class="lab-grid">
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--blue-light);">
+        <span class="lab-id" style="color:var(--blue);">Lab T1</span>
+        <span class="lab-status status-next">推荐先修</span>
+      </div>
+      <div class="lab-title">MCP 生态 · 工具集成与扩展</div>
+      <div class="lab-desc">MCP 协议原理、官方 MCP（Figma/GitHub/DB）集成、企业级 MCP（百炼/内部系统）、自定义 MCP Server 开发（任意 CLI/API 变 MCP 工具）。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">MCP 协议</span>
+        <span class="lab-tag">Figma MCP</span>
+        <span class="lab-tag">自定义 MCP</span>
+        <span class="lab-tag">工具集成</span>
+      </div>
+      <div class="lab-action"><strong>Workshop 连接：</strong>Lab-F Noli 案例中演示了 Figma MCP 的 Design-to-Code 完整流程</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--acc-purple-light);">
+        <span class="lab-id" style="color:var(--acc-purple-dark);">Lab T2</span>
+        <span class="lab-status status-adv">进阶</span>
+      </div>
+      <div class="lab-title">SKILL 设计 · 企业 Prompt 工程</div>
+      <div class="lab-desc">SKILL 文件设计范式（Markdown 格式）、将 SOP 封装为可复用 AI 能力单元、企业 Prompt 资产管理体系、SKILL 版本管理与团队共享。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">SKILL 文件</span>
+        <span class="lab-tag">Prompt 资产</span>
+        <span class="lab-tag">SOP 封装</span>
+        <span class="lab-tag">.qoder/skills</span>
+      </div>
+      <div class="lab-action"><strong>核心价值：</strong>把"会用 Qoder"的知识沉淀为团队公共资产，实现组织级 AI 能力复用</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--acc-purple-light);">
+        <span class="lab-id" style="color:var(--acc-purple-dark);">Lab T3</span>
+        <span class="lab-status status-adv">进阶</span>
+      </div>
+      <div class="lab-title">Agent 编排 · 多智能体协作</div>
+      <div class="lab-desc">AgentScope 框架、Supervisor-Worker 多 Agent 模式、任务分解与并行执行、自定义多 Agent 工作流设计。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">AgentScope</span>
+        <span class="lab-tag">多 Agent</span>
+        <span class="lab-tag">任务编排</span>
+        <span class="lab-tag">Agent 工作流</span>
+      </div>
+      <div class="lab-action"><strong>适合场景：</strong>需要多步骤复杂任务自动化的项目（如自动化测试流水线、文档生成流水线）</div>
+    </div>
+    <div class="lab-card">
+      <div class="lab-card-header" style="background:var(--acc-purple-light);">
+        <span class="lab-id" style="color:var(--acc-purple-dark);">Lab T4</span>
+        <span class="lab-status status-adv">进阶</span>
+      </div>
+      <div class="lab-title">RAG 知识库 · 企业智能问答</div>
+      <div class="lab-desc">LangChain / LlamaIndex 企业知识库构建、向量数据库选型（Milvus/Chroma）、文档分块策略、RAG 幻觉控制、私有化部署方案。</div>
+      <div class="lab-tags">
+        <span class="lab-tag">RAG</span>
+        <span class="lab-tag">向量数据库</span>
+        <span class="lab-tag">LangChain</span>
+        <span class="lab-tag">知识库</span>
+      </div>
+      <div class="lab-action"><strong>客户需求：</strong>内部知识库问答是最常见的 AI 落地需求，掌握 RAG 就掌握了第一个可交付产品</div>
+    </div>
+  </div>
+
+  <!-- DIM 3 -->
+  <div class="dim-header" style="border-left-color:var(--orange);">
+    <div class="dim-num" style="background:var(--orange);">3</div>
+    <div class="dim-info">
+      <div class="dim-title">维度三：垂直场景实验（Lab F 系列 · 客户交付）</div>
+      <div class="dim-sub">Workshop 核心内容 · 按行业场景深化 · 咨询顾问与方案架构师必修</div>
+    </div>
+  </div>
+  <div class="tip-grid">
+    <div class="tip tip-orange">
+      <div class="tip-title">你在 Workshop 中已经完成</div>
+      <p>Lab-F 是维度三的核心——以真实客户案例（航空/金融/零售/能源/制药）为主线，演示咨询顾问如何用 Qoder 完成从技术尽调（A1）到交付方案（A6）的完整 AI 交付链。所有客户案例材料已在导航中心归档。</p>
+    </div>
+    <div class="tip tip-blue">
+      <div class="tip-title">下一步深化方向</div>
+      <p>选择你最熟悉的行业（金融/制药/能源/零售），深入研究对应的合规框架（MiFID II/FDA/IEC 62443/FTC）和 Rules 配置。行业专深 + Qoder 工具 = 你在客户面前最大的差异化竞争力。</p>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 3: 按角色路径 -->
+<div class="panel" id="p3">
+  <div class="sec-label">Role-Based Learning Paths</div>
+  <h2 class="sec-title">按角色选择你的学习路径</h2>
+  <p class="sec-desc">不同角色的工作重心不同，Qoder 的使用深度也不同。以下是埃森哲三类核心角色的推荐学习路径。</p>
+
+  <div class="role-grid">
+    <div class="role-col">
+      <div class="role-icon">💻</div>
+      <div class="role-name">工程师 / 开发顾问</div>
+      <div class="role-sub">代码交付 · 技术评估 · 架构落地</div>
+      <ul class="role-path">
+        <li><strong>本周</strong>：为当前项目配置 .qoder/rules（30 分钟）</li>
+        <li><strong>第 1 个月</strong>：完成 Lab 3 TDD 实战 + Lab 4 AI Code Review</li>
+        <li><strong>第 2 个月</strong>：Lab 5 测试工程（重点 JUnit + E2E）</li>
+        <li><strong>第 3 个月</strong>：Lab T1 MCP 工具集成</li>
+        <li><strong>进阶目标</strong>：Lab T2 SKILL 封装 + Lab T3 Agent 编排</li>
+        <li><strong>衡量标准</strong>：AI 辅助代码率 ≥ 40%，测试覆盖率 ≥ 70%</li>
+      </ul>
+    </div>
+    <div class="role-col">
+      <div class="role-icon">📋</div>
+      <div class="role-name">需求分析师 / PM</div>
+      <div class="role-sub">需求挖掘 · PRD 交付 · 多方对齐</div>
+      <ul class="role-path">
+        <li><strong>本周</strong>：用真实需求重走一遍 Lab-A2 PRD 生成流程</li>
+        <li><strong>第 1 个月</strong>：Lab 2 深化——多角色评审模拟 + AC 细化</li>
+        <li><strong>第 2 个月</strong>：Lab 1 技术尽调（理解开发视角，提升需求质量）</li>
+        <li><strong>第 3 个月</strong>：Lab-F 客户汇报材料 AI 生成（Lab-A4 高管汇报）</li>
+        <li><strong>进阶目标</strong>：Lab T2 SKILL 封装（把需求分析 SOP 变 SKILL）</li>
+        <li><strong>衡量标准</strong>：PRD 生成时间缩短 ≥ 50%，评审通过率提升</li>
+      </ul>
+    </div>
+    <div class="role-col">
+      <div class="role-icon">🏗</div>
+      <div class="role-name">架构师 / 技术负责人</div>
+      <div class="role-sub">架构决策 · 团队治理 · 技术战略</div>
+      <ul class="role-path">
+        <li><strong>本周</strong>：设计团队级 Rules 文件体系（至少 3 个规范域）</li>
+        <li><strong>第 1 个月</strong>：Lab 7 规范治理——Rules + Command + ADR</li>
+        <li><strong>第 2 个月</strong>：Lab 8 效能治理——DORA 指标 + AI ROI 看板</li>
+        <li><strong>第 3 个月</strong>：Lab T1 MCP + Lab T3 Agent 编排</li>
+        <li><strong>进阶目标</strong>：Lab T4 RAG 知识库（企业内部知识资产化）</li>
+        <li><strong>衡量标准</strong>：团队 AI 辅助编码率、Rules 覆盖的规范域数量</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="sec-label">技能雷达</div>
+  <h3 style="font-size:18px;font-weight:900;color:var(--black);margin-bottom:16px;">Workshop 后的技能成长矩阵</h3>
+  <table class="skill-matrix">
+    <thead>
+      <tr><th>技能领域</th><th>Workshop 后水平</th><th>1 个月目标</th><th>3 个月目标</th><th>重点实验</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Rules 配置 &amp; 知识注入</strong></td>
+        <td><span class="level-dot dot-l2"></span>入门（见过）</td>
+        <td><span class="level-dot dot-l3"></span>熟练（自己配）</td>
+        <td><span class="level-dot dot-l4"></span>专家（团队推广）</td>
+        <td>Lab 3 / Lab 7</td>
+      </tr>
+      <tr>
+        <td><strong>需求分析 &amp; PRD 生成</strong></td>
+        <td><span class="level-dot dot-l2"></span>入门（照模板做）</td>
+        <td><span class="level-dot dot-l3"></span>熟练（独立完成）</td>
+        <td><span class="level-dot dot-l3"></span>熟练（多场景）</td>
+        <td>Lab 2</td>
+      </tr>
+      <tr>
+        <td><strong>测试工程</strong></td>
+        <td><span class="level-dot dot-l1"></span>初识（知道有）</td>
+        <td><span class="level-dot dot-l2"></span>入门（单测补全）</td>
+        <td><span class="level-dot dot-l3"></span>熟练（E2E 流水线）</td>
+        <td>Lab 5</td>
+      </tr>
+      <tr>
+        <td><strong>MCP 工具集成</strong></td>
+        <td><span class="level-dot dot-l1"></span>初识（概念了解）</td>
+        <td><span class="level-dot dot-l2"></span>入门（用官方 MCP）</td>
+        <td><span class="level-dot dot-l3"></span>熟练（自定义 MCP）</td>
+        <td>Lab T1</td>
+      </tr>
+      <tr>
+        <td><strong>AI 合规 &amp; 治理</strong></td>
+        <td><span class="level-dot dot-l2"></span>入门（知道重要性）</td>
+        <td><span class="level-dot dot-l2"></span>入门（项目级合规）</td>
+        <td><span class="level-dot dot-l3"></span>熟练（企业级框架）</td>
+        <td>Lab 7 / Lab 8</td>
+      </tr>
+      <tr>
+        <td><strong>RAG &amp; 知识库</strong></td>
+        <td><span class="level-dot dot-l1"></span>初识</td>
+        <td><span class="level-dot dot-l1"></span>初识（概念学习）</td>
+        <td><span class="level-dot dot-l2"></span>入门（构建 Demo）</td>
+        <td>Lab T4</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="display:flex;gap:24px;font-size:12px;color:var(--gray-mid);">
+    <span><span class="level-dot dot-l1"></span>初识 — 了解概念</span>
+    <span><span class="level-dot dot-l2"></span>入门 — 能跟做</span>
+    <span><span class="level-dot dot-l3"></span>熟练 — 独立完成</span>
+    <span><span class="level-dot dot-l4"></span>专家 — 可教他人</span>
+  </div>
+</div>
+
+<!-- PANEL 4: 下周就能做的事 -->
+<div class="panel" id="p4">
+  <div class="sec-label">Quick Wins · This Week</div>
+  <h2 class="sec-title">下周就能做的 5 件事</h2>
+  <p class="sec-desc">不需要等待新的培训机会——以下 5 个行动，在你当前的项目中就能立即落地，每个都在 2 小时以内完成，但效果立竿见影。</p>
+
+  <div class="checklist">
+    <div class="cl-title">快速落地行动清单（建议下周完成）</div>
+
+    <div class="cl-item">
+      <div class="cl-box" style="background:var(--acc-purple);border-color:var(--acc-purple);"></div>
+      <div class="cl-text">
+        <strong>Action 1：为你的项目创建第一个 Rules 文件（30 分钟）</strong><span class="cl-tag tag-must">最高价值</span><br>
+        在项目根目录创建 <code style="background:var(--gray-light);padding:1px 5px;font-family:var(--mono);font-size:11px;">.qoder/rules/project-rules.md</code>，写入：技术栈约定（禁止的库/必须的库）、命名规范、安全红线（禁止上传的内容）。<br>
+        <strong style="color:var(--acc-purple);">参考：</strong>查看 BestBuy 案例中的 bestbuy-retail.md Rules 示例
+      </div>
+    </div>
+
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text">
+        <strong>Action 2：对一个现有函数用 Qoder 补全测试用例（45 分钟）</strong><span class="cl-tag tag-must">立竿见影</span><br>
+        选择项目中一个 10–50 行的业务函数，要求 Qoder 生成：正常路径 + 3 个边界值 + 2 个异常处理测试。<strong>人工验证所有断言是否符合业务逻辑</strong>（这一步是责任归属的体现）。
+      </div>
+    </div>
+
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text">
+        <strong>Action 3：做一次 RepoWiki 扫描并设计"暗桩验证"（1 小时）</strong><span class="cl-tag tag-rec">推荐</span><br>
+        对你负责的项目启动 RepoWiki，然后设计 2 个你明确知道答案的问题（如"XX 模块用了哪个框架版本"），验证 AI 是否真的读了代码而非猜测。对比开/关 @RepoWiki 的回答差异。
+      </div>
+    </div>
+
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text">
+        <strong>Action 4：把一个重复性 Prompt 封装为 Command（30 分钟）</strong><span class="cl-tag tag-rec">推荐</span><br>
+        找到你这周用 Qoder 反复发的一个 Prompt（如"帮我 Review 这段代码并检查安全漏洞"），封装到 <code style="background:var(--gray-light);padding:1px 5px;font-family:var(--mono);font-size:11px;">.qoder/commands/</code> 目录，变成一个可复用的 Command。之后一个 slash 命令搞定。
+      </div>
+    </div>
+
+    <div class="cl-item">
+      <div class="cl-box"></div>
+      <div class="cl-text">
+        <strong>Action 5：向队友分享 1 个 Qoder 使用技巧（15 分钟）</strong><span class="cl-tag tag-rec">文化传播</span><br>
+        在团队 Standup 或者 Slack 里分享 1 个你在 Workshop 中学到的最有用的 Qoder 用法，配 1 张截图。知识传播 = 你影响力的放大器。
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="tip-grid">
+    <div class="tip tip-green">
+      <div class="tip-title">原则 1：批判性思维</div>
+      <p>永远不要盲目信任 AI 首次生成的代码。特别关注：最新 API / 边界条件 / 合规逻辑。<strong>Rules 文件是你对抗 AI 幻觉最有效的工具。</strong></p>
+    </div>
+    <div class="tip tip-blue">
+      <div class="tip-title">原则 2：粒度控制</div>
+      <p>不要让 AI 一次性生成整个模块。<strong>拆解为：接口定义 → 核心逻辑 → 测试用例</strong>三步走。每步都人工验证，才能保持对代码的掌控力。</p>
+    </div>
+    <div class="tip tip-orange">
+      <div class="tip-title">原则 3：责任归属</div>
+      <p>"这是 AI 写的，bug 不怪我"——这句话在埃森哲项目中不成立。<strong>你提交的代码必须完全理解并负责，AI 只是副驾驶。</strong></p>
+    </div>
+    <div class="tip tip-purple">
+      <div class="tip-title">原则 4：知识资产化</div>
+      <p>每次你花 30 分钟摸索出一个好用的 Prompt 或 Rule，把它写进 Rules 或 Command 文件。<strong>个人技巧 → 团队共识 → 组织 AI 资产。</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 5: 客户案例参考库 -->
+<div class="panel" id="p5">
+  <div class="sec-label">Client Case Library</div>
+  <h2 class="sec-title">真实客户案例参考库</h2>
+  <p class="sec-desc">以下是 Workshop 中演示或参考的真实客户案例，覆盖航空/金融/零售/能源/制药/政务六大行业。每份材料均为标准的 Lab 体系产出物，可作为你在类似客户项目中的参考模板。</p>
+
+  <div class="sec-label">按 Lab 类型查找</div>
+  <div class="resource-row">
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A1 · 技术尽调</div>
+        <div class="res-title">Repsol 能源 · AI 成熟度六维评估 + 风险矩阵</div>
+        <div class="res-desc">1200名工程师 AI 成熟度评估、IEC 62443 / NIS2 合规、私有化部署架构 — 能源/工业制造行业模板</div>
+      </div>
+      <a class="res-btn" href="Repsol/repsol-lab-a1-a2.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A2 · 需求分析 PRD</div>
+        <div class="res-title">法荷航 · EU261 补偿计算器 PRD + 合规框架</div>
+        <div class="res-desc">GDPR + IATA NDC + EU261/2004 + EU AI Act 多层合规，含 GWT 验收条件 — 航空行业高合规需求模板</div>
+      </div>
+      <a class="res-btn" href="AirFranceKLM/airfranceklm-lab-a2-a6.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A2 · 需求分析 PRD（金融合规版）</div>
+        <div class="res-title">BBVA · 四部门独立评审文件 · MiFID II 驳回</div>
+        <div class="res-desc">开发/合规/风控/UX 四角色真实评审意见，含 MiFID II 合规驳回 — 金融行业多部门对齐模板</div>
+      </div>
+      <a class="res-btn" href="BBVA/bbva-lab-a2-review.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A3 · Qoder 编码演示（零售场景）</div>
+        <div class="res-title">BestBuy · 推荐引擎全流程编码演示 · Rules → 代码 → 测试</div>
+        <div class="res-desc">从 .qoder/rules 配置到 TypeScript 推荐引擎，7 个边界测试全通过 — Qoder 编码演示标准模板</div>
+      </div>
+      <a class="res-btn" href="BestBuy/bestbuy-qoder-coding-demo.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A3 · Qoder 编码演示（金融场景）</div>
+        <div class="res-title">BBVA · AI 理财教练 · MiFID II 合规代码生成</div>
+        <div class="res-desc">Rules 注入 MiFID II 约束、代码生成 6 步流程、GDPR 合规扫描 — 金融 Qoder 演示模板</div>
+      </div>
+      <a class="res-btn" href="BBVA/bbva-qoder-coding-demo.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A4 · 高管汇报</div>
+        <div class="res-title">卡塔尔航空 · C-Suite AI 战略汇报材料</div>
+        <div class="res-desc">面向 CEO/CTO 的 AI 战略 Deck 产出模板，含 ROI 测算和竞争优势分析 — 高管汇报标准格式</div>
+      </div>
+      <a class="res-btn" href="QatarAirways/qatar-lab-a4-exec-brief.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A5 · 快速学习（大型制药）</div>
+        <div class="res-title">百时美施贵宝 · 临床试验 AI 知识速建体系（8 份材料）</div>
+        <div class="res-desc">8 份制药行业快速学习材料：AI 平台选型/临床数据/KPI/合规/系统集成 — 陌生领域知识速建方法论</div>
+      </div>
+      <a class="res-btn" href="百时美施贵宝/bms-accenture-lab8.html" target="_blank">查看案例 →</a>
+    </div>
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">Lab-A6 · 深化交付方案</div>
+        <div class="res-title">沃达丰 VOXI · Gen Z 战略 ROI 267% 深化方案</div>
+        <div class="res-desc">Phase 1 成果回顾（AI首次解决率78%）、18个月路线图、£42M 价值测算 — 后续合作方案模板</div>
+      </div>
+      <a class="res-btn" href="沃达丰/vodafone-lab-a6-nextengagement.html" target="_blank">查看案例 →</a>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <span class="hl-num">38</span>
+    <span class="hl-text">份客户案例材料覆盖 14 个客户 · 航空 / 金融 / 零售 / 制药 / 能源 / 政务 · 全部可在导航中心筛选浏览</span>
+  </div>
+
+  <a href="index.html" style="display:inline-block;background:var(--black);color:#fff;font-size:13px;font-weight:700;padding:12px 24px;text-decoration:none;margin-top:8px;">→ 打开完整资源导航中心</a>
+</div>
+
+<!-- PANEL 6: 进阶路线图 -->
+<div class="panel" id="p6">
+  <div class="sec-label">Learning Roadmap</div>
+  <h2 class="sec-title">6 个月进阶路线图</h2>
+  <p class="sec-desc">从 Workshop 毕业到成为团队 AI 落地领路人，参考以下路线图规划你的学习节奏。</p>
+
+  <div class="roadmap">
+    <div class="rm-row">
+      <div class="rm-time"><div class="rm-time-label">现在</div><div class="rm-time-sub">Workshop 结束</div></div>
+      <div class="rm-dot"></div>
+      <div class="rm-content">
+        <div class="rm-title">完成 Workshop 产出物验收</div>
+        <div class="rm-items">
+          <span class="rm-chip rm-chip-done">Rules 文件创建</span>
+          <span class="rm-chip rm-chip-done">PRD 生成</span>
+          <span class="rm-chip rm-chip-done">Qoder 代码演示</span>
+          <span class="rm-chip rm-chip-done">高管汇报材料</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-row">
+      <div class="rm-time"><div class="rm-time-label">第 1 月</div><div class="rm-time-sub">快速落地期</div></div>
+      <div class="rm-dot"></div>
+      <div class="rm-content">
+        <div class="rm-title">在真实项目中建立 AI 工作习惯</div>
+        <div class="rm-items">
+          <span class="rm-chip rm-chip-next">Lab 3 TDD 实战</span>
+          <span class="rm-chip rm-chip-next">项目 Rules 体系</span>
+          <span class="rm-chip rm-chip-next">RepoWiki 团队共享</span>
+          <span class="rm-chip rm-chip-next">AI 辅助 Code Review（Lab 4）</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-row">
+      <div class="rm-time"><div class="rm-time-label">第 2 月</div><div class="rm-time-sub">能力拓展期</div></div>
+      <div class="rm-dot"></div>
+      <div class="rm-content">
+        <div class="rm-title">测试工程 + 规范治理深化</div>
+        <div class="rm-items">
+          <span class="rm-chip rm-chip-next">Lab 5 测试金字塔</span>
+          <span class="rm-chip rm-chip-next">Lab 7 规范治理</span>
+          <span class="rm-chip rm-chip-next">SKILL 封装第一个</span>
+          <span class="rm-chip rm-chip-next">向客户演示 ROI</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-row">
+      <div class="rm-time"><div class="rm-time-label">第 3 月</div><div class="rm-time-sub">技术进阶期</div></div>
+      <div class="rm-dot"></div>
+      <div class="rm-content">
+        <div class="rm-title">MCP 生态 + 效能治理</div>
+        <div class="rm-items">
+          <span class="rm-chip rm-chip-adv">Lab T1 MCP 集成</span>
+          <span class="rm-chip rm-chip-adv">Lab 8 效能看板</span>
+          <span class="rm-chip rm-chip-adv">DORA 指标追踪</span>
+          <span class="rm-chip rm-chip-adv">AI 使用审计配置</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-row">
+      <div class="rm-time"><div class="rm-time-label">第 4-5 月</div><div class="rm-time-sub">专业深化期</div></div>
+      <div class="rm-dot"></div>
+      <div class="rm-content">
+        <div class="rm-title">按角色深化 + AI 原生应用开发</div>
+        <div class="rm-items">
+          <span class="rm-chip rm-chip-adv">Lab T2 SKILL 体系</span>
+          <span class="rm-chip rm-chip-adv">Lab T4 RAG 知识库</span>
+          <span class="rm-chip rm-chip-adv">Lab T3 Agent 编排</span>
+          <span class="rm-chip rm-chip-adv">行业专深（合规+Rules）</span>
+        </div>
+      </div>
+    </div>
+    <div class="rm-row">
+      <div class="rm-time"><div class="rm-time-label">第 6 月</div><div class="rm-time-sub">领路人阶段</div></div>
+      <div class="rm-dot" style="background:var(--green);"></div>
+      <div class="rm-content" style="background:var(--green-light);">
+        <div class="rm-title" style="color:var(--green);">成为团队 AI 落地领路人</div>
+        <div class="rm-items">
+          <span class="rm-chip" style="background:#fff;color:var(--green);">向新成员传授 Qoder</span>
+          <span class="rm-chip" style="background:#fff;color:var(--green);">主持客户 AI Workshop</span>
+          <span class="rm-chip" style="background:#fff;color:var(--green);">贡献埃森哲 AI CoE</span>
+          <span class="rm-chip" style="background:#fff;color:var(--green);">AI 辅助率 ≥ 60%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="quote">
+    <p>"最好的学习方式不是再上一门课——而是把 Workshop 中学到的每一个能力，在下周的真实项目中用一次。'能用'到'会用'的距离，只有一个真实项目。"</p>
+    <div class="quote-src">— 埃森哲 AI Workshop 设计原则</div>
+  </div>
+
+  <div class="resource-row" style="margin-top:24px;">
+    <div class="resource-item">
+      <div class="res-left">
+        <div class="res-label">资源入口</div>
+        <div class="res-title">实验资源导航中心</div>
+        <div class="res-desc">38 份客户案例 · 14 个客户 · 多维筛选 · 全部 Lab 材料归档</div>
+      </div>
+      <a class="res-btn" href="index.html">打开导航 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.pn-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

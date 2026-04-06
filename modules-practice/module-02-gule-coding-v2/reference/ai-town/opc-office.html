@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Team Office</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --floor-color: #e8ddd4;
+            --wall-color: #f5f0e8;
+            --desk-wood: #c4a77d;
+            --desk-dark: #8b7355;
+            --plant-green: #5a8f5a;
+            --window-blue: #87ceeb;
+            --character-shadow: rgba(0,0,0,0.15);
+            --ui-bg: rgba(255, 255, 255, 0.95);
+            --ui-border: #d4c5b5;
+            --acc-purple: #A100FF;
+            --acc-purple-dark: #7a00c2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--wall-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .office-container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg, var(--wall-color) 0%, #ebe5db 100%);
+        }
+
+        /* Header */
+        .ui-header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ui-bg);
+            border: 3px solid var(--ui-border);
+            border-radius: 16px;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 4px 0 #b8a890, 0 8px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--acc-purple);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 3px 0 var(--acc-purple-dark);
+            letter-spacing: -1px;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 20px;
+            color: #4a5568;
+        }
+
+        .logo-text span {
+            color: var(--acc-purple);
+        }
+
+        .time-display {
+            font-family: 'VT323', monospace;
+            font-size: 28px;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge.online {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #9ae6b4;
+        }
+
+        .badge.working {
+            background: #e9d8fd;
+            color: #553c9a;
+            border: 2px solid #d6bcfa;
+        }
+
+        /* Office Floor */
+        .office-floor {
+            position: relative;
+            width: 100%;
+            min-height: calc(100vh - 100px);
+            margin-top: 100px;
+            padding: 40px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--floor-color) 0px,
+                var(--floor-color) 98px,
+                #ddd3c7 98px,
+                #ddd3c7 100px
+            );
+            box-shadow: inset 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Windows */
+        .windows-row {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 60px;
+            background: linear-gradient(180deg, #d4e4f0 0%, var(--wall-color) 100%);
+            border-bottom: 4px solid #c4b5a5;
+        }
+
+        .window {
+            width: 200px;
+            height: 140px;
+            background: linear-gradient(180deg, var(--window-blue) 0%, #b8d4e8 100%);
+            border: 6px solid #8b7355;
+            border-radius: 4px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.5), 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .window::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #8b7355;
+            transform: translateY(-50%);
+        }
+
+        .window::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #8b7355;
+            transform: translateX(-50%);
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50px;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .cloud:nth-child(1) { width: 60px; height: 30px; top: 30px; left: 20px; }
+        .cloud:nth-child(2) { width: 40px; height: 20px; top: 60px; right: 30px; animation-delay: -10s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+
+        /* Office Zones */
+        .office-zones {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1.2fr 1fr;
+            gap: 30px;
+            margin-top: 200px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .zone {
+            background: rgba(255,255,255,0.4);
+            border-radius: 20px;
+            padding: 20px;
+            border: 3px dashed rgba(139, 115, 85, 0.3);
+        }
+
+        .zone-title {
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            color: #8b7355;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .zone-title.purple {
+            color: var(--acc-purple-dark);
+        }
+
+        /* Workstations */
+        .workstation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .workstation-grid.cols-1 {
+            grid-template-columns: 1fr;
+        }
+
+        .workstation {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+        }
+
+        /* Isometric Desk */
+        .desk {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 80px;
+        }
+
+        .desk-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(135deg, var(--desk-wood) 0%, var(--desk-dark) 100%);
+            border-radius: 8px;
+            box-shadow: 0 4px 0 var(--desk-dark), 0 8px 15px var(--character-shadow);
+        }
+
+        .desk-leg-left, .desk-leg-right {
+            position: absolute;
+            bottom: -30px;
+            width: 12px;
+            height: 35px;
+            background: var(--desk-dark);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .desk-leg-left { left: 15px; }
+        .desk-leg-right { right: 15px; }
+
+        .computer {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .monitor {
+            width: 50px;
+            height: 35px;
+            background: #2d3748;
+            border-radius: 4px;
+            border: 3px solid #4a5568;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .monitor::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 8px;
+            background: #4a5568;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .screen {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: linear-gradient(135deg, var(--acc-purple) 0%, #764ba2 100%);
+            border-radius: 2px;
+            animation: screenGlow 3s infinite alternate;
+        }
+
+        @keyframes screenGlow {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        /* Agent Character */
+        .agent-character {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        .agent-character:hover {
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .agent-character:hover .character-body {
+            animation: bounce 0.5s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-3px); }
+        }
+
+        .character-body {
+            width: 50px;
+            height: 60px;
+            position: relative;
+        }
+
+        .character-head {
+            width: 35px;
+            height: 35px;
+            background: #f6c8a3;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #e0b090;
+            box-shadow: 0 2px 5px var(--character-shadow);
+        }
+
+        .character-face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+        }
+
+        /* Role hats */
+        .character-head.cto::before { content: '👑'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 14px; }
+        .character-head.pm::before { content: '📋'; position: absolute; top: -10px; right: -5px; font-size: 12px; }
+        .character-head.designer::before { content: '🎨'; position: absolute; top: -10px; left: -5px; font-size: 12px; }
+        .character-head.dev::before { content: '💻'; position: absolute; top: -10px; right: -5px; font-size: 12px; }
+        .character-head.qa::before { content: '🧪'; position: absolute; top: -10px; left: -5px; font-size: 12px; }
+        .character-head.ai::before { content: '🤖'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 14px; }
+        .character-head.data::before { content: '📊'; position: absolute; top: -10px; right: -5px; font-size: 12px; }
+        .character-head.sec::before { content: '🔒'; position: absolute; top: -10px; left: -5px; font-size: 12px; }
+        .character-head.ops::before { content: '⚙️'; position: absolute; top: -10px; right: -5px; font-size: 12px; }
+
+        /* Torso colors */
+        .character-torso {
+            width: 40px;
+            height: 30px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px 10px 0 0;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .character-torso.acc-cto    { background: linear-gradient(135deg, #A100FF 0%, #7a00c2 100%); }
+        .character-torso.acc-lead   { background: linear-gradient(135deg, #c44bff 0%, #A100FF 100%); }
+        .character-torso.acc-pm     { background: linear-gradient(135deg, #4ecdc4 0%, #44a8a0 100%); }
+        .character-torso.acc-req    { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+        .character-torso.acc-design { background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%); }
+        .character-torso.acc-fe     { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+        .character-torso.acc-be     { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); }
+        .character-torso.acc-ai     { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); }
+        .character-torso.acc-data   { background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); }
+        .character-torso.acc-qa     { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); }
+        .character-torso.acc-sec    { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+        .character-torso.acc-ops    { background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%); }
+        .character-torso.acc-disp   { background: linear-gradient(135deg, #1e3a5f 0%, #172554 100%); }
+
+        /* Name Tag */
+        .name-tag {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4a5568;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            border: 2px solid #e2e8f0;
+        }
+
+        /* Status Indicator */
+        .status-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .status-dot.online { background: #48bb78; animation: pulse 2s infinite; }
+        .status-dot.busy   { background: #A100FF; animation: pulse 2s infinite; }
+        .status-dot.away   { background: #a0aec0; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: white;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #4a5568;
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 2px solid #e2e8f0;
+            transition: transform 0.3s ease;
+            z-index: 30;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        .agent-character:hover .speech-bubble {
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* Auto speech bubble that shows/hides */
+        .speech-bubble.active {
+            transform: translateX(-50%) scale(1);
+            border-color: var(--acc-purple);
+        }
+
+        /* Decorations */
+        .plant {
+            position: absolute;
+            bottom: 30%;
+            font-size: 40px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .plant-1 { left: 5%; }
+        .plant-2 { right: 5%; }
+
+        .coffee-machine {
+            position: absolute;
+            top: 220px;
+            right: 60px;
+            font-size: 35px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .whiteboard {
+            position: absolute;
+            top: 220px;
+            left: 60px;
+            width: 120px;
+            height: 80px;
+            background: white;
+            border: 4px solid #8b7355;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .whiteboard::after {
+            content: '🤖 📊 💡';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .agent-modal {
+            background: var(--ui-bg);
+            border: 4px solid var(--ui-border);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 6px 0 #b8a890, 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed var(--ui-border);
+        }
+
+        .modal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 4px solid var(--acc-purple);
+            background: white;
+        }
+
+        .modal-info h3 {
+            font-size: 22px;
+            color: #4a5568;
+            margin-bottom: 4px;
+        }
+
+        .modal-info .role {
+            font-size: 13px;
+            color: var(--acc-purple);
+            font-weight: 700;
+        }
+
+        .modal-body p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .modal-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-skill {
+            padding: 6px 12px;
+            background: #f3e8ff;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--acc-purple-dark);
+            border: 2px solid #e9d8fd;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 100%;
+            padding: 12px;
+            background: var(--acc-purple);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--acc-purple-dark);
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 var(--acc-purple-dark); }
+        .modal-close:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--acc-purple-dark); }
+
+        /* ========= PIPELINE STRIP ========= */
+        .pipeline-strip {
+            position: relative;
+            margin: 210px 0 0 0;
+            padding: 0 50px;
+            z-index: 20;
+        }
+
+        .pipeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .pipeline-title {
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            color: #8b7355;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .pipeline-scroll-wrap {
+            overflow: hidden;
+            position: relative;
+            /* fade edges */
+            mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+        }
+
+        .pipeline-scroll-wrap:hover .pipeline-track {
+            animation-play-state: paused;
+        }
+
+        .pipeline-track {
+            display: flex;
+            gap: 14px;
+            padding-bottom: 6px;
+            width: max-content;
+            animation: marqueeScroll 38s linear infinite;
+        }
+
+        @keyframes marqueeScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .pipeline-card {
+            flex: 0 0 200px;
+            background: var(--ui-bg);
+            border: 2px solid var(--ui-border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: 0 3px 0 #b8a890;
+            position: relative;
+            cursor: default;
+            transition: transform 0.2s;
+        }
+
+        .pipeline-card:hover { transform: translateY(-3px); }
+
+        .pipeline-card .pc-client {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--acc-purple);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pipeline-card .pc-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .pipeline-card .pc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .pipeline-card .pc-tag {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .pc-tag.in-progress { background: #feebc8; color: #744210; }
+        .pc-tag.review      { background: #e9d8fd; color: #553c9a; }
+        .pc-tag.done        { background: #c6f6d5; color: #22543d; }
+        .pc-tag.blocked     { background: #fed7d7; color: #822727; }
+
+        .pipeline-card .pc-assignees {
+            display: flex;
+            gap: 3px;
+        }
+
+        .pc-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--acc-purple);
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            border: 2px solid white;
+        }
+
+        .pipeline-card .pc-progress {
+            margin-top: 8px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .pc-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--acc-purple), #c44bff);
+        }
+
+        /* ========= MAIN LAYOUT WITH SIDEBAR ========= */
+        .page-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 0;
+            min-height: 100vh;
+        }
+
+        .main-area {
+            overflow: hidden;
+        }
+
+        /* ========= RIGHT SIDEBAR ========= */
+        .right-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100vh;
+            background: var(--ui-bg);
+            border-left: 3px solid var(--ui-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 500;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-header {
+            padding: 14px 16px 0;
+            border-bottom: 2px solid var(--ui-border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            gap: 2px;
+        }
+
+        .stab {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: 800;
+            text-align: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            color: #a0aec0;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .stab.active {
+            color: var(--acc-purple);
+            border-bottom-color: var(--acc-purple);
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+        }
+
+        .sidebar-body::-webkit-scrollbar { width: 4px; }
+        .sidebar-body::-webkit-scrollbar-thumb { background: #d4c5b5; border-radius: 4px; }
+
+        .sidebar-panel { display: none; }
+        .sidebar-panel.active { display: block; }
+
+        /* --- Files Panel --- */
+        .file-section { margin-bottom: 14px; }
+
+        .file-folder {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 8px;
+            background: #f9f5f0;
+            border: 2px solid var(--ui-border);
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #5a4a3a;
+            transition: background 0.15s;
+        }
+
+        .file-folder:hover { background: #f3e8ff; border-color: var(--acc-purple); }
+
+        .file-folder .ff-arrow {
+            margin-left: auto;
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .file-folder.open .ff-arrow { transform: rotate(90deg); }
+
+        .file-list {
+            display: none;
+            padding-left: 16px;
+            margin-bottom: 4px;
+        }
+
+        .file-list.open { display: block; }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-bottom: 2px;
+        }
+
+        .file-item:hover { background: #f0e6ff; color: var(--acc-purple); }
+
+        .file-item .fi-icon { font-size: 13px; flex-shrink: 0; }
+        .file-item .fi-size { margin-left: auto; font-size: 10px; color: #a0aec0; }
+
+        /* --- Timeline Panel --- */
+        .timeline-entry {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 28px;
+            bottom: -14px;
+            width: 2px;
+            background: #e2d8cc;
+        }
+
+        .timeline-entry:last-child::before { display: none; }
+
+        .tl-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--acc-purple);
+            color: white;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(161,0,255,0.25);
+            z-index: 1;
+        }
+
+        .tl-dot.green  { background: #48bb78; box-shadow: 0 2px 6px rgba(72,187,120,0.25); }
+        .tl-dot.orange { background: #ed8936; box-shadow: 0 2px 6px rgba(237,137,54,0.25); }
+        .tl-dot.gray   { background: #a0aec0; box-shadow: none; }
+
+        .tl-content { flex: 1; }
+
+        .tl-time {
+            font-size: 10px;
+            color: #a0aec0;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .tl-who {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--acc-purple-dark);
+            margin-bottom: 2px;
+        }
+
+        .tl-msg {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.4;
+            background: #f9f5f0;
+            padding: 6px 10px;
+            border-radius: 0 10px 10px 10px;
+            border: 1px solid #e8ddd4;
+        }
+
+        /* --- TODO Panel --- */
+        .todo-add {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .todo-add input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid var(--ui-border);
+            border-radius: 10px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px;
+            outline: none;
+            background: #f9f5f0;
+        }
+
+        .todo-add input:focus { border-color: var(--acc-purple); }
+
+        .todo-add button {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid var(--acc-purple);
+            background: var(--acc-purple);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 0 var(--acc-purple-dark);
+            transition: all 0.15s;
+        }
+
+        .todo-add button:hover { transform: translateY(-1px); }
+
+        .todo-section-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0aec0;
+            margin: 10px 0 6px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 10px;
+            background: #f9f5f0;
+            border: 2px solid var(--ui-border);
+            border-radius: 10px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .todo-item:hover { border-color: var(--acc-purple); background: #f3e8ff; }
+
+        .todo-item.done-item { opacity: 0.5; }
+        .todo-item.done-item .ti-text { text-decoration: line-through; }
+
+        .ti-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 5px;
+            border: 2px solid var(--ui-border);
+            flex-shrink: 0;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: all 0.15s;
+        }
+
+        .todo-item.done-item .ti-check {
+            background: #48bb78;
+            border-color: #48bb78;
+            color: white;
+        }
+
+        .ti-text {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .ti-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .ti-badge.high   { background: #fed7d7; color: #822727; }
+        .ti-badge.mid    { background: #feebc8; color: #744210; }
+        .ti-badge.low    { background: #e2e8f0; color: #4a5568; }
+
+        /* adjust office-floor right margin for sidebar */
+        .office-container {
+            margin-right: 300px;
+        }
+
+        .office-zones {
+            margin-top: 0 !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .office-zones { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 900px) {
+            .office-zones { grid-template-columns: 1fr; }
+            .workstation-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .ui-header { flex-wrap: wrap; padding: 10px 20px; gap: 15px; }
+            .windows-row { display: none; }
+            .office-floor { margin-top: 120px; }
+            .office-container { margin-right: 0; }
+            .right-sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="office-container">
+    <!-- Header -->
+    <div class="ui-header">
+        <div class="logo-section">
+            <div class="logo-icon">Ac</div>
+            <div class="logo-text">AI <span>Lab</span></div>
+        </div>
+        <div class="time-display" id="clock">09:00 AM</div>
+        <div class="status-badges">
+            <span class="badge online">20 Online</span>
+            <span class="badge working">AI Working</span>
+        </div>
+    </div>
+
+    <!-- Office Floor -->
+    <div class="office-floor">
+        <!-- Windows -->
+        <div class="windows-row">
+            <div class="window"><div class="cloud"></div><div class="cloud"></div></div>
+            <div class="window"><div class="cloud"></div><div class="cloud"></div></div>
+            <div class="window"><div class="cloud"></div><div class="cloud"></div></div>
+            <div class="window"><div class="cloud"></div><div class="cloud"></div></div>
+        </div>
+
+        <!-- Decorations -->
+        <div class="plant plant-1">🪴</div>
+        <div class="plant plant-2">🌵</div>
+        <div class="coffee-machine">☕</div>
+        <div class="whiteboard"></div>
+
+        <!-- ===== PIPELINE STRIP ===== -->
+        <div class="pipeline-strip">
+            <div class="pipeline-header">
+                <div class="pipeline-title">📋 Project Pipeline</div>
+            </div>
+            <div class="pipeline-scroll-wrap">
+                <div class="pipeline-track" id="pipelineTrack"></div>
+            </div>
+        </div>
+
+        <!-- Office Zones -->
+        <div class="office-zones" style="margin-top:24px;">
+
+            <!-- Zone 1: Leadership -->
+            <div class="zone">
+                <div class="zone-title purple">👔 Leadership</div>
+                <div class="workstation-grid">
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('cto')">
+                            <div class="speech-bubble" id="bubble-cto">Reviewing AI strategy...</div>
+                            <div class="character-body">
+                                <div class="character-head cto"><span class="character-face">👨‍💼</span></div>
+                                <div class="character-torso acc-cto"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">CTO</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('aiprincipal')">
+                            <div class="speech-bubble" id="bubble-aiprincipal">Planning AI roadmap...</div>
+                            <div class="character-body">
+                                <div class="character-head ai"><span class="character-face">👩‍💼</span></div>
+                                <div class="character-torso acc-lead"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">AI Principal</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('pm')">
+                            <div class="speech-bubble" id="bubble-pm">Updating sprint plan...</div>
+                            <div class="character-body">
+                                <div class="character-head pm"><span class="character-face">🧑‍💼</span></div>
+                                <div class="character-torso acc-pm"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">Project Mgr</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('req')">
+                            <div class="speech-bubble" id="bubble-req">Gathering requirements...</div>
+                            <div class="character-body">
+                                <div class="character-head pm"><span class="character-face">🔍</span></div>
+                                <div class="character-torso acc-req"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">Req Analyst</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 2: AI Engineering -->
+            <div class="zone">
+                <div class="zone-title purple">🤖 AI Engineering</div>
+                <div class="workstation-grid">
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('aiengineer1')">
+                            <div class="speech-bubble" id="bubble-aiengineer1">Training LLM model...</div>
+                            <div class="character-body">
+                                <div class="character-head ai"><span class="character-face">🤖</span></div>
+                                <div class="character-torso acc-ai"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">AI Engineer</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('aiengineer2')">
+                            <div class="speech-bubble" id="bubble-aiengineer2">Building RAG pipeline...</div>
+                            <div class="character-body">
+                                <div class="character-head ai"><span class="character-face">⚡</span></div>
+                                <div class="character-torso acc-ai"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">AI Engineer</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('datascientist')">
+                            <div class="speech-bubble" id="bubble-datascientist">Analyzing model metrics...</div>
+                            <div class="character-body">
+                                <div class="character-head data"><span class="character-face">📊</span></div>
+                                <div class="character-torso acc-data"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">Data Scientist</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('mlengineer')">
+                            <div class="speech-bubble" id="bubble-mlengineer">Tuning hyperparams...</div>
+                            <div class="character-body">
+                                <div class="character-head ai"><span class="character-face">🧠</span></div>
+                                <div class="character-torso acc-ai"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">ML Engineer</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('prompteng')">
+                            <div class="speech-bubble" id="bubble-prompteng">Optimizing prompts...</div>
+                            <div class="character-body">
+                                <div class="character-head ai"><span class="character-face">✍️</span></div>
+                                <div class="character-torso acc-ai"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">Prompt Eng</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('dataengineer')">
+                            <div class="speech-bubble" id="bubble-dataengineer">Building data pipeline...</div>
+                            <div class="character-body">
+                                <div class="character-head data"><span class="character-face">🗄️</span></div>
+                                <div class="character-torso acc-data"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">Data Engineer</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 3: Application Dev -->
+            <div class="zone">
+                <div class="zone-title purple">💻 App Development</div>
+                <div class="workstation-grid">
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('frontend')">
+                            <div class="speech-bubble" id="bubble-frontend">Building AI chat UI...</div>
+                            <div class="character-body">
+                                <div class="character-head dev"><span class="character-face">💻</span></div>
+                                <div class="character-torso acc-fe"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">Frontend Dev</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('backend')">
+                            <div class="speech-bubble" id="bubble-backend">Coding AI API gateway...</div>
+                            <div class="character-body">
+                                <div class="character-head dev"><span class="character-face">⚙️</span></div>
+                                <div class="character-torso acc-be"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">Backend Dev</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('designer')">
+                            <div class="speech-bubble" id="bubble-designer">Designing AI UI/UX...</div>
+                            <div class="character-body">
+                                <div class="character-head designer"><span class="character-face">🎨</span></div>
+                                <div class="character-torso acc-design"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">UI Designer</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('fullstack')">
+                            <div class="speech-bubble" id="bubble-fullstack">Integrating APIs...</div>
+                            <div class="character-body">
+                                <div class="character-head dev"><span class="character-face">🔧</span></div>
+                                <div class="character-torso acc-fe"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">Fullstack Dev</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone 4: QA, Sec, Ops -->
+            <div class="zone">
+                <div class="zone-title purple">🛡️ Quality & Ops</div>
+                <div class="workstation-grid">
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('aiquality')">
+                            <div class="speech-bubble" id="bubble-aiquality">Evaluating AI outputs...</div>
+                            <div class="character-body">
+                                <div class="character-head qa"><span class="character-face">🧪</span></div>
+                                <div class="character-torso acc-qa"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">AI Quality</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('aisec')">
+                            <div class="speech-bubble" id="bubble-aisec">Auditing AI safety...</div>
+                            <div class="character-body">
+                                <div class="character-head sec"><span class="character-face">🔒</span></div>
+                                <div class="character-torso acc-sec"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">AI Security</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('mlops')">
+                            <div class="speech-bubble" id="bubble-mlops">Deploying to prod...</div>
+                            <div class="character-body">
+                                <div class="character-head ops"><span class="character-face">🚀</span></div>
+                                <div class="character-torso acc-ops"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">MLOps</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('devops')">
+                            <div class="speech-bubble" id="bubble-devops">CI/CD pipeline running...</div>
+                            <div class="character-body">
+                                <div class="character-head ops"><span class="character-face">⚙️</span></div>
+                                <div class="character-torso acc-ops"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">DevOps</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('govai')">
+                            <div class="speech-bubble" id="bubble-govai">Checking AI ethics...</div>
+                            <div class="character-body">
+                                <div class="character-head sec"><span class="character-face">⚖️</span></div>
+                                <div class="character-torso acc-sec"></div>
+                            </div>
+                            <div class="status-dot online"></div>
+                            <div class="name-tag">AI Governance</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                    <div class="workstation">
+                        <div class="agent-character" onclick="showAgent('dispatcher')">
+                            <div class="speech-bubble" id="bubble-dispatcher">Orchestrating agents...</div>
+                            <div class="character-body">
+                                <div class="character-head ai"><span class="character-face">🎛️</span></div>
+                                <div class="character-torso acc-disp"></div>
+                            </div>
+                            <div class="status-dot busy"></div>
+                            <div class="name-tag">Dispatcher</div>
+                        </div>
+                        <div class="desk"><div class="desk-top"></div><div class="desk-leg-left"></div><div class="desk-leg-right"></div><div class="computer"><div class="monitor"><div class="screen"></div></div></div></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- RIGHT SIDEBAR -->
+<div class="right-sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-tabs">
+            <button class="stab active" onclick="switchTab('files',this)">📁 文件</button>
+            <button class="stab" onclick="switchTab('timeline',this)">💬 交流</button>
+            <button class="stab" onclick="switchTab('todo',this)">✅ TODO</button>
+        </div>
+    </div>
+
+    <div class="sidebar-body">
+        <!-- FILES PANEL -->
+        <div class="sidebar-panel active" id="panel-files">
+            <div class="file-section">
+                <div class="file-folder open" onclick="toggleFolder(this)">
+                    📁 需求文档 <span class="ff-arrow">▶</span>
+                </div>
+                <div class="file-list open">
+                    <div class="file-item">📄 <span>BRD-零售AI助手-v2.docx</span><span class="fi-size">48KB</span></div>
+                    <div class="file-item">📄 <span>SRS-智能推荐引擎-v3.pdf</span><span class="fi-size">112KB</span></div>
+                    <div class="file-item">📋 <span>用户故事地图-Sprint3.xlsx</span><span class="fi-size">36KB</span></div>
+                    <div class="file-item">🔍 <span>竞品分析报告-2026Q1.pptx</span><span class="fi-size">2.1MB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder open" onclick="toggleFolder(this)">
+                    📁 AI模型 <span class="ff-arrow">▶</span>
+                </div>
+                <div class="file-list open">
+                    <div class="file-item">🧠 <span>llm-retail-finetuned-v4.pt</span><span class="fi-size">14GB</span></div>
+                    <div class="file-item">📊 <span>eval-report-2026-03.json</span><span class="fi-size">256KB</span></div>
+                    <div class="file-item">✍️ <span>prompt-library-v8.yaml</span><span class="fi-size">22KB</span></div>
+                    <div class="file-item">🗄️ <span>vector-store-prod.db</span><span class="fi-size">8.4GB</span></div>
+                    <div class="file-item">📈 <span>training-metrics-run42.csv</span><span class="fi-size">890KB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder" onclick="toggleFolder(this)">
+                    📁 设计资产 <span class="ff-arrow">▶</span>
+                </div>
+                <div class="file-list">
+                    <div class="file-item">🎨 <span>AI-Chat-UI-Figma-v5.fig</span><span class="fi-size">18MB</span></div>
+                    <div class="file-item">🖼️ <span>design-system-tokens.json</span><span class="fi-size">14KB</span></div>
+                    <div class="file-item">📐 <span>wireframes-v3-final.pdf</span><span class="fi-size">5.2MB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder" onclick="toggleFolder(this)">
+                    📁 代码仓库 <span class="ff-arrow">▶</span>
+                </div>
+                <div class="file-list">
+                    <div class="file-item">⚙️ <span>ai-gateway-api-v2.3.zip</span><span class="fi-size">4.1MB</span></div>
+                    <div class="file-item">💻 <span>frontend-chat-sdk.tar.gz</span><span class="fi-size">12MB</span></div>
+                    <div class="file-item">🚀 <span>k8s-manifests-prod.yaml</span><span class="fi-size">38KB</span></div>
+                    <div class="file-item">🔒 <span>security-audit-report.pdf</span><span class="fi-size">720KB</span></div>
+                </div>
+            </div>
+            <div class="file-section">
+                <div class="file-folder" onclick="toggleFolder(this)">
+                    📁 交付报告 <span class="ff-arrow">▶</span>
+                </div>
+                <div class="file-list">
+                    <div class="file-item">📑 <span>Sprint3-Review-Slides.pptx</span><span class="fi-size">6.8MB</span></div>
+                    <div class="file-item">📊 <span>KPI-Dashboard-Mar2026.xlsx</span><span class="fi-size">340KB</span></div>
+                    <div class="file-item">✅ <span>UAT-Signoff-TechCorp.pdf</span><span class="fi-size">180KB</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMELINE PANEL -->
+        <div class="sidebar-panel" id="panel-timeline">
+            <div id="timelineList"></div>
+        </div>
+
+        <!-- TODO PANEL -->
+        <div class="sidebar-panel" id="panel-todo">
+            <div class="todo-add">
+                <input type="text" id="todoInput" placeholder="添加新任务..." onkeydown="if(event.key==='Enter')addTodo()">
+                <button onclick="addTodo()">+</button>
+            </div>
+            <div class="todo-section-title">🔥 高优先级</div>
+            <div id="todoHigh"></div>
+            <div class="todo-section-title">📌 进行中</div>
+            <div id="todoMid"></div>
+            <div class="todo-section-title">📋 待办</div>
+            <div id="todoLow"></div>
+            <div class="todo-section-title">✅ 已完成</div>
+            <div id="todoDone"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="agentModal" onclick="closeModal(event)">
+    <div class="agent-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-avatar" id="modalAvatar">🤖</div>
+            <div class="modal-info">
+                <h3 id="modalName">AI Engineer</h3>
+                <div class="role" id="modalRole">AI Lab</div>
+            </div>
+        </div>
+        <div class="modal-body">
+            <p id="modalDesc"></p>
+            <div class="modal-skills" id="modalSkills"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">关闭</button>
+    </div>
+</div>
+
+<script>
+const AGENTS = {
+    cto: {
+        name: 'CTO', role: '首席技术官', avatar: '👨‍💼',
+        desc: '统筹AI Lab技术战略，负责AI技术架构设计、技术选型决策与AI创新方向制定，确保AI解决方案的可扩展性与商业落地。',
+        skills: ['AI战略规划','技术架构','代码审查','风险管控','团队领导']
+    },
+    aiprincipal: {
+        name: 'AI Principal', role: 'AI首席专家', avatar: '👩‍💼',
+        desc: 'AI领域深度专家，负责制定AI技术路线、推动大模型与生成式AI在企业场景中的落地，主导与客户的AI解决方案交付。',
+        skills: ['LLM调优','生成式AI','方案设计','客户交付','AI路线图']
+    },
+    pm: {
+        name: 'Project Manager', role: '项目经理', avatar: '🧑‍💼',
+        desc: '负责AI项目全生命周期管理，制定迭代计划、分配任务、跟踪进度、协调多团队资源，确保AI项目按期高质交付。',
+        skills: ['Agile/Scrum','项目规划','资源协调','风险管理','进度跟踪']
+    },
+    req: {
+        name: 'Req Analyst', role: '需求分析师', avatar: '🔍',
+        desc: '深入挖掘业务需求，将客户业务场景转化为AI可执行的技术需求，编写需求规格说明书，是AI项目成功的基石。',
+        skills: ['需求分析','用户调研','竞品分析','SRS编写','业务建模']
+    },
+    aiengineer1: {
+        name: 'AI Engineer I', role: 'AI工程师', avatar: '🤖',
+        desc: '专注大语言模型微调与训练，负责基于企业私有数据的LLM定制化，搭建训练流水线，提升模型在垂直领域的表现。',
+        skills: ['LLM微调','RLHF','模型训练','PyTorch','Transformer']
+    },
+    aiengineer2: {
+        name: 'AI Engineer II', role: 'AI工程师', avatar: '⚡',
+        desc: '专注RAG（检索增强生成）系统构建，设计企业知识库向量化方案，实现AI与私有知识的深度融合，打造精准AI问答系统。',
+        skills: ['RAG架构','向量数据库','LangChain','Embedding','知识图谱']
+    },
+    datascientist: {
+        name: 'Data Scientist', role: '数据科学家', avatar: '📊',
+        desc: '负责AI模型效果评估与分析，通过A/B测试、指标体系设计持续优化模型效果，输出可视化分析报告支撑决策。',
+        skills: ['模型评估','A/B测试','统计分析','Python/R','数据可视化']
+    },
+    mlengineer: {
+        name: 'ML Engineer', role: '机器学习工程师', avatar: '🧠',
+        desc: '专注机器学习模型工程化，负责超参调优、模型压缩与量化，将科学实验模型转化为高效可部署的生产级AI服务。',
+        skills: ['超参优化','模型压缩','量化加速','AutoML','MLflow']
+    },
+    prompteng: {
+        name: 'Prompt Engineer', role: '提示词工程师', avatar: '✍️',
+        desc: '专精大模型提示词设计与优化，为各业务场景制定专业的System Prompt与Few-shot示例，显著提升AI输出质量。',
+        skills: ['Prompt设计','Chain-of-Thought','Few-shot','指令调优','评估基准']
+    },
+    dataengineer: {
+        name: 'Data Engineer', role: '数据工程师', avatar: '🗄️',
+        desc: '构建和维护AI训练所需的数据基础设施，负责数据采集、清洗、标注流水线建设，为AI模型持续提供高质量数据。',
+        skills: ['数据管道','ETL/ELT','Spark','数据标注','特征工程']
+    },
+    frontend: {
+        name: 'Frontend Dev', role: '前端开发工程师', avatar: '💻',
+        desc: '负责AI应用前端开发，构建流畅的AI对话界面、可视化大屏与AI工具平台，让用户体验到AI能力的直观价值。',
+        skills: ['React/Vue','AI流式渲染','Streaming UI','组件设计','性能优化']
+    },
+    backend: {
+        name: 'Backend Dev', role: '后端开发工程师', avatar: '⚙️',
+        desc: '构建AI应用服务端，开发AI API网关、会话管理、上下文存储等核心服务，保障AI系统的稳定、安全与高并发。',
+        skills: ['API Gateway','微服务','AI集成','数据库设计','高并发']
+    },
+    designer: {
+        name: 'UI Designer', role: 'AI产品设计师', avatar: '🎨',
+        desc: '专注AI产品的用户体验设计，设计直观易用的AI交互界面，让用户与AI的协作过程变得自然、高效、愉悦。',
+        skills: ['UX设计','AI交互设计','Figma','用户研究','设计系统']
+    },
+    fullstack: {
+        name: 'Fullstack Dev', role: '全栈开发工程师', avatar: '🔧',
+        desc: '端到端开发能力，负责AI应用前后端集成联调，快速搭建AI原型与MVP，推动AI解决方案从概念到可用产品的落地。',
+        skills: ['全栈集成','API对接','原型开发','DevEx优化','TypeScript']
+    },
+    aiquality: {
+        name: 'AI Quality', role: 'AI质量工程师', avatar: '🧪',
+        desc: '专注AI系统质量评估，设计AI输出评测框架，执行幻觉检测、偏见测试、边界case验证，保障AI产品质量达标。',
+        skills: ['AI评测框架','幻觉检测','偏见测试','自动化测试','质量报告']
+    },
+    aisec: {
+        name: 'AI Security', role: 'AI安全工程师', avatar: '🔒',
+        desc: '负责AI系统安全审计，防御Prompt注入攻击、数据泄露风险，制定AI安全基线策略，确保AI应用合规上线。',
+        skills: ['AI安全审计','Prompt注入防御','数据脱敏','合规评估','威胁建模']
+    },
+    mlops: {
+        name: 'MLOps', role: 'MLOps工程师', avatar: '🚀',
+        desc: '构建AI模型生产部署流水线，负责模型版本管理、A/B发布、实时监控与性能告警，确保AI服务稳定运行。',
+        skills: ['模型部署','Kubernetes','模型监控','A/B发布','版本管理']
+    },
+    devops: {
+        name: 'DevOps', role: 'DevOps工程师', avatar: '⚙️',
+        desc: '维护AI研发基础设施，搭建CI/CD流水线，管理GPU计算资源、容器集群与AI开发环境，保障研发效能。',
+        skills: ['CI/CD','GPU管理','容器化','IaC','监控告警']
+    },
+    govai: {
+        name: 'AI Governance', role: 'AI治理专家', avatar: '⚖️',
+        desc: '负责企业AI治理体系建设，制定AI伦理准则、使用规范与审计流程，推动AI负责任应用，满足监管合规要求。',
+        skills: ['AI伦理','合规治理','风险评估','政策制定','责任AI框架']
+    },
+    dispatcher: {
+        name: 'Dispatcher', role: '智能调度主控', avatar: '🎛️',
+        desc: 'AI团队核心协调中枢，负责多Agent任务编排与调度，管理AI工作流全流程，实现从需求输入到AI产出的自动化协作闭环。',
+        skills: ['Agent编排','任务调度','工作流引擎','状态管理','异常处理']
+    }
+};
+
+// Speech texts per agent
+const SPEECHES = {
+    cto:          ['Reviewing AI strategy...', 'Checking tech roadmap...', 'AI架构评审中...', 'Approving new AI model...'],
+    aiprincipal:  ['Planning AI roadmap...', 'LLM调优讨论...', 'Demo preparing...', 'Writing AI proposal...'],
+    pm:           ['Updating sprint plan...', 'Standup in 5min!', '排期更新中...', 'Tracking milestones...'],
+    req:          ['Gathering requirements...', 'User interview today', '需求梳理中...', 'Writing SRS...'],
+    aiengineer1:  ['Training LLM model...', 'Loss converging!', 'GPU利用率99%...', 'Fine-tuning in progress...'],
+    aiengineer2:  ['Building RAG pipeline...', 'Vector search done!', '知识库更新中...', 'Embedding model ready...'],
+    datascientist:['Analyzing model metrics...', 'Precision up 3%!', '数据分析中...', 'Building dashboard...'],
+    mlengineer:   ['Tuning hyperparams...', 'Best val_loss found!', '量化压缩中...', 'AutoML job running...'],
+    prompteng:    ['Optimizing prompts...', 'New CoT template!', 'Prompt testing...', '指令调优中...'],
+    dataengineer: ['Building data pipeline...', 'ETL job done!', '数据清洗中...', 'Feature store ready...'],
+    frontend:     ['Building AI chat UI...', 'Streaming render!', '前端联调中...', 'UI review done!'],
+    backend:      ['Coding AI API gateway...', 'Rate limiter added!', 'API测试通过...', 'Session store done...'],
+    designer:     ['Designing AI UI/UX...', 'Prototype ready!', 'UX走查中...', 'Design system updated!'],
+    fullstack:    ['Integrating APIs...', 'MVP demo ready!', '前后端联调中...', 'Deploy to staging...'],
+    aiquality:    ['Evaluating AI outputs...', 'Hallucination 0.3%!', 'AI评测运行中...', 'Test suite passed!'],
+    aisec:        ['Auditing AI safety...', 'Prompt injection blocked!', '安全扫描中...', 'Compliance report done!'],
+    mlops:        ['Deploying to prod...', 'Canary release done!', '模型监控正常...', 'Rolling update ok!'],
+    devops:       ['CI/CD pipeline running...', 'GPU cluster healthy!', '容器扩容中...', 'IaC apply done!'],
+    govai:        ['Checking AI ethics...', 'Policy review done!', 'AI治理审计中...', 'Bias report ready!'],
+    dispatcher:   ['Orchestrating agents...', 'Workflow step 3/7...', '多Agent协同中...', 'Task queue 12 jobs...']
+};
+
+// Clock
+function updateClock() {
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const dh = h % 12 || 12;
+    document.getElementById('clock').textContent = `${dh}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Modal
+function showAgent(id) {
+    const a = AGENTS[id]; if (!a) return;
+    document.getElementById('modalAvatar').textContent = a.avatar;
+    document.getElementById('modalName').textContent = a.name;
+    document.getElementById('modalRole').textContent = a.role;
+    document.getElementById('modalDesc').textContent = a.desc;
+    document.getElementById('modalSkills').innerHTML = a.skills.map(s => `<span class="modal-skill">${s}</span>`).join('');
+    document.getElementById('agentModal').classList.add('active');
+}
+
+function closeModal(e) {
+    if (!e || e.target.id === 'agentModal') {
+        document.getElementById('agentModal').classList.remove('active');
+    }
+}
+
+// Auto rotating speech bubbles
+const agentIds = Object.keys(AGENTS);
+let bubbleIdx = 0;
+
+function rotateBubble() {
+    // hide all
+    agentIds.forEach(id => {
+        const el = document.getElementById('bubble-' + id);
+        if (el) el.classList.remove('active');
+    });
+    // show current
+    const id = agentIds[bubbleIdx % agentIds.length];
+    const el = document.getElementById('bubble-' + id);
+    if (el) {
+        const pool = SPEECHES[id];
+        el.textContent = pool[Math.floor(Math.random() * pool.length)];
+        el.classList.add('active');
+    }
+    bubbleIdx++;
+}
+
+rotateBubble();
+setInterval(rotateBubble, 2800);
+
+// Idle bounce animation
+function idleBounce() {
+    const chars = document.querySelectorAll('.agent-character');
+    const r = chars[Math.floor(Math.random() * chars.length)];
+    r.style.transform = 'translateX(-50%) translateY(-5px)';
+    setTimeout(() => { r.style.transform = 'translateX(-50%) translateY(0)'; }, 300);
+}
+setInterval(idleBounce, 2500);
+
+// ============================================================
+// PIPELINE DATA & RENDER
+// ============================================================
+const PIPELINE_CARDS = [
+    { client:'🏪 TechCorp零售', title:'AI智能推荐引擎 v2', tags:['in-progress'], assignees:['CTO','AI1','FE'], progress:72 },
+    { client:'🏦 国泰银行', title:'风控大模型微调', tags:['review'], assignees:['AI2','ML','DA'], progress:88 },
+    { client:'🏥 健康云平台', title:'医疗知识库RAG系统', tags:['in-progress'], assignees:['AI1','DE','BE'], progress:45 },
+    { client:'🚗 AutoDrive出行', title:'驾驶行为AI分析', tags:['blocked'], assignees:['DS','ML'], progress:30 },
+    { client:'📦 速达物流', title:'智能调度优化系统', tags:['done'], assignees:['PM','BE','OPS'], progress:100 },
+    { client:'🎓 学思教育', title:'AI个性化学习推荐', tags:['in-progress'], assignees:['PE','FE','QA'], progress:58 },
+    { client:'🏭 先进制造集团', title:'工业质检视觉AI', tags:['review'], assignees:['AI2','DS'], progress:91 },
+    { client:'🌐 全球外贸平台', title:'多语言AI客服系统', tags:['in-progress'], assignees:['AI1','BE','SEC'], progress:63 },
+    { client:'💊 明康药业', title:'药物分子生成模型', tags:['in-progress'], assignees:['ML','DS'], progress:25 },
+    { client:'🛡️ 合规治理项目', title:'AI伦理评估框架', tags:['review'], assignees:['GOV','SEC'], progress:80 },
+];
+
+const TAG_MAP = { 'in-progress':'进行中', 'review':'审核中', 'done':'已完成', 'blocked':'阻塞' };
+const AC_COLORS = ['#A100FF','#4ecdc4','#fb923c','#60a5fa','#f472b6','#34d399','#fbbf24','#f87171','#a78bfa','#2dd4bf'];
+
+function renderPipeline() {
+    const track = document.getElementById('pipelineTrack');
+    const makeCards = () => PIPELINE_CARDS.map((c, i) => `
+        <div class="pipeline-card">
+            <div class="pc-client">${c.client}</div>
+            <div class="pc-title">${c.title}</div>
+            <div class="pc-tags">${c.tags.map(t=>`<span class="pc-tag ${t}">${TAG_MAP[t]||t}</span>`).join('')}</div>
+            <div class="pc-assignees">${c.assignees.map((a,j)=>`<div class="pc-avatar" style="background:${AC_COLORS[(i+j)%AC_COLORS.length]}">${a.substring(0,2)}</div>`).join('')}</div>
+            <div class="pc-progress"><div class="pc-progress-bar" style="width:${c.progress}%"></div></div>
+        </div>
+    `).join('');
+    // render twice for seamless loop
+    track.innerHTML = makeCards() + makeCards();
+}
+
+renderPipeline();
+
+// ============================================================
+// SIDEBAR TABS
+// ============================================================
+function switchTab(name, btn) {
+    document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+function toggleFolder(el) {
+    el.classList.toggle('open');
+    const list = el.nextElementSibling;
+    if (list) list.classList.toggle('open');
+}
+
+// ============================================================
+// TIMELINE DATA & RENDER
+// ============================================================
+const TL_DATA = [
+    { who:'CTO', emoji:'👨‍💼', color:'purple', time:'09:02', msg:'本周Sprint 3正式启动，重点攻坚TechCorp推荐引擎v2，请各团队今日同步进展。' },
+    { who:'AI Principal', emoji:'👩‍💼', color:'purple', time:'09:15', msg:'@AI Engineer 国泰银行风控模型已进入最终review阶段，准入精度达到98.2%，等待客户确认。' },
+    { who:'ML Engineer', emoji:'🧠', color:'orange', time:'09:28', msg:'run-42 量化压缩完成！模型体积从14GB降至3.2GB，推理速度提升4.1x，准备提交MLOps部署。' },
+    { who:'AI Engineer I', emoji:'🤖', color:'purple', time:'09:45', msg:'健康云RAG系统知识库更新完毕，新增医学文献2.3万篇，embedding已全部入库，检索精度↑6%。' },
+    { who:'PM', emoji:'🧑‍💼', color:'gray', time:'10:00', msg:'Standup提醒：AutoDrive项目数据源问题升级为阻塞，需CTO介入协调客户数据权限。' },
+    { who:'Data Scientist', emoji:'📊', color:'green', time:'10:18', msg:'TechCorp推荐引擎A/B测试结果出炉：实验组CTR+12.3%, 转化率+8.7%，超出KPI目标！' },
+    { who:'Frontend Dev', emoji:'💻', color:'green', time:'10:35', msg:'AI Chat UI v5 流式渲染优化完成，TTFB从1.2s降至280ms，已推送staging环境，请QA验收。' },
+    { who:'AI Security', emoji:'🔒', color:'orange', time:'10:52', msg:'健康云平台安全审计发现1个中风险Prompt注入漏洞，已生成修复方案，分配给Backend处理。' },
+    { who:'MLOps', emoji:'🚀', color:'green', time:'11:10', msg:'速达物流智能调度系统已完成金丝雀发布，流量切换100%，生产监控正常，项目交付完成！' },
+    { who:'AI Governance', emoji:'⚖️', color:'purple', time:'11:28', msg:'学思教育AI学习推荐偏见检测报告已完成，检测通过，符合Responsible AI准则。' },
+    { who:'Dispatcher', emoji:'🎛️', color:'purple', time:'11:45', msg:'多Agent协同任务队列当前12个jobs，已调度7个，优先级最高的国泰银行部署任务预计13:00完成。' },
+    { who:'Data Engineer', emoji:'🗄️', color:'orange', time:'13:05', msg:'全球外贸平台多语言数据管道完成，共处理8种语言语料450GB，Feature Store已更新。' },
+];
+
+function renderTimeline() {
+    const list = document.getElementById('timelineList');
+    list.innerHTML = TL_DATA.map(e => `
+        <div class="timeline-entry">
+            <div class="tl-dot ${e.color}">${e.emoji}</div>
+            <div class="tl-content">
+                <div class="tl-time">${e.time}</div>
+                <div class="tl-who">${e.who}</div>
+                <div class="tl-msg">${e.msg}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+renderTimeline();
+
+// Auto append new timeline every ~15s
+const AUTO_TL = [
+    { who:'Prompt Engineer', emoji:'✍️', color:'purple', msg:'学思教育Prompt库新增12条few-shot模板，推理准确率+4.2%，已同步知识库。' },
+    { who:'QA Engineer', emoji:'🧪', color:'green', msg:'Frontend Chat SDK自动化测试全部通过（覆盖率91%），幻觉率0.28%，低于阈值。' },
+    { who:'DevOps', emoji:'⚙️', color:'orange', msg:'GPU集群扩容完成：新增8x A100节点，总算力达512 TFLOPS，满足明康药业训练需求。' },
+    { who:'Backend Dev', emoji:'⚙️', color:'green', msg:'AI安全漏洞已修复并部署，Prompt注入防护规则升级至v3，通过安全复测。' },
+    { who:'CTO', emoji:'👨‍💼', color:'purple', msg:'AutoDrive数据权限问题已和客户达成协议，数据脱敏方案确认，项目解除阻塞，明日恢复开发。' },
+];
+let autoTlIdx = 0;
+
+setInterval(() => {
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes();
+    const t = `${h}:${String(m).padStart(2,'0')}`;
+    const entry = AUTO_TL[autoTlIdx % AUTO_TL.length];
+    autoTlIdx++;
+    const newItem = { ...entry, time: t };
+    TL_DATA.push(newItem);
+    if (TL_DATA.length > 30) TL_DATA.shift();
+    renderTimeline();
+    // scroll to bottom
+    const body = document.querySelector('#panel-timeline');
+    if (body) body.scrollTop = body.scrollHeight;
+}, 15000);
+
+// ============================================================
+// TODO LIST
+// ============================================================
+const TODOS = [
+    { id:1, text:'完成国泰银行风控模型最终review', pri:'high', done:false },
+    { id:2, text:'修复AI安全Prompt注入漏洞', pri:'high', done:false },
+    { id:3, text:'TechCorp推荐引擎v2上线准备', pri:'high', done:false },
+    { id:4, text:'健康云RAG系统性能测试', pri:'mid', done:false },
+    { id:5, text:'全球外贸多语言模型联调', pri:'mid', done:false },
+    { id:6, text:'明康药业GPU资源申请', pri:'mid', done:false },
+    { id:7, text:'AutoDrive数据权限跟进', pri:'mid', done:false },
+    { id:8, text:'Sprint 3复盘PPT准备', pri:'low', done:false },
+    { id:9, text:'学思教育偏见检测报告归档', pri:'low', done:false },
+    { id:10, text:'速达物流项目结案文档', pri:'done', done:true },
+    { id:11, text:'Prompt库v7版本归档', pri:'done', done:true },
+];
+let todoNextId = 100;
+
+function renderTodos() {
+    const sections = { high:[], mid:[], low:[], done:[] };
+    TODOS.forEach(t => {
+        const k = t.done ? 'done' : t.pri;
+        sections[k].push(t);
+    });
+    const render = (arr) => arr.map(t => `
+        <div class="todo-item ${t.done?'done-item':''}" onclick="toggleTodo(${t.id})">
+            <div class="ti-check">${t.done?'✓':''}</div>
+            <div class="ti-text">${t.text}</div>
+            ${!t.done?`<span class="ti-badge ${t.pri}">${{high:'紧急',mid:'中',low:'低'}[t.pri]}</span>`:''}
+        </div>
+    `).join('');
+    document.getElementById('todoHigh').innerHTML = render(sections.high);
+    document.getElementById('todoMid').innerHTML  = render(sections.mid);
+    document.getElementById('todoLow').innerHTML  = render(sections.low);
+    document.getElementById('todoDone').innerHTML = render(sections.done);
+}
+
+function toggleTodo(id) {
+    const t = TODOS.find(x => x.id === id);
+    if (t) { t.done = !t.done; renderTodos(); }
+}
+
+function addTodo() {
+    const inp = document.getElementById('todoInput');
+    const txt = inp.value.trim();
+    if (!txt) return;
+    TODOS.unshift({ id: todoNextId++, text: txt, pri: 'mid', done: false });
+    inp.value = '';
+    renderTodos();
+}
+
+renderTodos();
+</script>
+</body>
+</html>

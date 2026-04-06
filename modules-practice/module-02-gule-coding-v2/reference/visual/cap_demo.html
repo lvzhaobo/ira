@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>CAP 定理可视化演示 - 分布式系统一致性与可用性</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #1e293b 0, #020617 60%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 20px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 1.2fr 2fr;
+      gap: 20px;
+      width: 1200px;
+      max-width: 100%;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+      padding: 18px 20px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      backdrop-filter: blur(16px);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #cbd5f5;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #bfdbfe;
+      margin-bottom: 8px;
+    }
+
+    .controls {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .toggle-group, .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toggle {
+      padding: 6px 10px;
+      border-radius: 1000px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .toggle.active {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45);
+    }
+
+    .toggle-pill {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      border: 2px solid rgba(148, 163, 184, 0.9);
+      background: transparent;
+    }
+
+    .toggle.active .toggle-pill {
+      border-color: rgba(255, 255, 255, 0.9);
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(30, 64, 175, 0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn.secondary {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.6);
+      filter: brightness(1.05);
+    }
+
+    .legend {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .dot.read {
+      background: #22c55e;
+    }
+
+    .dot.stale {
+      background: #eab308;
+    }
+
+    .dot.fail {
+      background: #ef4444;
+    }
+
+    .dot.partition {
+      background: #f97316;
+    }
+
+    .stats {
+      margin-top: 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      font-size: 11px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      color: #9ca3af;
+      font-size: 11px;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .stat-tag {
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      display: inline-block;
+      margin-top: 2px;
+      color: #cbd5f5;
+    }
+
+    .stat-tag.consistency {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .stat-tag.availability {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .stat-tag.partition {
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .explain {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #cbd5f5;
+      line-height: 1.6;
+    }
+
+    .explain strong {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    /* 右侧画布区域 */
+    .canvas-wrapper {
+      position: relative;
+      height: 520px;
+      overflow: visible;
+    }
+
+    .canvas-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      background: radial-gradient(circle at 20% 0%, #1d4ed8 0, #020617 50%);
+      box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 18px 18px 12px;
+    }
+
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .canvas-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.6); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .time-label {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .node-layer {
+      position: absolute;
+      inset: 40px 40px 60px 50px;
+    }
+
+    .client-node, .server-node {
+      position: absolute;
+      width: 120px;
+      height: 60px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 8px 10px;
+      color: #e5e7eb;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    .client-node {
+      left: 0;
+      top: 50%;
+      transform: translate(-10px, -50%);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .server-node {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .server-node[data-id="A"] { left: 40%; }
+    .server-node[data-id="B"] { left: 65%; }
+    .server-node[data-id="C"] { left: 90%; transform: translate(-100%, -50%); }
+
+    .node-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .node-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #cbd5f5;
+    }
+
+    .node-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .node-value {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #f9fafb;
+    }
+
+    .node-value span.key {
+      color: #9ca3af;
+      margin-right: 4px;
+    }
+
+    .partition-line {
+      position: absolute;
+      top: 18%;
+      bottom: 18%;
+      left: 62%;
+      width: 0;
+      border-left: 2px dashed rgba(248, 113, 113, 0.0);
+      pointer-events: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .partition-line.active {
+      border-left-color: rgba(248, 113, 113, 0.95);
+    }
+
+    .partition-label {
+      position: absolute;
+      top: 50%;
+      left: -10px;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      font-size: 11px;
+      color: #f97316;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .partition-line.active .partition-label {
+      opacity: 1;
+    }
+
+    .link-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .link {
+      position: absolute;
+      border-top: 1.5px solid rgba(148, 163, 184, 0.55);
+      transform-origin: 0 0;
+      opacity: 0.85;
+    }
+
+    .link.inactive {
+      border-top-style: dashed;
+      border-top-color: rgba(148, 163, 184, 0.25);
+      opacity: 0.6;
+    }
+
+    .link-label {
+      position: absolute;
+      font-size: 10px;
+      color: #9ca3af;
+      transform: translate(-50%, -50%);
+    }
+
+    .request {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.9);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #0f172a;
+      z-index: 10;
+    }
+
+    .request.read {
+      background: #22c55e;
+    }
+
+    .request.stale {
+      background: #eab308;
+      box-shadow: 0 0 16px rgba(234, 179, 8, 0.9);
+    }
+
+    .request.fail {
+      background: #ef4444;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.9);
+    }
+
+    .timeline {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 10px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: flex;
+      align-items: center;
+      padding: 4px 10px;
+      font-size: 11px;
+      gap: 10px;
+    }
+
+    .timeline-label {
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+
+    .timeline-bar {
+      position: relative;
+      flex: 1;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.4), rgba(249, 115, 22, 0.4));
+      overflow: hidden;
+    }
+
+    .timeline-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 40%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+      animation: flow 1.6s linear infinite;
+    }
+
+    @keyframes flow {
+      0% { transform: translateX(-40%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .timeline-status {
+      flex-shrink: 0;
+      color: #e5e7eb;
+    }
+
+    .timeline-status span {
+      color: #a5b4fc;
+      font-weight: 500;
+    }
+
+    /* 小屏适配 */
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+      .canvas-wrapper {
+        height: 460px;
+      }
+      .node-layer {
+        inset: 40px 20px 60px 35px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- 左侧：文字说明 + 控制 -->
+  <div class="card">
+    <span class="badge">分布式系统 · CAP 定理 · 教学原型</span>
+    <h1>CAP 定理动态可视化</h1>
+    <p>
+      本页面用于帮助项目团队快速理解：当分布式系统发生
+      <strong>网络分区</strong> 时，系统为什么往往需要在
+      <strong>一致性（Consistency）</strong> 和
+      <strong>可用性（Availability）</strong> 之间做出取舍。
+    </p>
+
+    <div class="controls">
+      <div class="control-group">
+        <div class="control-label">
+          <span>1. 选择网络环境</span>
+          <span style="font-size:11px;color:#9ca3af;">Partition Tolerance 永远必须要有（P）</span>
+        </div>
+        <div class="toggle-group">
+          <button class="toggle active" data-type="partition" data-value="off">
+            <span class="toggle-pill"></span> 无网络分区（理想网络）
+          </button>
+          <button class="toggle" data-type="partition" data-value="on">
+            <span class="toggle-pill"></span> 发生网络分区（部分节点被隔离）
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          <span>2. 网络分区时的策略（CAP 取舍）</span>
+          <span style="font-size:11px;color:#9ca3af;">只能二选一：<strong>C + P</strong> 或 <strong>A + P</strong></span>
+        </div>
+        <div class="toggle-group">
+          <button class="toggle active" data-type="mode" data-value="CP">
+            <span class="toggle-pill"></span> 优先一致性（CP：Consistent + Partition）
+          </button>
+          <button class="toggle" data-type="mode" data-value="AP">
+            <span class="toggle-pill"></span> 优先可用性（AP：Available + Partition）
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          <span>3. 模拟请求</span>
+          <span style="font-size:11px;color:#9ca3af;">请求会持续自动发送，你也可以手动触发</span>
+        </div>
+        <div class="button-group">
+          <button class="btn" id="btn-once">
+            ▶ 发送一次读取请求
+          </button>
+          <button class="btn secondary" id="btn-toggle-auto">
+            ⏸ 暂停自动演示
+          </button>
+          <button class="btn secondary" id="btn-reset">
+            ⟳ 重置统计
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span class="dot read"></span>正常读取（最新数据）</div>
+      <div class="legend-item"><span class="dot stale"></span>脏读 / 旧数据</div>
+      <div class="legend-item"><span class="dot fail"></span>请求失败 / 不可用</div>
+      <div class="legend-item"><span class="dot partition"></span>网络分区边界</div>
+    </div>
+
+    <div class="stats" id="stats">
+      <div class="stat-item">
+        <div class="stat-label">成功读取（最新数据）</div>
+        <div class="stat-value" id="stat-success">0</div>
+        <span class="stat-tag consistency">代表一致性（C）</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">返回旧数据（脏读）</div>
+        <div class="stat-value" id="stat-stale">0</div>
+        <span class="stat-tag">CAP 中牺牲强一致</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">请求失败（不可用）</div>
+        <div class="stat-value" id="stat-fail">0</div>
+        <span class="stat-tag availability">CAP 中牺牲可用性（A）</span>
+      </div>
+    </div>
+
+    <div class="explain" id="explain">
+      <strong>如何理解这张图：</strong><br>
+      - 左侧是客户端，右侧是 3 个副本节点（A / B / C），中间的虚线代表网络分区。<br>
+      - 当“无网络分区”时，系统可以既一致又可用。<br>
+      - 当“发生网络分区”时：<br>
+      &nbsp;&nbsp;· 如果选择 <strong>CP</strong>，孤立分区会拒绝请求（保证数据不会脏读，但有不可用）。<br>
+      &nbsp;&nbsp;· 如果选择 <strong>AP</strong>，孤立分区仍然响应请求（系统更可用，但可能读到旧数据）。
+    </div>
+  </div>
+
+  <!-- 右侧：动画画布 -->
+  <div class="card canvas-wrapper">
+    <div class="canvas-inner">
+      <div class="canvas-header">
+        <div class="canvas-title">
+          <div class="pulse-dot"></div>
+          分布式节点拓扑 & 请求流向
+        </div>
+        <div class="time-label" id="time-label">模式：无网络分区 · 正常读写</div>
+      </div>
+
+      <!-- 分区线 -->
+      <div class="partition-line" id="partition-line">
+        <div class="partition-label">Network Partition</div>
+      </div>
+
+      <!-- 画布层：节点 -->
+      <div class="node-layer">
+        <div class="client-node">
+          <div class="node-title">
+            客户端
+            <span class="node-tag">API Gateway / 应用</span>
+          </div>
+          <div class="node-meta">
+            连续发起读取请求，尝试读取 key=order:123 的订单信息。
+          </div>
+        </div>
+
+        <div class="server-node" data-id="A">
+          <div class="node-title">
+            节点 A
+            <span class="node-tag">主节点 / Leader</span>
+          </div>
+          <div class="node-meta">所在分区：左侧集群</div>
+          <div class="node-value">
+            <span class="key">order:123</span>
+            <span class="val" id="val-A">v3（最新）</span>
+          </div>
+        </div>
+
+        <div class="server-node" data-id="B">
+          <div class="node-title">
+            节点 B
+            <span class="node-tag">副本 / Follower</span>
+          </div>
+          <div class="node-meta">所在分区：左侧集群</div>
+          <div class="node-value">
+            <span class="key">order:123</span>
+            <span class="val" id="val-B">v3（最新）</span>
+          </div>
+        </div>
+
+        <div class="server-node" data-id="C">
+          <div class="node-title">
+            节点 C
+            <span class="node-tag">孤立副本</span>
+          </div>
+          <div class="node-meta" id="meta-C">当前与主集群连通</div>
+          <div class="node-value">
+            <span class="key">order:123</span>
+            <span class="val" id="val-C">v2（稍旧）</span>
+          </div>
+        </div>
+
+        <!-- 连线层 -->
+        <div class="link-layer" id="link-layer">
+          <!-- 线条通过 JS 动态计算定位和角度 -->
+        </div>
+      </div>
+
+      <!-- 底部时间线 -->
+      <div class="timeline">
+        <div class="timeline-label">请求时间线</div>
+        <div class="timeline-bar">
+          <div class="timeline-fill"></div>
+        </div>
+        <div class="timeline-status" id="timeline-status">
+          最近请求结果：<span>尚未开始</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ====== 状态数据 ======
+  const state = {
+    partition: 'off', // 'off' | 'on'
+    mode: 'CP',       // 'CP' | 'AP'
+    stats: {
+      success: 0,
+      stale: 0,
+      fail: 0
+    },
+    auto: true,
+    autoTimer: null,
+    lastRequestId: 0
+  };
+
+  // ====== DOM 引用 ======
+  const toggles = document.querySelectorAll('.toggle');
+  const partitionLine = document.getElementById('partition-line');
+  const metaC = document.getElementById('meta-C');
+  const valA = document.getElementById('val-A');
+  const valB = document.getElementById('val-B');
+  const valC = document.getElementById('val-C');
+  const statSuccess = document.getElementById('stat-success');
+  const statStale = document.getElementById('stat-stale');
+  const statFail = document.getElementById('stat-fail');
+  const explain = document.getElementById('explain');
+  const timeLabel = document.getElementById('time-label');
+  const timelineStatus = document.getElementById('timeline-status');
+  const linkLayer = document.getElementById('link-layer');
+  const btnOnce = document.getElementById('btn-once');
+  const btnToggleAuto = document.getElementById('btn-toggle-auto');
+  const btnReset = document.getElementById('btn-reset');
+
+  const serverNodes = Array.from(document.querySelectorAll('.server-node'));
+  const clientNode = document.querySelector('.client-node');
+
+  // ====== 工具函数：获取元素中心点，用于画线和动画 ======
+  function getCenter(el) {
+    const rect = el.getBoundingClientRect();
+    const parentRect = linkLayer.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - parentRect.left,
+      y: rect.top + rect.height / 2 - parentRect.top
+    };
+  }
+
+  // ====== 初始化连线 ======
+  let links = [];
+  function createLinks() {
+    linkLayer.innerHTML = '';
+    links = [];
+
+    const c = getCenter(clientNode);
+    const centerA = getCenter(serverNodes.find(n => n.dataset.id === 'A'));
+    const centerB = getCenter(serverNodes.find(n => n.dataset.id === 'B'));
+    const centerC = getCenter(serverNodes.find(n => n.dataset.id === 'C'));
+
+    // 客户端 -> A
+    links.push(createLinkElement('client-A', c, centerA, 'Client → A'));
+    // A -> B
+    links.push(createLinkElement('A-B', centerA, centerB, 'A ↔ B'));
+    // A -> C
+    links.push(createLinkElement('A-C', centerA, centerC, 'A ↔ C'));
+  }
+
+  function createLinkElement(id, p1, p2, label) {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const length = Math.sqrt(dx*dx + dy*dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    const link = document.createElement('div');
+    link.className = 'link';
+    link.style.width = length + 'px';
+    link.style.left = p1.x + 'px';
+    link.style.top = p1.y + 'px';
+    link.style.transform = `rotate(${angle}deg)`;
+    link.dataset.id = id;
+
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'link-label';
+    labelDiv.textContent = label;
+
+    // 计算标签放在中点
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+    labelDiv.style.left = midX + 'px';
+    labelDiv.style.top = (midY - 6) + 'px';
+
+    linkLayer.appendChild(link);
+    linkLayer.appendChild(labelDiv);
+
+    return { id, el: link, labelEl: labelDiv };
+  }
+
+  // ====== 根据分区状态更新连线显示 ======
+  function updateLinksForPartition() {
+    const isPartition = state.partition === 'on';
+    const linkAC = links.find(l => l.id === 'A-C');
+    const linkAB = links.find(l => l.id === 'A-B');
+
+    if (linkAC) {
+      linkAC.el.classList.toggle('inactive', isPartition);
+      linkAC.labelEl.style.color = isPartition ? '#f97316' : '#9ca3af';
+      linkAC.labelEl.textContent = isPartition ? 'A ↔ C（中断）' : 'A ↔ C';
+    }
+    if (linkAB) {
+      linkAB.el.classList.remove('inactive');
+      linkAB.labelEl.style.color = '#9ca3af';
+    }
+  }
+
+  // ====== 状态更新与界面联动 ======
+  function updateUI() {
+    // Partition 相关
+    const isPartition = state.partition === 'on';
+    partitionLine.classList.toggle('active', isPartition);
+    metaC.textContent = isPartition
+      ? '当前与主集群网络隔离（可能读旧数据或拒绝请求）'
+      : '当前与主集群连通（可以同步最新数据）';
+
+    // 模式说明
+    if (!isPartition) {
+      timeLabel.textContent = '模式：无网络分区 · 可以同时具备一致性与可用性';
+      explain.innerHTML =
+        '<strong>当前为理想网络：</strong>所有节点之间链路正常，A/B/C 可以同步最新数据。<br>' +
+        '- 客户端发起的读请求通常可以既<strong>高可用</strong>又<strong>读到最新值</strong>。<br>' +
+        '- CAP 中，只有在发生网络分区（P）时，才必须在 C 和 A 里做取舍。';
+    } else {
+      if (state.mode === 'CP') {
+        timeLabel.textContent = '模式：CP（优先一致性）· 牺牲部分可用性';
+        explain.innerHTML =
+          '<strong>当前为 CP 模式：</strong>系统在网络分区发生时仍然保证强一致性（C）。<br>' +
+          '- 孤立的节点 C 会<strong>拒绝请求</strong>，避免返回旧数据，从而保持数据不脏读。<br>' +
+          '- 代价是：部分请求会失败，意味着<strong>牺牲一些可用性（A）</strong>。<br>' +
+          '- 典型案例：强一致性数据库、分布式事务系统等。';
+      } else {
+        timeLabel.textContent = '模式：AP（优先可用性）· 允许读到旧数据';
+        explain.innerHTML =
+          '<strong>当前为 AP 模式：</strong>系统在网络分区发生时优先保持对外可用（A）。<br>' +
+          '- 孤立的节点 C 仍然会<strong>对外提供读服务</strong>，但它的值可能是旧版本。<br>' +
+          '- 代价是：有概率<strong>读到陈旧数据（弱一致性）</strong>。<br>' +
+          '- 典型案例：多数 NoSQL 存储、缓存系统等。';
+      }
+    }
+
+    // 统计数字
+    statSuccess.textContent = state.stats.success;
+    statStale.textContent = state.stats.stale;
+    statFail.textContent = state.stats.fail;
+
+    // 更新连线样式
+    updateLinksForPartition();
+  }
+
+  // ====== 切换按钮事件 ======
+  toggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.type;
+      const value = btn.dataset.value;
+
+      // 更新 active 样式
+      toggles.forEach(t => {
+        if (t.dataset.type === type) t.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      if (type === 'partition') {
+        state.partition = value;
+      } else if (type === 'mode') {
+        state.mode = value;
+      }
+      updateUI();
+    });
+  });
+
+  // ====== 模拟一次请求 ======
+  function simulateRequest(manual = false) {
+    state.lastRequestId += 1;
+    const id = state.lastRequestId;
+
+    const isPartition = state.partition === 'on';
+
+    // 随机选择访问节点：A/B/C（实际系统中可能会有路由策略）
+    const targets = ['A', 'B', 'C'];
+    const target = targets[Math.floor(Math.random() * targets.length)];
+    const serverEl = serverNodes.find(n => n.dataset.id === target);
+
+    animateRequestToNode(target, serverEl, isPartition, manual);
+  }
+
+  // ====== 动画：从客户端到服务器节点 ======
+  function animateRequestToNode(targetId, serverEl, isPartition, manual) {
+    const clientCenter = getCenter(clientNode);
+    const serverCenter = getCenter(serverEl);
+
+    const requestEl = document.createElement('div');
+    requestEl.className = 'request';
+    requestEl.textContent = 'R';
+    requestEl.style.left = clientCenter.x + 'px';
+    requestEl.style.top = clientCenter.y + 'px';
+    linkLayer.appendChild(requestEl);
+
+    const startTime = performance.now();
+    const duration = 600 + Math.random() * 300;
+
+    function step(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const x = clientCenter.x + (serverCenter.x - clientCenter.x) * t;
+      const y = clientCenter.y + (serverCenter.y - clientCenter.y) * t;
+      requestEl.style.left = x + 'px';
+      requestEl.style.top = y + 'px';
+
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        // 抵达目标节点后，根据 CAP 策略决定结果
+        const result = evaluateRequestResult(targetId, isPartition);
+        applyResultToRequest(requestEl, result, targetId, manual);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ====== 根据当前模式和访问节点，决定请求结果 ======
+  function evaluateRequestResult(targetId, isPartition) {
+    if (!isPartition) {
+      // 无分区：假设所有节点都能返回最新值
+      return 'success';
+    }
+
+    // 有分区：假设 C 在右侧孤立分区，A/B 在左侧主分区
+    if (state.mode === 'CP') {
+      // CP：为了保证一致性，孤立分区不提供服务
+      if (targetId === 'C') {
+        return 'fail'; // C 拒绝请求
+      }
+      // A/B 在主集群，假设有足够副本确认 -> 最新
+      return 'success';
+    } else {
+      // AP：为了保证可用性，即使在孤立分区也返回数据，但 C 可能是旧数据
+      if (targetId === 'C') {
+        // 有一定概率读到旧数据（脏读），这里简单处理为：必然旧数据
+        return 'stale';
+      }
+      // A/B 在主集群，返回最新值
+      return 'success';
+    }
+  }
+
+  // ====== 将结果体现在小球样式 & 统计中 ======
+  function applyResultToRequest(requestEl, result, targetId, manual) {
+    requestEl.classList.remove('read', 'stale', 'fail');
+    requestEl.classList.add(result === 'success' ? 'read' : result);
+
+    // 更新统计数
+    if (result === 'success') state.stats.success += 1;
+    if (result === 'stale') state.stats.stale += 1;
+    if (result === 'fail') state.stats.fail += 1;
+
+    updateUI();
+
+    // 时间线文字
+    let text;
+    if (result === 'success') {
+      text = `最近请求结果：访问节点 ${targetId} 成功，读取到最新数据（v3）。`;
+    } else if (result === 'stale') {
+      text = `最近请求结果：访问孤立节点 ${targetId}，读取到旧数据（例如 v2），发生脏读。`;
+    } else {
+      text = `最近请求结果：访问孤立节点 ${targetId} 被拒绝，系统选择保证强一致性，牺牲可用性。`;
+    }
+    if (manual) {
+      text += '（手动触发）';
+    }
+    timelineStatus.innerHTML = text.replace('最近请求结果：', '最近请求结果：<span>') + '</span>';
+
+    // 一段时间后淡出小球
+    setTimeout(() => {
+      requestEl.style.opacity = '0';
+      requestEl.style.transform += ' scale(0.6)';
+      setTimeout(() => requestEl.remove(), 400);
+    }, 700);
+  }
+
+  // ====== 自动演示控制 ======
+  function startAuto() {
+    if (state.autoTimer) return;
+    state.auto = true;
+    btnToggleAuto.textContent = '⏸ 暂停自动演示';
+    state.autoTimer = setInterval(() => {
+      simulateRequest(false);
+    }, 1200);
+  }
+
+  function stopAuto() {
+    state.auto = false;
+    btnToggleAuto.textContent = '▶ 恢复自动演示';
+    clearInterval(state.autoTimer);
+    state.autoTimer = null;
+  }
+
+  // ====== 按钮事件绑定 ======
+  btnOnce.addEventListener('click', () => {
+    simulateRequest(true);
+  });
+
+  btnToggleAuto.addEventListener('click', () => {
+    if (state.auto) stopAuto(); else startAuto();
+  });
+
+  btnReset.addEventListener('click', () => {
+    state.stats.success = 0;
+    state.stats.stale = 0;
+    state.stats.fail = 0;
+    updateUI();
+  });
+
+  // ====== 初始化 ======
+  window.addEventListener('load', () => {
+    createLinks();
+    updateUI();
+    startAuto();
+  });
+
+  // 窗口尺寸变化时重算连线
+  window.addEventListener('resize', () => {
+    createLinks();
+    updateLinksForPartition();
+  });
+</script>
+</body>
+</html>
+

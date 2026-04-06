@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Office · AI团队协作空间</title>
+<style>
+:root {
+  --purple:#A100FF; --purple-light:#F3E5FF; --purple-mid:#D580FF;
+  --purple-dark:#6B00AA; --purple-bg:#FAF0FF;
+  --black:#1A1A1A; --gray1:#F5F5F7; --gray2:#EBEBEF; --gray3:#D4D4D8;
+  --gray4:#9CA3AF; --gray5:#6B7280;
+  --green:#00875A; --green-bg:#E6F7F0;
+  --blue:#0062D6; --blue-bg:#E8F0FE;
+  --amber:#B45309; --amber-bg:#FEF3C7;
+  --red:#DC2626; --red-bg:#FEE2E2;
+  --cyan:#0891B2; --cyan-bg:#E0F7FA;
+  --text:#111827; --text2:#374151; --text3:#6B7280;
+  --white:#FFFFFF;
+  --border:#E5E7EB; --border2:#D1D5DB;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+  --shadow-lg:0 10px 25px rgba(0,0,0,.1),0 4px 10px rgba(0,0,0,.07);
+  --font:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --radius:10px; --radius-sm:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--gray1);color:var(--text);
+  height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:52px;background:var(--white);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;flex-shrink:0;
+  box-shadow:0 1px 0 rgba(0,0,0,.06);
+}
+.tb-brand{display:flex;align-items:center;gap:10px;}
+.tb-logo{
+  width:32px;height:32px;background:var(--black);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:white;letter-spacing:-.5px;
+}
+.tb-name{font-size:15px;font-weight:800;color:var(--black);}
+.tb-name em{color:var(--purple);font-style:normal;}
+.tb-divider{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.tb-sub{font-size:12px;color:var(--text3);}
+.tb-center{display:flex;align-items:center;gap:8px;}
+.tb-tag{
+  display:flex;align-items:center;gap:5px;
+  background:var(--purple-bg);border:1px solid #E0C0FF;
+  color:var(--purple-dark);font-size:11px;font-weight:600;
+  padding:4px 12px;border-radius:20px;
+}
+.tb-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--purple);animation:pulse .9s infinite alternate;}
+@keyframes pulse{to{opacity:.3;}}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-stat{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);}
+.tb-stat .dot{width:6px;height:6px;border-radius:50%;}
+.dg{background:var(--green);}
+.dp{background:var(--purple);}
+.dc{background:var(--blue);}
+.tb-time{font-size:12px;font-weight:700;color:var(--text2);
+  background:var(--gray1);padding:4px 10px;border-radius:5px;border:1px solid var(--border);}
+
+/* ── MAIN LAYOUT ── */
+.main{flex:1;display:grid;grid-template-columns:1fr 340px;overflow:hidden;}
+
+/* ── OFFICE FLOOR ── */
+.office-floor{
+  overflow-y:auto;padding:20px;
+  background:var(--gray1);
+}
+.office-floor::-webkit-scrollbar{width:6px;}
+.office-floor::-webkit-scrollbar-thumb{background:var(--gray3);border-radius:3px;}
+
+/* ── FLOOR HEADER ── */
+.floor-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.floor-title{font-size:13px;font-weight:800;color:var(--text2);
+  display:flex;align-items:center;gap:6px;}
+.floor-title span{background:var(--purple);color:white;font-size:10px;
+  padding:2px 8px;border-radius:10px;font-weight:700;}
+.floor-legend{display:flex;gap:12px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+/* ── ROOM CARDS ── */
+.rooms-grid{display:flex;flex-direction:column;gap:16px;}
+.room-row{display:grid;gap:14px;}
+.row-2{grid-template-columns:1fr 1fr;}
+.row-3{grid-template-columns:1.2fr 1fr 1fr;}
+.row-full{grid-template-columns:1fr;}
+
+.room{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;padding:0;overflow:hidden;
+  box-shadow:var(--shadow);
+  transition:box-shadow .2s;
+}
+.room:hover{box-shadow:var(--shadow-md);}
+
+.room-hd{
+  padding:10px 14px 8px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--gray1);
+}
+.room-name{font-size:12px;font-weight:800;color:var(--text2);
+  display:flex;align-items:center;gap:6px;}
+.room-icon{font-size:14px;}
+.room-count{font-size:10px;color:var(--text3);font-weight:600;}
+
+/* room-type colors */
+.room-open  .room-hd{background:#F0FFF4;border-bottom-color:#BBF7D0;}
+.room-open  .room-name{color:#065F46;}
+.room-meet  .room-hd{background:#EFF6FF;border-bottom-color:#BFDBFE;}
+.room-meet  .room-name{color:#1E3A5F;}
+.room-cafe  .room-hd{background:#FFFBEB;border-bottom-color:#FDE68A;}
+.room-cafe  .room-name{color:#92400E;}
+.room-ai    .room-hd{background:var(--purple-bg);border-bottom-color:#E0C0FF;}
+.room-ai    .room-name{color:var(--purple-dark);}
+.room-exec  .room-hd{background:#FFF1F2;border-bottom-color:#FECDD3;}
+.room-exec  .room-name{color:#881337;}
+
+/* ── SEAT GRID ── */
+.seat-grid{
+  padding:12px;
+  display:flex;flex-wrap:wrap;gap:10px;
+}
+
+/* ── SEAT / PERSON ── */
+.seat{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  width:68px;cursor:pointer;padding:8px 4px;border-radius:8px;
+  transition:background .15s,transform .15s;
+  position:relative;
+}
+.seat:hover{background:var(--gray1);transform:translateY(-2px);}
+.seat.active{background:var(--purple-light);outline:2px solid var(--purple);}
+
+.seat-avatar{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;flex-shrink:0;
+  border:2.5px solid var(--white);
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  position:relative;
+}
+.seat-avatar .status-dot{
+  position:absolute;bottom:1px;right:1px;
+  width:10px;height:10px;border-radius:50%;
+  border:2px solid var(--white);
+}
+.seat-name{font-size:10px;font-weight:700;color:var(--text2);text-align:center;
+  line-height:1.3;max-width:64px;word-break:break-all;}
+.seat-role{font-size:9px;color:var(--text3);text-align:center;line-height:1.2;}
+
+/* status dot colors */
+.sd-work{background:var(--green);}
+.sd-meet{background:var(--blue);}
+.sd-idle{background:var(--gray3);}
+.sd-focus{background:var(--purple);}
+.sd-chat{background:var(--amber);}
+
+/* ── EMPLOYEE CARD MODAL ── */
+.card-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.25);
+  z-index:200;display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);
+  animation:fadeIn .15s ease;
+}
+.card-overlay.open{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.emp-card{
+  background:var(--white);border-radius:16px;width:420px;max-height:80vh;
+  overflow-y:auto;box-shadow:var(--shadow-lg);
+  border:1px solid var(--border);
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.emp-card::-webkit-scrollbar{width:4px;}
+.emp-card::-webkit-scrollbar-thumb{background:var(--gray3);border-radius:2px;}
+
+.ec-header{
+  padding:20px 20px 16px;
+  display:flex;align-items:flex-start;gap:14px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,var(--purple-bg) 0%,var(--white) 100%);
+}
+.ec-ava{
+  width:58px;height:58px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  flex-shrink:0;border:3px solid var(--white);box-shadow:0 3px 10px rgba(0,0,0,.12);
+}
+.ec-info{flex:1;}
+.ec-name{font-size:17px;font-weight:900;color:var(--text);}
+.ec-role{font-size:12px;color:var(--purple);font-weight:700;margin-top:2px;}
+.ec-dept{font-size:11px;color:var(--text3);margin-top:2px;}
+.ec-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
+.ec-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.ec-close{
+  width:28px;height:28px;border-radius:50%;background:var(--gray2);
+  border:none;cursor:pointer;font-size:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:.15s;
+}
+.ec-close:hover{background:var(--gray3);}
+
+.ec-body{padding:16px 20px;}
+.ec-section{margin-bottom:14px;}
+.ec-sec-title{font-size:10px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--text3);margin-bottom:8px;}
+.ec-kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px;}
+.ec-kv dt{color:var(--text3);font-weight:500;white-space:nowrap;}
+.ec-kv dd{color:var(--text2);font-weight:600;}
+
+.ec-task{
+  background:var(--gray1);border-radius:8px;padding:10px 12px;
+  font-size:12px;color:var(--text2);line-height:1.6;
+  border-left:3px solid var(--purple);
+}
+.ec-skills{display:flex;gap:5px;flex-wrap:wrap;}
+.ec-skill{font-size:10px;padding:3px 8px;border-radius:5px;
+  background:var(--gray1);color:var(--text2);border:1px solid var(--border);font-weight:600;}
+
+.ec-activity{display:flex;flex-direction:column;gap:6px;}
+.ec-act-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;}
+.ec-act-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.ec-act-txt{color:var(--text2);line-height:1.5;}
+.ec-act-time{color:var(--text3);flex-shrink:0;}
+
+/* ── RIGHT PANEL ── */
+.side{
+  background:var(--white);border-left:1.5px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.side-tabs{display:flex;flex-shrink:0;border-bottom:1px solid var(--border);}
+.s-tab{
+  flex:1;padding:10px 4px;font-size:11px;font-weight:700;
+  color:var(--text3);text-align:center;cursor:pointer;
+  border-bottom:2.5px solid transparent;transition:.15s;background:transparent;border-top:none;border-left:none;border-right:none;
+}
+.s-tab:hover{color:var(--text2);background:var(--gray1);}
+.s-tab.active{color:var(--purple);border-bottom-color:var(--purple);}
+
+.s-pane{display:none;flex:1;overflow-y:auto;flex-direction:column;}
+.s-pane.active{display:flex;}
+.s-pane::-webkit-scrollbar{width:4px;}
+.s-pane::-webkit-scrollbar-thumb{background:var(--gray3);border-radius:2px;}
+
+/* ── ACTIVITY LOG ── */
+.log-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  transition:background .1s;
+}
+.log-item:hover{background:var(--gray1);}
+.log-item.new{animation:flash .4s ease;}
+@keyframes flash{0%{background:#FFF3FF;}100%{background:transparent;}}
+.log-ava{width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.log-body{flex:1;min-width:0;}
+.log-who{font-size:11px;font-weight:700;margin-bottom:2px;}
+.log-msg{font-size:11px;color:var(--text2);line-height:1.5;}
+.log-time{font-size:9px;color:var(--text3);margin-top:2px;}
+.log-file{
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+  background:var(--gray1);border:1px solid var(--border);
+  border-radius:4px;padding:2px 7px;font-size:9px;color:var(--text3);
+}
+
+/* ── FILES ── */
+.file-group{padding:10px 12px;border-bottom:1px solid var(--border);}
+.file-group-title{font-size:10px;font-weight:800;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+.file-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 8px;border-radius:7px;margin-bottom:4px;
+  background:var(--gray1);border:1px solid var(--border);
+  transition:.12s;cursor:pointer;
+}
+.file-item:hover{border-color:var(--purple-mid);background:var(--purple-bg);}
+.fi-icon{font-size:16px;flex-shrink:0;}
+.fi-name{font-size:11px;font-weight:700;color:var(--text2);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fi-owner{font-size:9px;color:var(--text3);}
+.fi-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;flex-shrink:0;}
+.fb-new{background:var(--green-bg);color:var(--green);}
+.fb-edit{background:var(--purple-bg);color:var(--purple-dark);}
+.fb-done{background:var(--gray1);color:var(--text3);border:1px solid var(--border);}
+.fi-prog{height:2px;background:var(--gray2);border-radius:1px;margin-top:4px;}
+.fi-fill{height:2px;border-radius:1px;transition:width 1.5s ease;}
+
+/* ── SIDE SUMMARY ── */
+.summary-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;
+}
+.sum-card{
+  background:var(--gray1);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;
+}
+.sum-n{font-size:22px;font-weight:900;color:var(--text);}
+.sum-l{font-size:10px;color:var(--text3);margin-top:2px;}
+.sum-card.hi .sum-n{color:var(--purple);}
+.sum-card.hi2 .sum-n{color:var(--green);}
+.sum-card.hi3 .sum-n{color:var(--blue);}
+.sum-card.hi4 .sum-n{color:var(--amber);}
+
+/* today collab section */
+.today-sec{padding:0 12px 12px;}
+.today-title{font-size:10px;font-weight:800;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;margin-top:4px;}
+.collab-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--gray1);border:1px solid var(--border);border-radius:7px;
+  margin-bottom:6px;
+}
+.collab-ava{display:flex;gap:-4px;}
+.collab-ava span{width:22px;height:22px;border-radius:50%;border:2px solid var(--white);
+  display:flex;align-items:center;justify-content:center;font-size:11px;margin-left:-6px;}
+.collab-ava span:first-child{margin-left:0;}
+.collab-info{flex:1;}
+.collab-name{font-size:11px;font-weight:700;color:var(--text2);}
+.collab-sub{font-size:10px;color:var(--text3);}
+.collab-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.cs-active{background:var(--green-bg);color:var(--green);}
+.cs-done{background:var(--gray1);color:var(--text3);border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">Ac</div>
+    <div class="tb-name">AI <em>Office</em></div>
+    <div class="tb-divider"></div>
+    <div class="tb-sub">上海 · AI 创新中心 · 8F</div>
+  </div>
+  <div class="tb-center">
+    <div class="tb-tag"><div class="dot"></div>AI 协作进行中 · Sprint Day 3</div>
+    <div class="tb-tag" style="background:var(--green-bg);border-color:#86EFAC;color:var(--green);">
+      <div class="dot" style="background:var(--green);"></div>20 人在线
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-stat"><div class="dot dg"></div>Qoder 已接入</div>
+    <div class="tb-stat"><div class="dot dp"></div>AI 协作</div>
+    <div class="tb-time" id="clock">09:00</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- OFFICE FLOOR -->
+  <div class="office-floor">
+
+    <div class="floor-hd">
+      <div class="floor-title">🏢 AI 创新中心 · 8楼办公区
+        <span>Sprint Day 3</span>
+      </div>
+      <div class="floor-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--green);"></div>工作中</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--blue);"></div>开会</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--purple);"></div>专注</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--amber);"></div>交流</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--gray3);"></div>休息</div>
+      </div>
+    </div>
+
+    <div class="rooms-grid">
+
+      <!-- Row 1: Open Office + Meeting Room A -->
+      <div class="room-row row-2">
+
+        <!-- 开放工位区 A -->
+        <div class="room room-open">
+          <div class="room-hd">
+            <div class="room-name"><span class="room-icon">💻</span>开放工位区 A · AI 工程组</div>
+            <div class="room-count">7 人</div>
+          </div>
+          <div class="seat-grid" id="room-open-a"></div>
+        </div>
+
+        <!-- 会议室 Alpha -->
+        <div class="room room-meet">
+          <div class="room-hd">
+            <div class="room-name"><span class="room-icon">🗣️</span>会议室 Alpha · 架构评审</div>
+            <div class="room-count">5 人</div>
+          </div>
+          <div class="seat-grid" id="room-meet-a"></div>
+        </div>
+
+      </div>
+
+      <!-- Row 2: Open Office B + Cafe + AI Room -->
+      <div class="room-row row-3">
+
+        <!-- 开放工位区 B -->
+        <div class="room room-open">
+          <div class="room-hd">
+            <div class="room-name"><span class="room-icon">🎨</span>开放工位区 B · 设计 & 咨询组</div>
+            <div class="room-count">5 人</div>
+          </div>
+          <div class="seat-grid" id="room-open-b"></div>
+        </div>
+
+        <!-- 咖啡间 -->
+        <div class="room room-cafe">
+          <div class="room-hd">
+            <div class="room-name"><span class="room-icon">☕</span>咖啡间 · 非正式交流</div>
+            <div class="room-count">3 人</div>
+          </div>
+          <div class="seat-grid" id="room-cafe"></div>
+        </div>
+
+        <!-- AI 计算中心 -->
+        <div class="room room-ai">
+          <div class="room-hd">
+            <div class="room-name"><span class="room-icon">🤖</span>AI 计算中心 · Qoder 团队</div>
+            <div class="room-count">3 人 + Qoder</div>
+          </div>
+          <div class="seat-grid" id="room-ai"></div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Executive Suite -->
+      <div class="room-row row-full">
+        <div class="room room-exec">
+          <div class="room-hd">
+            <div class="room-name"><span class="room-icon">🏛️</span>管理层 · Executive Suite</div>
+            <div class="room-count">2 人</div>
+          </div>
+          <div class="seat-grid" id="room-exec"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="side">
+    <div class="side-tabs">
+      <button class="s-tab active" onclick="switchSTab(0)">📊 总览</button>
+      <button class="s-tab" onclick="switchSTab(1)">💬 动态</button>
+      <button class="s-tab" onclick="switchSTab(2)">📁 文件</button>
+    </div>
+
+    <!-- TAB 0: Overview -->
+    <div class="s-pane active" id="sp0">
+      <div class="summary-grid">
+        <div class="sum-card hi">
+          <div class="sum-n" id="sn-active">18</div>
+          <div class="sum-l">今日在线人数</div>
+        </div>
+        <div class="sum-card hi2">
+          <div class="sum-n" id="sn-tasks">24</div>
+          <div class="sum-l">进行中任务</div>
+        </div>
+        <div class="sum-card hi3">
+          <div class="sum-n" id="sn-files">12</div>
+          <div class="sum-l">今日产出文件</div>
+        </div>
+        <div class="sum-card hi4">
+          <div class="sum-n" id="sn-ai">47</div>
+          <div class="sum-l">AI 协作次数</div>
+        </div>
+      </div>
+      <div class="today-sec">
+        <div class="today-title">今日协作记录</div>
+        <div id="collabList"></div>
+      </div>
+    </div>
+
+    <!-- TAB 1: Activity -->
+    <div class="s-pane" id="sp1">
+      <div id="logList" style="display:flex;flex-direction:column;"></div>
+    </div>
+
+    <!-- TAB 2: Files -->
+    <div class="s-pane" id="sp2">
+      <div class="file-group">
+        <div class="file-group-title">📂 今日产出 · AI 辅助生成</div>
+        <div id="fileList"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EMPLOYEE CARD MODAL -->
+<div class="card-overlay" id="cardOverlay" onclick="closeCard(event)">
+  <div class="emp-card" id="empCard">
+    <div class="ec-header">
+      <div class="ec-ava" id="ecAva"></div>
+      <div class="ec-info">
+        <div class="ec-name" id="ecName"></div>
+        <div class="ec-role" id="ecRole"></div>
+        <div class="ec-dept" id="ecDept"></div>
+        <div class="ec-tags" id="ecTags"></div>
+      </div>
+      <button class="ec-close" onclick="document.getElementById('cardOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="ec-body">
+      <div class="ec-section">
+        <div class="ec-sec-title">基本信息</div>
+        <dl class="ec-kv" id="ecKV"></dl>
+      </div>
+      <div class="ec-section">
+        <div class="ec-sec-title">当前任务</div>
+        <div class="ec-task" id="ecTask"></div>
+      </div>
+      <div class="ec-section">
+        <div class="ec-sec-title">技能标签</div>
+        <div class="ec-skills" id="ecSkills"></div>
+      </div>
+      <div class="ec-section">
+        <div class="ec-sec-title">今日活动记录</div>
+        <div class="ec-activity" id="ecActs"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// EMPLOYEE DATA — 20 people
+// ══════════════════════════════════════════════
+const EMPLOYEES = [
+  // ── Open Office A: AI Engineering (7)
+  { id:'alex',  name:'Alex Chen',  role:'高级AI工程师',  dept:'AI工程组',   emoji:'👨‍💻', bg:'#F3E5FF', room:'room-open-a',
+    status:'focus', statusName:'专注',
+    city:'上海', joined:'2022-03', level:'Senior Manager',
+    task:'训练情感分类模型 v2.1，使用 Qoder 辅助调参，目标准确率 ≥97%',
+    skills:['PyTorch','Transformer','Qoder','MLOps','Python','Code Review'],
+    activities:[
+      {time:'09:15',text:'提交 model_train_v2.py，Qoder 完成代码审查',color:'#A100FF'},
+      {time:'10:30',text:'修复 learning rate 参数，loss 从 2.8 降至 0.6',color:'#00875A'},
+      {time:'11:45',text:'生成模型评估报告 model_eval_report.pdf',color:'#0062D6'},
+    ],
+    color:'#A100FF'
+  },
+  { id:'tom',   name:'Tom Liu',    role:'数据科学家',    dept:'AI工程组',   emoji:'📊', bg:'#E8F0FE', room:'room-open-a',
+    status:'work', statusName:'工作中',
+    city:'上海', joined:'2021-09', level:'Manager',
+    task:'构建 ETL 数据管道，清洗 12 万条用户行为数据，Qoder 辅助脚本生成',
+    skills:['Python','Spark','ETL','数据清洗','SQL','Pandas'],
+    activities:[
+      {time:'09:00',text:'开始 ETL 脚本开发，使用 Qoder 生成 80% 框架代码',color:'#A100FF'},
+      {time:'10:15',text:'完成 12万条数据清洗，质量报告已生成',color:'#00875A'},
+      {time:'11:00',text:'数据集交付 Alex 进行模型训练',color:'#0062D6'},
+    ],
+    color:'#1E88E5'
+  },
+  { id:'wei',   name:'Wei Zhang',  role:'ML工程师',      dept:'AI工程组',   emoji:'⚙️', bg:'#E8F0FE', room:'room-open-a',
+    status:'work', statusName:'工作中',
+    city:'北京', joined:'2023-01', level:'Analyst',
+    task:'部署模型到生产环境，配置 Kubernetes 集群，监控 API 响应时间',
+    skills:['Docker','K8s','DevOps','MLOps','CI/CD','Monitoring'],
+    activities:[
+      {time:'09:30',text:'配置 K8s 集群，申请 GPU 资源',color:'#1E88E5'},
+      {time:'11:00',text:'API 响应时间优化至 <180ms',color:'#00875A'},
+    ],
+    color:'#1E88E5'
+  },
+  { id:'kai',   name:'Kai Wu',     role:'算法工程师',    dept:'AI工程组',   emoji:'🧮', bg:'#F3E5FF', room:'room-open-a',
+    status:'focus', statusName:'专注',
+    city:'上海', joined:'2022-06', level:'Analyst',
+    task:'优化推荐算法，A/B测试方案设计，使用 Qoder 生成测试用例',
+    skills:['算法优化','A/B Test','推荐系统','Qoder','Python'],
+    activities:[
+      {time:'09:00',text:'设计 A/B 测试方案，Qoder 生成测试代码',color:'#A100FF'},
+      {time:'10:45',text:'实验结果：CTR 提升 8.3%',color:'#00875A'},
+    ],
+    color:'#7B1FA2'
+  },
+  { id:'mia',   name:'Mia Xu',     role:'后端工程师',    dept:'AI工程组',   emoji:'🔧', bg:'#E8F0FE', room:'room-open-a',
+    status:'work', statusName:'工作中',
+    city:'深圳', joined:'2023-03', level:'Analyst',
+    task:'开发 RESTful API，集成 AI 模型服务，编写单元测试',
+    skills:['Java','Spring Boot','REST API','单元测试','MySQL'],
+    activities:[
+      {time:'09:15',text:'API 接口开发完成，Qoder 生成 Swagger 文档',color:'#A100FF'},
+      {time:'11:30',text:'单元测试覆盖率达 87%',color:'#00875A'},
+    ],
+    color:'#0891B2'
+  },
+  { id:'leo',   name:'Leo Wang',   role:'全栈工程师',    dept:'AI工程组',   emoji:'🌐', bg:'#E8F0FE', room:'room-open-a',
+    status:'chat', statusName:'交流',
+    city:'上海', joined:'2021-07', level:'Senior Analyst',
+    task:'前后端联调，React 组件开发，与 Jay 对接 UI 设计稿实现',
+    skills:['React','Node.js','TypeScript','GraphQL','前端工程'],
+    activities:[
+      {time:'10:00',text:'与 Jay 完成 UI 设计稿 review',color:'#F57C00'},
+      {time:'11:15',text:'首页组件开发完成，Qoder 生成单测',color:'#A100FF'},
+    ],
+    color:'#00897B'
+  },
+  { id:'fiona', name:'Fiona Li',   role:'测试工程师',    dept:'AI工程组',   emoji:'🧪', bg:'#E8F0FE', room:'room-open-a',
+    status:'work', statusName:'工作中',
+    city:'广州', joined:'2023-05', level:'Analyst',
+    task:'制定测试计划，执行回归测试，使用 Qoder 生成测试脚本',
+    skills:['自动化测试','Selenium','JUnit','Qoder','测试设计'],
+    activities:[
+      {time:'09:30',text:'Qoder 生成 120 条自动化测试用例',color:'#A100FF'},
+      {time:'11:00',text:'发现并记录 3 个 P2 级缺陷',color:'#DC2626'},
+    ],
+    color:'#0891B2'
+  },
+
+  // ── Meeting Room Alpha (5)
+  { id:'sam',   name:'Sam Zhou',   role:'Technology Lead', dept:'架构委员会', emoji:'🗣️', bg:'#EFF6FF', room:'room-meet-a',
+    status:'meet', statusName:'开会',
+    city:'上海', joined:'2019-08', level:'Associate Director',
+    task:'主持架构评审会议，决策微服务拆分方案，评估技术风险',
+    skills:['系统架构','微服务','Cloud','技术决策','团队领导'],
+    activities:[
+      {time:'09:00',text:'发起架构评审会议，邀请 5 人参与',color:'#00897B'},
+      {time:'10:00',text:'完成微服务拆分方案讨论，记录决策',color:'#0062D6'},
+      {time:'11:30',text:'Qoder 生成架构文档初稿 architecture_review.pptx',color:'#A100FF'},
+    ],
+    color:'#00897B'
+  },
+  { id:'may',   name:'May Chen',   role:'产品经理',       dept:'产品线', emoji:'👩‍💼', bg:'#FFF1F2', room:'room-meet-a',
+    status:'meet', statusName:'开会',
+    city:'上海', joined:'2020-11', level:'Manager',
+    task:'主导需求评审，整理用户故事，使用 Qoder 生成 PRD 文档',
+    skills:['产品规划','用户研究','PRD','数据分析','Qoder'],
+    activities:[
+      {time:'09:15',text:'使用 Qoder 生成 PRD 草稿，15分钟完成',color:'#A100FF'},
+      {time:'10:30',text:'需求评审通过，Sam 确认技术可行性',color:'#00875A'},
+      {time:'11:00',text:'更新 Sprint 1 用户故事列表',color:'#0062D6'},
+    ],
+    color:'#E91E8C'
+  },
+  { id:'nina',  name:'Nina Park',  role:'项目经理',       dept:'PMO', emoji:'📋', bg:'#FFFBEB', room:'room-meet-a',
+    status:'meet', statusName:'开会',
+    city:'上海', joined:'2020-04', level:'Manager',
+    task:'Sprint 3 进度协调，风险识别与管控，生成每日站会报告',
+    skills:['项目管理','Scrum','风险管理','沟通协调','Qoder'],
+    activities:[
+      {time:'08:45',text:'发布每日站会报告，Qoder 自动汇总昨日进度',color:'#A100FF'},
+      {time:'10:00',text:'识别 2 个进度风险，制定应对方案',color:'#DC2626'},
+      {time:'11:00',text:'更新 Sprint 进度看板 sprint_plan.xlsx',color:'#0062D6'},
+    ],
+    color:'#7B1FA2'
+  },
+  { id:'ben',   name:'Ben Zhao',   role:'Solution Architect', dept:'架构委员会', emoji:'🏗️', bg:'#EFF6FF', room:'room-meet-a',
+    status:'meet', statusName:'开会',
+    city:'杭州', joined:'2018-03', level:'Senior Manager',
+    task:'设计云原生架构方案，评估 AWS vs Azure 选型，输出技术规范文档',
+    skills:['Cloud架构','AWS','Azure','Terraform','安全设计'],
+    activities:[
+      {time:'09:30',text:'完成 AWS 与 Azure 对比分析，Qoder 辅助生成报告',color:'#A100FF'},
+      {time:'11:00',text:'云架构方案评审通过',color:'#00875A'},
+    ],
+    color:'#1E88E5'
+  },
+  { id:'iris',  name:'Iris Tang',  role:'业务分析师',     dept:'产品线', emoji:'📈', bg:'#FFF1F2', room:'room-meet-a',
+    status:'meet', statusName:'开会',
+    city:'上海', joined:'2022-02', level:'Analyst',
+    task:'业务需求分析，数据流梳理，协助 May 完善 PRD 用户故事',
+    skills:['业务分析','流程梳理','需求建模','Visio','Qoder'],
+    activities:[
+      {time:'09:30',text:'完成业务流程图，Qoder 生成 BPMN 图',color:'#A100FF'},
+      {time:'11:15',text:'用户故事 AC 验收条件评审完成',color:'#00875A'},
+    ],
+    color:'#E53935'
+  },
+
+  // ── Open Office B: Design & Consulting (5)
+  { id:'jay',   name:'Jay Lin',    role:'UX设计师',       dept:'设计组', emoji:'🎨', bg:'#FFFBEB', room:'room-open-b',
+    status:'focus', statusName:'专注',
+    city:'深圳', joined:'2022-08', level:'Senior Analyst',
+    task:'Figma 原型迭代 v3，使用 Qoder MCP 将设计稿直接生成 React 组件代码',
+    skills:['Figma','UI/UX','Design System','Qoder MCP','React'],
+    activities:[
+      {time:'09:00',text:'完成首页 UI 原型 v3，Figma MCP 生成组件代码',color:'#A100FF'},
+      {time:'10:30',text:'与 Leo 完成 UI 联调，组件验收通过',color:'#00875A'},
+    ],
+    color:'#F57C00'
+  },
+  { id:'lisa',  name:'Lisa Song',  role:'咨询顾问',       dept:'战略咨询', emoji:'📝', bg:'#FFF1F2', room:'room-open-b',
+    status:'focus', statusName:'专注',
+    city:'北京', joined:'2020-06', level:'Manager',
+    task:'撰写客户 Executive Summary，使用 Qoder 将 8 页报告压缩为精华 1 页',
+    skills:['战略咨询','演示设计','报告写作','Qoder','客户管理'],
+    activities:[
+      {time:'09:15',text:'Qoder 将技术报告压缩为 1 页 Executive Summary',color:'#A100FF'},
+      {time:'10:45',text:'客户提案 ROI 章节完成，添加数据可视化',color:'#00875A'},
+      {time:'11:30',text:'client_proposal.pdf 已发送客户预审',color:'#E53935'},
+    ],
+    color:'#E53935'
+  },
+  { id:'chloe', name:'Chloe Dong', role:'变革管理顾问',   dept:'战略咨询', emoji:'🌟', bg:'#FFF1F2', room:'room-open-b',
+    status:'work', statusName:'工作中',
+    city:'上海', joined:'2021-04', level:'Manager',
+    task:'制定 AI 落地变革管理计划，员工培训课程设计，变革阻力分析',
+    skills:['变革管理','培训设计','利益相关方','沟通策略','Qoder'],
+    activities:[
+      {time:'09:30',text:'Qoder 生成 AI 变革培训大纲草稿',color:'#A100FF'},
+      {time:'11:00',text:'完成 3 个用户角色的变革影响分析',color:'#00875A'},
+    ],
+    color:'#7B1FA2'
+  },
+  { id:'dan',   name:'Dan Hu',     role:'数字营销专家',   dept:'战略咨询', emoji:'📣', bg:'#FFFBEB', room:'room-open-b',
+    status:'chat', statusName:'交流',
+    city:'广州', joined:'2022-11', level:'Senior Analyst',
+    task:'制定 AI 产品 GTM 策略，内容营销方案，与 Lisa 协同撰写客户提案',
+    skills:['数字营销','GTM策略','内容运营','数据分析','Qoder'],
+    activities:[
+      {time:'10:00',text:'与 Lisa 讨论客户提案营销章节',color:'#E53935'},
+      {time:'11:15',text:'Qoder 生成竞品分析报告',color:'#A100FF'},
+    ],
+    color:'#F57C00'
+  },
+  { id:'amy',   name:'Amy Gao',    role:'财务分析师',     dept:'战略咨询', emoji:'💹', bg:'#FFF1F2', room:'room-open-b',
+    status:'work', statusName:'工作中',
+    city:'上海', joined:'2023-01', level:'Analyst',
+    task:'AI 投资 ROI 建模，成本效益分析，为客户提案生成财务预测表',
+    skills:['财务建模','Excel','ROI分析','PowerBI','Qoder'],
+    activities:[
+      {time:'09:45',text:'Qoder 辅助生成 ROI 计算模型',color:'#A100FF'},
+      {time:'11:00',text:'3 年财务预测完成，置信区间 85%',color:'#00875A'},
+    ],
+    color:'#0891B2'
+  },
+
+  // ── Café (3)
+  { id:'max',   name:'Max He',     role:'解决方案工程师', dept:'AI工程组', emoji:'☕', bg:'#FFFBEB', room:'room-cafe',
+    status:'idle', statusName:'休息',
+    city:'上海', joined:'2022-04', level:'Senior Analyst',
+    task:'休息中 · 等待 CI/CD 流水线构建完成，约 20 分钟后继续',
+    skills:['解决方案设计','客户演示','PoC','Qoder','系统集成'],
+    activities:[
+      {time:'11:00',text:'提交 PoC 演示环境构建请求',color:'#1E88E5'},
+      {time:'11:30',text:'CI/CD 流水线运行中，预计 20min',color:'#B45309'},
+    ],
+    color:'#00897B'
+  },
+  { id:'zoe',   name:'Zoe Feng',   role:'UI 工程师',      dept:'设计组', emoji:'🖌️', bg:'#FFFBEB', room:'room-cafe',
+    status:'chat', statusName:'交流',
+    city:'杭州', joined:'2023-04', level:'Analyst',
+    task:'与 Jay 交流设计稿细节，讨论 Design Token 规范更新',
+    skills:['CSS','Design Token','Storybook','动效设计','Figma'],
+    activities:[
+      {time:'11:15',text:'与 Jay 讨论 Design Token v2 规范',color:'#F57C00'},
+    ],
+    color:'#0891B2'
+  },
+  { id:'ryan',  name:'Ryan Bai',   role:'产品运营',       dept:'产品线', emoji:'🎯', bg:'#FFFBEB', room:'room-cafe',
+    status:'chat', statusName:'交流',
+    city:'上海', joined:'2022-09', level:'Analyst',
+    task:'收集用户反馈，分析 DAU/MAU 数据，与 May 同步产品迭代方向',
+    skills:['用户研究','数据分析','运营策略','A/B Test','Qoder'],
+    activities:[
+      {time:'10:45',text:'整理用户访谈报告，Qoder 生成摘要',color:'#A100FF'},
+      {time:'11:30',text:'和 Ryan 交流咖啡间偶遇聊到 DAU 问题',color:'#E91E8C'},
+    ],
+    color:'#E91E8C'
+  },
+
+  // ── AI Room (3 + Qoder)
+  { id:'alex2', name:'Alex Q.',    role:'AI研究员',       dept:'AI研究院', emoji:'🧠', bg:'#F3E5FF', room:'room-ai',
+    status:'focus', statusName:'专注',
+    city:'上海', joined:'2021-02', level:'Manager',
+    task:'研究 LLM 微调方案，对比 LoRA vs Full Fine-tuning，撰写技术博客',
+    skills:['LLM','LoRA','RLHF','研究方法','论文阅读','Qoder'],
+    activities:[
+      {time:'09:00',text:'使用 Qoder 辅助文献综述整理',color:'#A100FF'},
+      {time:'10:30',text:'LoRA 实验结果：显存节省 73%，效果持平',color:'#00875A'},
+    ],
+    color:'#A100FF'
+  },
+  { id:'henry', name:'Henry Sun',  role:'数据工程师',     dept:'AI研究院', emoji:'🗄️', bg:'#F3E5FF', room:'room-ai',
+    status:'work', statusName:'工作中',
+    city:'北京', joined:'2022-07', level:'Senior Analyst',
+    task:'搭建特征工程平台，向量数据库索引构建，数据版本管理',
+    skills:['向量数据库','特征工程','Spark','DVC','Pinecone'],
+    activities:[
+      {time:'09:30',text:'向量索引构建完成，250万条记录',color:'#00875A'},
+      {time:'11:00',text:'Qoder 帮助优化检索性能，延迟降低 40%',color:'#A100FF'},
+    ],
+    color:'#1E88E5'
+  },
+  { id:'qoder', name:'Qoder AI',   role:'AI 助手 · 全员', dept:'Qoder 平台', emoji:'🤖', bg:'#F3E5FF', room:'room-ai',
+    status:'focus', statusName:'协作中',
+    city:'云端', joined:'2024-01', level:'AI System',
+    task:'全员 AI 协作支持：Code Review、文档生成、PRD 草稿、数据分析、架构建议……',
+    skills:['代码审查','文档生成','PRD','架构分析','测试生成','数据分析','Qoder Rules','MCP'],
+    activities:[
+      {time:'09:00',text:'完成 Alex model_train_v2.py 代码审查，发现 3 个优化点',color:'#A100FF'},
+      {time:'09:30',text:'为 May 生成 PRD 草稿，15分钟完成 requirements_prd.md',color:'#E91E8C'},
+      {time:'10:00',text:'为 Tom 生成 ETL 脚本框架 etl_pipeline.py',color:'#1E88E5'},
+      {time:'10:30',text:'为 Lisa 压缩技术报告为 Executive Summary',color:'#E53935'},
+      {time:'11:00',text:'生成 Sprint 技术总结报告 model_eval_report.pdf',color:'#00875A'},
+    ],
+    color:'#00E5FF'
+  },
+
+  // ── Executive Suite (2)
+  { id:'ceo',   name:'Grace Luo',  role:'Managing Director', dept:'领导层', emoji:'👩‍💼', bg:'#FFF1F2', room:'room-exec',
+    status:'work', statusName:'工作中',
+    city:'上海', joined:'2015-06', level:'Managing Director',
+    task:'审阅客户战略提案，确认 AI 转型路线图，与客户 C-Suite 预备沟通',
+    skills:['战略领导','客户关系','AI转型','P&L管理','Team Building'],
+    activities:[
+      {time:'09:00',text:'Review Sprint 3 整体进展，Qoder 生成周报',color:'#A100FF'},
+      {time:'10:30',text:'批准客户提案最终版本',color:'#00875A'},
+      {time:'11:00',text:'与客户 CEO 预约本周 Demo 演示时间',color:'#0062D6'},
+    ],
+    color:'#E53935'
+  },
+  { id:'dir',   name:'Eric Ma',    role:'Delivery Director', dept:'领导层', emoji:'👨‍💼', bg:'#FFF1F2', room:'room-exec',
+    status:'work', statusName:'工作中',
+    city:'上海', joined:'2016-11', level:'Director',
+    task:'监控项目交付质量，协调跨团队资源，向 Grace 汇报项目状态',
+    skills:['交付管理','资源协调','风险管控','客户满意度','Qoder'],
+    activities:[
+      {time:'09:15',text:'Qoder 生成项目健康度报告，整体 Green',color:'#A100FF'},
+      {time:'10:00',text:'与 Nina 对齐 Sprint 风险，制定缓解方案',color:'#7B1FA2'},
+      {time:'11:30',text:'批准 GPU 资源扩容申请',color:'#00875A'},
+    ],
+    color:'#1E88E5'
+  },
+];
+
+// ══════════════════════════════════════════════
+// FILES DATA
+// ══════════════════════════════════════════════
+const FILES_DATA = [
+  {name:'model_train_v2.py',      icon:'🐍',owner:'Alex Chen',type:'代码',   status:'edit',progress:78, color:'#A100FF'},
+  {name:'requirements_prd.md',    icon:'📋',owner:'May Chen', type:'文档',   status:'done',progress:100,color:'#E91E8C'},
+  {name:'etl_pipeline.py',        icon:'🗃️',owner:'Tom Liu',  type:'代码',   status:'done',progress:100,color:'#1E88E5'},
+  {name:'architecture_review.pptx',icon:'📐',owner:'Sam Zhou',type:'演示',   status:'edit',progress:65, color:'#00897B'},
+  {name:'executive_summary.docx', icon:'📄',owner:'Lisa Song',type:'报告',   status:'edit',progress:88, color:'#E53935'},
+  {name:'client_proposal.pdf',    icon:'📑',owner:'Lisa Song',type:'提案',   status:'edit',progress:72, color:'#E53935'},
+  {name:'ui_prototype_v3.fig',    icon:'🎨',owner:'Jay Lin',  type:'设计',   status:'done',progress:100,color:'#F57C00'},
+  {name:'model_eval_report.pdf',  icon:'🤖',owner:'Qoder AI', type:'AI生成', status:'done',progress:100,color:'#00A8CC'},
+  {name:'sprint_plan.xlsx',       icon:'📊',owner:'Nina Park',type:'计划',   status:'edit',progress:55, color:'#7B1FA2'},
+  {name:'test_suite.py',          icon:'🧪',owner:'Fiona Li', type:'测试',   status:'new', progress:72, color:'#0891B2'},
+  {name:'ai_change_plan.docx',    icon:'🌟',owner:'Chloe Dong',type:'方案',  status:'new', progress:45, color:'#7B1FA2'},
+  {name:'roi_model.xlsx',         icon:'💹',owner:'Amy Gao',  type:'财务',   status:'edit',progress:90, color:'#0891B2'},
+];
+
+// ══════════════════════════════════════════════
+// COLLAB DATA
+// ══════════════════════════════════════════════
+const COLLABS = [
+  {emos:['👨‍💻','🤖'],names:'Alex + Qoder',desc:'模型训练代码 Review & 调参',status:'cs-done'},
+  {emos:['👩‍💼','🗣️'],names:'May + Sam',desc:'PRD 需求评审 & 架构对齐',status:'cs-done'},
+  {emos:['🗣️','🏗️','👩‍💼'],names:'Sam + Ben + Nina',desc:'架构评审会议进行中',status:'cs-active'},
+  {emos:['📊','🤖'],names:'Tom + Qoder',desc:'ETL 数据管道脚本生成',status:'cs-done'},
+  {emos:['🎨','🌐'],names:'Jay + Leo',desc:'UI 设计稿组件联调',status:'cs-done'},
+  {emos:['📝','🤖'],names:'Lisa + Qoder',desc:'Executive Summary 压缩生成',status:'cs-done'},
+  {emos:['📋','👨‍💼'],names:'Nina + Eric',desc:'Sprint 风险对齐',status:'cs-active'},
+  {emos:['🧠','🤖'],names:'Alex Q. + Qoder',desc:'LLM 微调文献辅助整理',status:'cs-active'},
+];
+
+// ══════════════════════════════════════════════
+// ACTIVITY LOG
+// ══════════════════════════════════════════════
+const ACTIVITY_LOG = [
+  {emoji:'🤖',name:'Qoder AI',  color:'#00A8CC', msg:'完成 Alex model_train_v2.py 代码审查，发现 3 个优化点',   file:'model_train_v2.py',  time:'11:47'},
+  {emoji:'👨‍💻',name:'Alex Chen', color:'#A100FF', msg:'修复 learning rate 参数，模型准确率从 94.2% 提升至 96.8%', file:null,                 time:'11:45'},
+  {emoji:'📝',name:'Lisa Song', color:'#E53935', msg:'client_proposal.pdf 已发送客户预审，等待反馈',            file:'client_proposal.pdf', time:'11:38'},
+  {emoji:'🤖',name:'Qoder AI',  color:'#00A8CC', msg:'为 Lisa 生成 Executive Summary，从 8 页压缩为 1 页精华',  file:'executive_summary.docx',time:'11:30'},
+  {emoji:'📋',name:'Nina Park', color:'#7B1FA2', msg:'更新 Sprint 进度看板，识别 2 个进度风险',                 file:'sprint_plan.xlsx',   time:'11:25'},
+  {emoji:'🎨',name:'Jay Lin',   color:'#F57C00', msg:'UI 原型 v3 验收通过，Figma→React 组件自动生成完成',       file:'ui_prototype_v3.fig', time:'11:15'},
+  {emoji:'🤖',name:'Qoder AI',  color:'#00A8CC', msg:'生成 Sprint 技术总结报告 24 页，包含架构图 & 风险矩阵',   file:'model_eval_report.pdf',time:'11:05'},
+  {emoji:'🗄️',name:'Henry Sun', color:'#1E88E5', msg:'向量索引构建完成，250 万条记录，检索延迟降低 40%',        file:null,                 time:'11:00'},
+  {emoji:'🗃️',name:'Tom Liu',   color:'#1E88E5', msg:'ETL 管道处理完成 12 万条数据，数据集已交付 Alex',         file:'etl_pipeline.py',    time:'10:58'},
+  {emoji:'🗣️',name:'Sam Zhou',  color:'#00897B', msg:'微服务架构方案评审通过，无重大技术风险',                  file:'architecture_review.pptx',time:'10:50'},
+  {emoji:'💹',name:'Amy Gao',   color:'#0891B2', msg:'ROI 模型完成，3 年财务预测：NPV 正向，IRR 28%',          file:'roi_model.xlsx',     time:'10:45'},
+  {emoji:'🌟',name:'Chloe Dong',color:'#7B1FA2', msg:'AI 变革管理培训大纲完成，Qoder 辅助生成 3 个角色画像',   file:'ai_change_plan.docx', time:'10:30'},
+];
+
+// ══════════════════════════════════════════════
+// RENDER HELPERS
+// ══════════════════════════════════════════════
+const statusDot = {work:'sd-work',meet:'sd-meet',idle:'sd-idle',focus:'sd-focus',chat:'sd-chat'};
+
+function renderRoom(containerId, employees) {
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  employees.forEach(emp => {
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    seat.id = 'seat-'+emp.id;
+    seat.innerHTML = `
+      <div class="seat-avatar" style="background:${emp.bg};">
+        ${emp.emoji}
+        <div class="status-dot ${statusDot[emp.status]||'sd-idle'}"></div>
+      </div>
+      <div class="seat-name">${emp.name.split(' ')[0]}</div>
+      <div class="seat-role">${emp.role.length>8?emp.role.slice(0,7)+'…':emp.role}</div>`;
+    seat.onclick = () => openCard(emp);
+    el.appendChild(seat);
+  });
+}
+
+// render all rooms
+const byRoom = {};
+EMPLOYEES.forEach(e => { (byRoom[e.room]||(byRoom[e.room]=[])).push(e); });
+Object.entries(byRoom).forEach(([room, emps]) => renderRoom(room, emps));
+
+// ── COLLAB LIST ──
+function renderCollabs() {
+  const el = document.getElementById('collabList');
+  COLLABS.forEach(c => {
+    const div = document.createElement('div'); div.className = 'collab-item';
+    const avas = c.emos.map(e=>`<span>${e}</span>`).join('');
+    div.innerHTML=`
+      <div class="collab-ava">${avas}</div>
+      <div class="collab-info">
+        <div class="collab-name">${c.names}</div>
+        <div class="collab-sub">${c.desc}</div>
+      </div>
+      <div class="collab-status ${c.status}">${c.status==='cs-active'?'进行中':'已完成'}</div>`;
+    el.appendChild(div);
+  });
+}
+renderCollabs();
+
+// ── ACTIVITY LOG ──
+function renderLog() {
+  const el = document.getElementById('logList');
+  ACTIVITY_LOG.forEach(item => {
+    const div = document.createElement('div'); div.className='log-item';
+    div.innerHTML=`
+      <div class="log-ava" style="background:${item.color}18;">${item.emoji}</div>
+      <div class="log-body">
+        <div class="log-who" style="color:${item.color}">${item.name}</div>
+        <div class="log-msg">${item.msg}</div>
+        ${item.file?`<div class="log-file">📁 ${item.file}</div>`:''}
+        <div class="log-time">${item.time}</div>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+renderLog();
+
+// ── FILES ──
+function renderFiles() {
+  const el = document.getElementById('fileList');
+  FILES_DATA.forEach(f => {
+    const sl={new:'新建',edit:'修改中',done:'完成'}[f.status]||'阅读';
+    const sc={new:'fb-new',edit:'fb-edit',done:'fb-done'}[f.status]||'fb-done';
+    const div = document.createElement('div'); div.className='file-item';
+    div.innerHTML=`
+      <div class="fi-icon">${f.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="fi-name">${f.name}</div>
+        <div class="fi-owner">${f.owner} · ${f.type}</div>
+        <div class="fi-prog"><div class="fi-fill" style="width:${f.progress}%;background:${f.color};"></div></div>
+      </div>
+      <div class="fi-badge ${sc}">${sl}</div>`;
+    el.appendChild(div);
+  });
+}
+renderFiles();
+
+// ══════════════════════════════════════════════
+// EMPLOYEE CARD
+// ══════════════════════════════════════════════
+function openCard(emp) {
+  // highlight seat
+  document.querySelectorAll('.seat').forEach(s=>s.classList.remove('active'));
+  document.getElementById('seat-'+emp.id)?.classList.add('active');
+
+  document.getElementById('ecAva').textContent = emp.emoji;
+  document.getElementById('ecAva').style.background = emp.bg;
+  document.getElementById('ecAva').style.borderColor = emp.color+'44';
+  document.getElementById('ecName').textContent = emp.name;
+  document.getElementById('ecRole').textContent = emp.role;
+  document.getElementById('ecRole').style.color = emp.color;
+  document.getElementById('ecDept').textContent = emp.dept + ' · ' + emp.level;
+
+  // tags
+  const statusLabel = {work:'🟢 工作中',meet:'🔵 开会',idle:'⚪ 休息',focus:'🟣 专注',chat:'🟡 交流'}[emp.status]||'⚪';
+  document.getElementById('ecTags').innerHTML = `
+    <span class="ec-tag" style="background:${emp.color}15;color:${emp.color};border:1px solid ${emp.color}30;">${statusLabel}</span>
+    <span class="ec-tag" style="background:var(--gray1);color:var(--text3);border:1px solid var(--border);">📍 ${emp.city}</span>
+    <span class="ec-tag" style="background:var(--gray1);color:var(--text3);border:1px solid var(--border);">入职 ${emp.joined}</span>`;
+
+  // KV
+  document.getElementById('ecKV').innerHTML = `
+    <dt>职级</dt><dd>${emp.level}</dd>
+    <dt>部门</dt><dd>${emp.dept}</dd>
+    <dt>办公地</dt><dd>${emp.city}</dd>
+    <dt>入职时间</dt><dd>${emp.joined}</dd>`;
+
+  document.getElementById('ecTask').textContent = emp.task;
+
+  // skills
+  document.getElementById('ecSkills').innerHTML = emp.skills.map(s=>
+    `<span class="ec-skill">${s}</span>`
+  ).join('');
+
+  // activities
+  document.getElementById('ecActs').innerHTML = emp.activities.map(a=>`
+    <div class="ec-act-item">
+      <div class="ec-act-dot" style="background:${a.color};"></div>
+      <div style="flex:1">
+        <div class="ec-act-txt">${a.text}</div>
+      </div>
+      <div class="ec-act-time">${a.time}</div>
+    </div>`).join('');
+
+  document.getElementById('cardOverlay').classList.add('open');
+
+  // push activity log entry
+  pushLog(emp);
+}
+
+function closeCard(e) {
+  if(e.target===document.getElementById('cardOverlay')) {
+    document.getElementById('cardOverlay').classList.remove('open');
+    document.querySelectorAll('.seat').forEach(s=>s.classList.remove('active'));
+  }
+}
+
+function pushLog(emp) {
+  const msgs = [
+    `查看了 ${emp.name} 的员工档案`,
+    `${emp.name} 当前状态：${emp.role} · ${ROOMS_MAP[emp.room]||emp.room}`,
+  ];
+  const el = document.getElementById('logList');
+  const now = new Date();
+  const t = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const div = document.createElement('div'); div.className='log-item new';
+  div.innerHTML=`
+    <div class="log-ava" style="background:${emp.color}18;">${emp.emoji}</div>
+    <div class="log-body">
+      <div class="log-who" style="color:${emp.color}">${emp.name}</div>
+      <div class="log-msg">${msgs[0]}</div>
+      <div class="log-time">${t} · 刚刚</div>
+    </div>`;
+  el.prepend(div);
+  // update stat
+  const n = parseInt(document.getElementById('sn-ai').textContent)||0;
+  document.getElementById('sn-ai').textContent = n+1;
+}
+
+const ROOMS_MAP = {
+  'room-open-a':'开放工位区 A','room-meet-a':'会议室 Alpha',
+  'room-open-b':'开放工位区 B','room-cafe':'咖啡间',
+  'room-ai':'AI计算中心','room-exec':'Executive Suite',
+};
+
+// ══════════════════════════════════════════════
+// SIDE TABS
+// ══════════════════════════════════════════════
+function switchSTab(n) {
+  document.querySelectorAll('.s-tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.s-pane').forEach((p,i)=>p.classList.toggle('active',i===n));
+}
+
+// ══════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+updateClock(); setInterval(updateClock, 10000);
+
+// ══════════════════════════════════════════════
+// AUTO ACTIVITY SIMULATION
+// ══════════════════════════════════════════════
+const AUTO_MSGS = [
+  {emoji:'🤖',name:'Qoder AI',color:'#00A8CC',msg:'正在为 Nina 生成 CTO 简报草稿',file:'sprint_plan.xlsx'},
+  {emoji:'🧮',name:'Kai Wu',  color:'#7B1FA2',msg:'A/B 测试实验 #3 结果：CTR 提升 8.3%',file:null},
+  {emoji:'🔧',name:'Mia Xu', color:'#0891B2',msg:'新增 /api/v2/model/predict 接口，响应 168ms',file:null},
+  {emoji:'🤖',name:'Qoder AI',color:'#00A8CC',msg:'为 Ben 生成 AWS vs Azure 对比分析表格',file:'architecture_review.pptx'},
+  {emoji:'📣',name:'Dan Hu', color:'#F57C00',msg:'完成 GTM 策略第一稿，竞品矩阵分析已就绪',file:null},
+  {emoji:'🌐',name:'Leo Wang',color:'#00897B',msg:'首页加载优化完成，LCP 从 3.2s → 1.1s',file:null},
+  {emoji:'🤖',name:'Qoder AI',color:'#00A8CC',msg:'生成 API 接口文档 swagger.json，78 个接口',file:'test_suite.py'},
+  {emoji:'👩‍💼',name:'Grace Luo',color:'#E53935',msg:'批准最终交付清单，Demo 时间确认为周五 14:00',file:null},
+];
+
+let autoIdx = 0;
+setInterval(()=>{
+  const item = AUTO_MSGS[autoIdx % AUTO_MSGS.length]; autoIdx++;
+  const el = document.getElementById('logList');
+  const now = new Date();
+  const t = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const div = document.createElement('div'); div.className='log-item new';
+  div.innerHTML=`
+    <div class="log-ava" style="background:${item.color}18;">${item.emoji}</div>
+    <div class="log-body">
+      <div class="log-who" style="color:${item.color}">${item.name}</div>
+      <div class="log-msg">${item.msg}</div>
+      ${item.file?`<div class="log-file">📁 ${item.file}</div>`:''}
+      <div class="log-time">${t}</div>
+    </div>`;
+  el.prepend(div);
+  while(el.children.length>40) el.removeChild(el.lastChild);
+  // update stats
+  const n = parseInt(document.getElementById('sn-ai').textContent)||0;
+  document.getElementById('sn-ai').textContent = n+1;
+  if(item.file){
+    const fn = parseInt(document.getElementById('sn-files').textContent)||0;
+    document.getElementById('sn-files').textContent = fn+1;
+    // update file progress
+    const fd = FILES_DATA.find(f=>f.name===item.file);
+    if(fd&&fd.progress<100){
+      fd.progress=Math.min(100,fd.progress+5);
+      document.getElementById('tp2').querySelector('#fileList').innerHTML='';
+      renderFiles();
+    }
+  }
+}, 5000);
+</script>
+</body>
+</html>

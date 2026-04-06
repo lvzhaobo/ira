@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Buy AI Assistant - 项目导航</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bestbuy-blue: #003da6;
+            --bestbuy-yellow: #ffe600;
+            --bestbuy-dark: #1d252c;
+            --bestbuy-gray: #f4f6f8;
+            --bestbuy-light-gray: #e8ecf0;
+            --tech-highlight: #e0f2fe;
+            --tech-border: #0ea5e9;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bestbuy-blue) 0%, #0056d6 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .header {
+            padding: 24px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            background: var(--bestbuy-yellow);
+            color: var(--bestbuy-blue);
+            font-weight: 800;
+            font-size: 28px;
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+        .project-badge {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 40px;
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 24px;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 32px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+        .card.tech-highlight {
+            border: 2px solid var(--tech-border);
+            background: linear-gradient(135deg, white 0%, var(--tech-highlight) 100%);
+        }
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--bestbuy-gray);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--bestbuy-blue);
+        }
+        .card-desc {
+            font-size: 15px;
+            color: #5c6c7c;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .card-tech {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .tech-tag {
+            background: var(--tech-highlight);
+            color: #0369a1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--tech-border);
+        }
+        .features-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .feature-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .feature-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .feature-text h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .feature-text p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        .architecture-section {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+        }
+        .arch-diagram {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 2;
+            overflow-x: auto;
+            text-align: center;
+        }
+        .arch-node {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 4px;
+            background: rgba(255,255,255,0.15);
+        }
+        .footer {
+            text-align: center;
+            padding: 24px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo">best buy</div>
+            <span class="project-badge">AI Assistant Prototype</span>
+        </div>
+        <div style="font-size:14px;opacity:0.8;">埃森哲 × Best Buy × 谷歌云联合打造</div>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>🤖 Best Buy AI Assistant</h1>
+            <p>下一代智能客服系统，融合生成式AI与全渠道服务能力，为客户带来个性化、人性化的购物体验</p>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">68%</div>
+                    <div class="stat-label">AI解决率</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">1.2s</div>
+                    <div class="stat-label">平均响应</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">4.6/5</div>
+                    <div class="stat-label">客户满意度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">47K+</div>
+                    <div class="stat-label">日对话量</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 原型页面导航 -->
+        <div class="cards-grid">
+            <a href="index.html" class="card tech-highlight">
+                <div class="card-icon">💬</div>
+                <h3 class="card-title">客户对话界面</h3>
+                <p class="card-desc">展示AI助手与客户的多轮对话交互，包含订单追踪、产品推荐、智能问答等核心功能。</p>
+                <div class="card-tech">
+                    <span class="tech-tag">NL2SQL</span>
+                    <span class="tech-tag">RAG检索</span>
+                    <span class="tech-tag">意图识别</span>
+                </div>
+            </a>
+
+            <a href="agent-workspace.html" class="card">
+                <div class="card-icon">🎧</div>
+                <h3 class="card-title">客服代表工作台</h3>
+                <p class="card-desc">AI辅助人工客服的工作台，实时情绪分析、知识推荐、快捷回复，提升客服效率40%。</p>
+                <div class="card-tech">
+                    <span class="tech-tag">Agent Assist</span>
+                    <span class="tech-tag">情绪分析</span>
+                    <span class="tech-tag">客户画像</span>
+                </div>
+            </a>
+
+            <a href="admin-dashboard.html" class="card tech-highlight">
+                <div class="card-icon">📊</div>
+                <h3 class="card-title">管理员监控面板</h3>
+                <p class="card-desc">实时监控系统运行状态，包括RAG性能、LLM服务健康度、业务指标等关键数据。</p>
+                <div class="card-tech">
+                    <span class="tech-tag">实时监控</span>
+                    <span class="tech-tag">性能分析</span>
+                    <span class="tech-tag">告警中心</span>
+                </div>
+            </a>
+
+            <a href="knowledge-base.html" class="card">
+                <div class="card-icon">📚</div>
+                <h3 class="card-title">知识库管理</h3>
+                <p class="card-desc">管理RAG检索的知识资产，包括文档上传、向量化处理、检索效果测试等全流程。</p>
+                <div class="card-tech">
+                    <span class="tech-tag">向量数据库</span>
+                    <span class="tech-tag">Chunking</span>
+                    <span class="tech-tag">混合检索</span>
+                </div>
+            </a>
+
+            <a href="integration-monitor.html" class="card tech-highlight">
+                <div class="card-icon">🔌</div>
+                <h3 class="card-title">系统集成监控</h3>
+                <p class="card-desc">监控与SAP ERP、Salesforce、FedEx等外部系统的集成状态，展示熔断降级策略。</p>
+                <div class="card-tech">
+                    <span class="tech-tag">API网关</span>
+                    <span class="tech-tag">熔断降级</span>
+                    <span class="tech-tag">Saga事务</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- 核心技术特性 -->
+        <div class="features-section">
+            <h2 class="section-title">🚀 核心技术特性</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-text">
+                        <h4>RAG检索增强生成</h4>
+                        <p>结合向量检索与大语言模型，确保回答准确性，幻觉率仅3.2%</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">😊</div>
+                    <div class="feature-text">
+                        <h4>实时情绪分析</h4>
+                        <p>基于Transformer的情绪识别，准确率89.5%，提前预警升级需求</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-text">
+                        <h4>多Agent协作</h4>
+                        <p>订单/产品/技术支持等多Agent分工，复杂任务自动编排</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🏢</div>
+                    <div class="feature-text">
+                        <h4>遗留系统集成</h4>
+                        <p>SAP RFC接口适配，熔断降级策略，保证99.9%可用性</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📦</div>
+                    <div class="feature-text">
+                        <h4>预测性服务</h4>
+                        <p>主动通知订单异常、固件更新提醒，从被动响应到主动关怀</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🛡️</div>
+                    <div class="feature-text">
+                        <h4>企业级安全</h4>
+                        <p>OAuth 2.0认证、PII数据脱敏、审计日志，符合GDPR/CCPA</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 技术架构概览 -->
+        <div class="architecture-section">
+            <h2 class="section-title">🏗️ 技术架构</h2>
+            <div class="arch-diagram">
+                <div style="margin-bottom:16px;">
+                    <span class="arch-node">🌐 前端：React/Vue.js</span>
+                    <span class="connector">→</span>
+                    <span class="arch-node">🚪 API Gateway (Kong)</span>
+                    <span class="connector">→</span>
+                    <span class="arch-node">⚙️ Orchestration Service</span>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <span class="arch-node">🤖 LLM层：GPT-4/Claude/Llama3</span>
+                    <span class="connector">←→</span>
+                    <span class="arch-node">🔍 RAG引擎：Pinecone+CrossEncoder</span>
+                </div>
+                <div>
+                    <span class="arch-node">🏢 SAP ERP</span>
+                    <span class="connector">←→</span>
+                    <span class="arch-node">👤 Salesforce</span>
+                    <span class="connector">←→</span>
+                    <span class="arch-node">🚚 FedEx</span>
+                    <span class="connector">←→</span>
+                    <span class="arch-node">💳 Payment</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Best Buy Co., Inc. | Prototype for Accenture AI Training</p>
+            <p style="margin-top:8px;font-size:13px;">本原型用于埃森哲团队AI Coding培训，展示零售行业AI解决方案最佳实践</p>
+        </div>
+    </div>
+</body>
+</html>

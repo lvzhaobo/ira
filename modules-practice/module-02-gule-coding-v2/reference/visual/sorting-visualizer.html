@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排序算法可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d4ff, #ff6b6b, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            color: #88ccff;
+            font-size: 14px;
+        }
+        select, input[type="range"] {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,212,255,0.3);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 14px;
+        }
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,212,255,0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .algorithm-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #aaa;
+        }
+        .tab:hover {
+            border-color: rgba(0,212,255,0.5);
+            color: #fff;
+        }
+        .tab.active {
+            border-color: #00d4ff;
+            background: rgba(0,212,255,0.1);
+            color: #00d4ff;
+        }
+        .visualization {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 400px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            gap: 2px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #00d4ff, #0099cc);
+            border-radius: 5px 5px 0 0;
+            transition: height 0.1s ease;
+            position: relative;
+        }
+        .bar.comparing {
+            background: linear-gradient(to top, #ffd700, #ffaa00);
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        .bar.swapping {
+            background: linear-gradient(to top, #ff6b6b, #e74c3c);
+            box-shadow: 0 0 20px rgba(255,107,107,0.5);
+        }
+        .bar.sorted {
+            background: linear-gradient(to top, #2ecc71, #27ae60);
+        }
+        .bar.pivot {
+            background: linear-gradient(to top, #9b59b6, #8e44ad);
+            box-shadow: 0 0 20px rgba(155,89,182,0.5);
+        }
+        .bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .visualization:hover .bar-value {
+            opacity: 1;
+        }
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+        }
+        .info-card h4 {
+            color: #88ccff;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .info-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .algorithm-info {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .algorithm-info h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .algorithm-info p {
+            color: #aaa;
+            line-height: 1.6;
+        }
+        .complexity {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .complexity-item {
+            color: #88ccff;
+        }
+        .complexity-item span {
+            color: #fff;
+            font-family: monospace;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>排序算法可视化</h1>
+    </div>
+
+    <div class="algorithm-tabs" id="algorithmTabs">
+        <div class="tab active" onclick="selectAlgorithm('bubble')">冒泡排序</div>
+        <div class="tab" onclick="selectAlgorithm('selection')">选择排序</div>
+        <div class="tab" onclick="selectAlgorithm('insertion')">插入排序</div>
+        <div class="tab" onclick="selectAlgorithm('quick')">快速排序</div>
+        <div class="tab" onclick="selectAlgorithm('merge')">归并排序</div>
+        <div class="tab" onclick="selectAlgorithm('heap')">堆排序</div>
+        <div class="tab" onclick="selectAlgorithm('shell')">希尔排序</div>
+        <div class="tab" onclick="selectAlgorithm('cocktail')">鸡尾酒排序</div>
+        <div class="tab" onclick="selectAlgorithm('comb')">梳排序</div>
+        <div class="tab" onclick="selectAlgorithm('gnome')">地精排序</div>
+        <div class="tab" onclick="selectAlgorithm('cycle')">循环排序</div>
+        <div class="tab" onclick="selectAlgorithm('bitonic')">双调排序</div>
+        <div class="tab" onclick="selectAlgorithm('pancake')">煎饼排序</div>
+        <div class="tab" onclick="selectAlgorithm('stooge')">Stooge排序</div>
+        <div class="tab" onclick="selectAlgorithm('oddEven')">奇偶排序</div>
+        <div class="tab" onclick="selectAlgorithm('bogo')">Bogo排序</div>
+        <div class="tab" onclick="selectAlgorithm('bucket')">桶排序</div>
+        <div class="tab" onclick="selectAlgorithm('counting')">计数排序</div>
+        <div class="tab" onclick="selectAlgorithm('radix')">基数排序</div>
+        <div class="tab" onclick="selectAlgorithm('tim')">Tim排序</div>
+        <div class="tab" onclick="selectAlgorithm('intro')">内省排序</div>
+        <div class="tab" onclick="selectAlgorithm('tree')">树排序</div>
+        <div class="tab" onclick="selectAlgorithm('strand')">Strand排序</div>
+        <div class="tab" onclick="selectAlgorithm('sleep')">睡眠排序</div>
+        <div class="tab" onclick="selectAlgorithm('bead')">珠排序</div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>数组大小:</label>
+            <input type="range" id="arraySize" min="10" max="100" value="50" onchange="generateArray()">
+            <span id="sizeValue">50</span>
+        </div>
+        <div class="control-group">
+            <label>动画速度:</label>
+            <input type="range" id="speed" min="1" max="100" value="50">
+        </div>
+        <button class="btn-secondary" onclick="generateArray()">生成新数组</button>
+        <button class="btn-primary" id="startBtn" onclick="startSort()">开始排序</button>
+        <button class="btn-danger" onclick="stopSort()">停止</button>
+    </div>
+
+    <div class="visualization" id="visualization"></div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to top, #00d4ff, #0099cc);"></div>
+            <span>未排序</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to top, #ffd700, #ffaa00);"></div>
+            <span>比较中</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to top, #ff6b6b, #e74c3c);"></div>
+            <span>交换中</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to top, #9b59b6, #8e44ad);"></div>
+            <span>基准值</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to top, #2ecc71, #27ae60);"></div>
+            <span>已排序</span>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div class="info-card">
+            <h4>比较次数</h4>
+            <div class="value" id="comparisons">0</div>
+        </div>
+        <div class="info-card">
+            <h4>交换次数</h4>
+            <div class="value" id="swaps">0</div>
+        </div>
+        <div class="info-card">
+            <h4>数组访问</h4>
+            <div class="value" id="accesses">0</div>
+        </div>
+        <div class="info-card">
+            <h4>用时</h4>
+            <div class="value" id="time">0ms</div>
+        </div>
+    </div>
+
+    <div class="algorithm-info" id="algorithmInfo">
+        <h3>冒泡排序 (Bubble Sort)</h3>
+        <p>通过重复遍历数组，比较相邻元素并交换位置，使较大的元素逐渐"冒泡"到数组末尾。简单直观但效率较低。</p>
+        <div class="complexity">
+            <div class="complexity-item">时间复杂度(最优): <span>O(n)</span></div>
+            <div class="complexity-item">时间复杂度(平均): <span>O(n²)</span></div>
+            <div class="complexity-item">时间复杂度(最差): <span>O(n²)</span></div>
+            <div class="complexity-item">空间复杂度: <span>O(1)</span></div>
+        </div>
+    </div>
+
+    <script>
+        let array = [];
+        let isSorting = false;
+        let stopRequested = false;
+        let currentAlgorithm = 'bubble';
+        let comparisons = 0;
+        let swaps = 0;
+        let accesses = 0;
+        let startTime = 0;
+
+        const algorithmData = {
+            bubble: {
+                name: '冒泡排序 (Bubble Sort)',
+                desc: '通过重复遍历数组，比较相邻元素并交换位置，使较大的元素逐渐"冒泡"到数组末尾。简单直观但效率较低。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            selection: {
+                name: '选择排序 (Selection Sort)',
+                desc: '每次从未排序部分选择最小（或最大）元素，放到已排序部分的末尾。交换次数少，但比较次数固定。',
+                complexity: { best: 'O(n²)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            insertion: {
+                name: '插入排序 (Insertion Sort)',
+                desc: '将数组分为已排序和未排序两部分，逐个将未排序元素插入到已排序部分的正确位置。适合小规模或基本有序的数据。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            quick: {
+                name: '快速排序 (Quick Sort)',
+                desc: '选择基准值，将数组分为小于和大于基准值的两部分，递归排序。分治策略，效率很高。',
+                complexity: { best: 'O(n log n)', avg: 'O(n log n)', worst: 'O(n²)', space: 'O(log n)' }
+            },
+            merge: {
+                name: '归并排序 (Merge Sort)',
+                desc: '将数组递归分成两半，分别排序后合并。稳定排序，时间复杂度稳定为O(n log n)。',
+                complexity: { best: 'O(n log n)', avg: 'O(n log n)', worst: 'O(n log n)', space: 'O(n)' }
+            },
+            heap: {
+                name: '堆排序 (Heap Sort)',
+                desc: '利用堆数据结构进行排序。先构建最大堆，然后不断将堆顶元素移到末尾并调整堆。不稳定但效率高。',
+                complexity: { best: 'O(n log n)', avg: 'O(n log n)', worst: 'O(n log n)', space: 'O(1)' }
+            },
+            shell: {
+                name: '希尔排序 (Shell Sort)',
+                desc: '插入排序的改进版，通过比较相距一定间隔的元素来工作，逐步缩小间隔直到为1。',
+                complexity: { best: 'O(n log n)', avg: 'O(n^1.3)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            cocktail: {
+                name: '鸡尾酒排序 (Cocktail Shaker Sort)',
+                desc: '冒泡排序的变体，双向进行排序，先从头到尾，再从尾到头，像鸡尾酒搅拌一样。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            comb: {
+                name: '梳排序 (Comb Sort)',
+                desc: '改进的冒泡排序，通过较大的间隔开始比较，逐步缩小间隔直到为1，消除"乌龟"问题。',
+                complexity: { best: 'O(n²/2^p)', avg: 'O(n²/2^p)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            gnome: {
+                name: '地精排序 (Gnome Sort)',
+                desc: '类似插入排序，但通过一系列交换将元素移动到正确位置，像花园地精整理花盆一样。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            cycle: {
+                name: '循环排序 (Cycle Sort)',
+                desc: '理论上最优的比较排序，每个元素最多写入一次，适合写入代价高的场景。',
+                complexity: { best: 'O(n²)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            bitonic: {
+                name: '双调排序 (Bitonic Sort)',
+                desc: '并行排序算法，适合硬件实现。将序列转换为双调序列，然后进行比较交换。',
+                complexity: { best: 'O(log²n)', avg: 'O(log²n)', worst: 'O(log²n)', space: 'O(n log²n)' }
+            },
+            pancake: {
+                name: '煎饼排序 (Pancake Sort)',
+                desc: '每次可以将前k个元素翻转，像翻煎饼一样。目标是让最大的煎饼在底部。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            stooge: {
+                name: 'Stooge排序 (Stooge Sort)',
+                desc: '递归排序算法，效率极低但实现简单。将数组分成三部分，递归排序。',
+                complexity: { best: 'O(n^2.7095)', avg: 'O(n^2.7095)', worst: 'O(n^2.7095)', space: 'O(n)' }
+            },
+            oddEven: {
+                name: '奇偶排序 (Odd-Even Sort)',
+                desc: '冒泡排序的并行版本，交替比较奇数索引和偶数索引的相邻元素。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(1)' }
+            },
+            bogo: {
+                name: 'Bogo排序 (Bogo Sort)',
+                desc: '最慢的排序算法之一，随机打乱数组直到有序。仅用于教学演示。',
+                complexity: { best: 'O(n)', avg: 'O(n·n!)', worst: 'O(∞)', space: 'O(1)' }
+            },
+            bucket: {
+                name: '桶排序 (Bucket Sort)',
+                desc: '将元素分布到多个桶中，每个桶单独排序。适合数据均匀分布的情况。',
+                complexity: { best: 'O(n+k)', avg: 'O(n+k)', worst: 'O(n²)', space: 'O(n+k)' }
+            },
+            counting: {
+                name: '计数排序 (Counting Sort)',
+                desc: '非比较排序，通过统计每个元素出现次数来排序。适合整数且范围较小的情况。',
+                complexity: { best: 'O(n+k)', avg: 'O(n+k)', worst: 'O(n+k)', space: 'O(k)' }
+            },
+            radix: {
+                name: '基数排序 (Radix Sort)',
+                desc: '按位排序，从最低位到最高位依次排序。适合整数和字符串排序。',
+                complexity: { best: 'O(nk)', avg: 'O(nk)', worst: 'O(nk)', space: 'O(n+k)' }
+            },
+            tim: {
+                name: 'Tim排序 (Tim Sort)',
+                desc: '归并排序和插入排序的混合，Python和Java的默认排序算法。针对真实数据优化。',
+                complexity: { best: 'O(n)', avg: 'O(n log n)', worst: 'O(n log n)', space: 'O(n)' }
+            },
+            intro: {
+                name: '内省排序 (Introspective Sort)',
+                desc: '快速排序、堆排序和插入排序的混合，C++ STL的默认排序算法。',
+                complexity: { best: 'O(n log n)', avg: 'O(n log n)', worst: 'O(n log n)', space: 'O(log n)' }
+            },
+            tree: {
+                name: '树排序 (Tree Sort)',
+                desc: '利用二叉搜索树进行排序，先构建BST，然后中序遍历得到有序序列。',
+                complexity: { best: 'O(n log n)', avg: 'O(n log n)', worst: 'O(n²)', space: 'O(n)' }
+            },
+            strand: {
+                name: 'Strand排序 (Strand Sort)',
+                desc: '递归地将数组分成有序子列表，然后合并。适合链表结构。',
+                complexity: { best: 'O(n)', avg: 'O(n²)', worst: 'O(n²)', space: 'O(n)' }
+            },
+            sleep: {
+                name: '睡眠排序 (Sleep Sort)',
+                desc: '利用多线程，每个数字创建一个线程，线程睡眠相应时间后输出。仅供娱乐。',
+                complexity: { best: 'O(n)', avg: 'O(n)', worst: 'O(max)', space: 'O(n)' }
+            },
+            bead: {
+                name: '珠排序 (Bead Sort)',
+                desc: '利用重力原理，像算盘珠子一样自然下落排序。仅适用于正整数。',
+                complexity: { best: 'O(n)', avg: 'O(S)', worst: 'O(S)', space: 'O(n²)' }
+            }
+        };
+
+        function generateArray() {
+            if (isSorting) return;
+            
+            const size = parseInt(document.getElementById('arraySize').value);
+            document.getElementById('sizeValue').textContent = size;
+            
+            array = [];
+            for (let i = 0; i < size; i++) {
+                array.push(Math.floor(Math.random() * 90) + 10);
+            }
+            
+            resetStats();
+            render();
+        }
+
+        function render() {
+            const container = document.getElementById('visualization');
+            container.innerHTML = '';
+            
+            const maxVal = Math.max(...array);
+            
+            array.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${(val / maxVal) * 100}%`;
+                bar.id = `bar-${idx}`;
+                
+                const valueLabel = document.createElement('div');
+                valueLabel.className = 'bar-value';
+                valueLabel.textContent = val;
+                bar.appendChild(valueLabel);
+                
+                container.appendChild(bar);
+            });
+        }
+
+        function selectAlgorithm(algo) {
+            if (isSorting) return;
+            
+            currentAlgorithm = algo;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const data = algorithmData[algo];
+            document.getElementById('algorithmInfo').innerHTML = `
+                <h3>${data.name}</h3>
+                <p>${data.desc}</p>
+                <div class="complexity">
+                    <div class="complexity-item">时间复杂度(最优): <span>${data.complexity.best}</span></div>
+                    <div class="complexity-item">时间复杂度(平均): <span>${data.complexity.avg}</span></div>
+                    <div class="complexity-item">时间复杂度(最差): <span>${data.complexity.worst}</span></div>
+                    <div class="complexity-item">空间复杂度: <span>${data.complexity.space}</span></div>
+                </div>
+            `;
+        }
+
+        async function startSort() {
+            if (isSorting) return;
+            
+            isSorting = true;
+            stopRequested = false;
+            document.getElementById('startBtn').disabled = true;
+            
+            resetStats();
+            startTime = Date.now();
+            
+            switch(currentAlgorithm) {
+                case 'bubble': await bubbleSort(); break;
+                case 'selection': await selectionSort(); break;
+                case 'insertion': await insertionSort(); break;
+                case 'quick': await quickSort(0, array.length - 1); break;
+                case 'merge': await mergeSort(0, array.length - 1); break;
+                case 'heap': await heapSort(); break;
+                case 'shell': await shellSort(); break;
+                case 'cocktail': await cocktailSort(); break;
+                case 'comb': await combSort(); break;
+                case 'gnome': await gnomeSort(); break;
+                case 'cycle': await cycleSort(); break;
+                case 'bitonic': await bitonicSort(); break;
+                case 'pancake': await pancakeSort(); break;
+                case 'stooge': await stoogeSort(0, array.length - 1); break;
+                case 'oddEven': await oddEvenSort(); break;
+                case 'bogo': await bogoSort(); break;
+                case 'bucket': await bucketSort(); break;
+                case 'counting': await countingSort(); break;
+                case 'radix': await radixSort(); break;
+                case 'tim': await timSort(); break;
+                case 'intro': await introSort(0, array.length - 1, 2 * Math.floor(Math.log2(array.length))); break;
+                case 'tree': await treeSort(); break;
+                case 'strand': await strandSort(); break;
+                case 'sleep': await sleepSort(); break;
+                case 'bead': await beadSort(); break;
+            }
+            
+            if (!stopRequested) {
+                await markAllSorted();
+            }
+            
+            isSorting = false;
+            document.getElementById('startBtn').disabled = false;
+            updateTime();
+        }
+
+        function stopSort() {
+            stopRequested = true;
+        }
+
+        function resetStats() {
+            comparisons = 0;
+            swaps = 0;
+            accesses = 0;
+            updateStats();
+            document.getElementById('time').textContent = '0ms';
+            
+            document.querySelectorAll('.bar').forEach(bar => {
+                bar.className = 'bar';
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('comparisons').textContent = comparisons;
+            document.getElementById('swaps').textContent = swaps;
+            document.getElementById('accesses').textContent = accesses;
+        }
+
+        function updateTime() {
+            const elapsed = Date.now() - startTime;
+            document.getElementById('time').textContent = elapsed + 'ms';
+        }
+
+        function getDelay() {
+            const speed = parseInt(document.getElementById('speed').value);
+            return Math.max(1, 101 - speed) * 5;
+        }
+
+        async function sleep() {
+            if (stopRequested) throw new Error('Stopped');
+            await new Promise(resolve => setTimeout(resolve, getDelay()));
+        }
+
+        function setBarClass(idx, className) {
+            const bar = document.getElementById(`bar-${idx}`);
+            if (bar) bar.className = 'bar ' + className;
+        }
+
+        async function swap(i, j) {
+            setBarClass(i, 'swapping');
+            setBarClass(j, 'swapping');
+            await sleep();
+            
+            [array[i], array[j]] = [array[j], array[i]];
+            swaps++;
+            accesses += 4;
+            updateStats();
+            render();
+            
+            await sleep();
+            setBarClass(i, '');
+            setBarClass(j, '');
+        }
+
+        async function compare(i, j) {
+            setBarClass(i, 'comparing');
+            setBarClass(j, 'comparing');
+            await sleep();
+            
+            comparisons++;
+            accesses += 2;
+            updateStats();
+            
+            setBarClass(i, '');
+            setBarClass(j, '');
+            
+            return array[i] - array[j];
+        }
+
+        async function markAllSorted() {
+            for (let i = 0; i < array.length; i++) {
+                setBarClass(i, 'sorted');
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+        }
+
+        // 冒泡排序
+        async function bubbleSort() {
+            const n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (await compare(j, j + 1) > 0) {
+                        await swap(j, j + 1);
+                    }
+                }
+                setBarClass(n - i - 1, 'sorted');
+            }
+            setBarClass(0, 'sorted');
+        }
+
+        // 选择排序
+        async function selectionSort() {
+            const n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                let minIdx = i;
+                setBarClass(i, 'pivot');
+                
+                for (let j = i + 1; j < n; j++) {
+                    if (await compare(minIdx, j) > 0) {
+                        if (minIdx !== i) setBarClass(minIdx, '');
+                        minIdx = j;
+                        setBarClass(minIdx, 'pivot');
+                    }
+                }
+                
+                if (minIdx !== i) {
+                    await swap(i, minIdx);
+                }
+                setBarClass(i, 'sorted');
+            }
+            setBarClass(n - 1, 'sorted');
+        }
+
+        // 插入排序
+        async function insertionSort() {
+            const n = array.length;
+            setBarClass(0, 'sorted');
+            
+            for (let i = 1; i < n; i++) {
+                let key = array[i];
+                accesses++;
+                let j = i - 1;
+                
+                setBarClass(i, 'pivot');
+                await sleep();
+                
+                while (j >= 0) {
+                    comparisons++;
+                    accesses++;
+                    updateStats();
+                    
+                    setBarClass(j, 'comparing');
+                    await sleep();
+                    
+                    if (array[j] > key) {
+                        array[j + 1] = array[j];
+                        accesses += 2;
+                        swaps++;
+                        updateStats();
+                        render();
+                        setBarClass(j, 'swapping');
+                        await sleep();
+                        setBarClass(j, 'sorted');
+                        j--;
+                    } else {
+                        setBarClass(j, 'sorted');
+                        break;
+                    }
+                }
+                
+                array[j + 1] = key;
+                accesses++;
+                updateStats();
+                render();
+                setBarClass(i, '');
+                setBarClass(j + 1, 'sorted');
+                await sleep();
+            }
+        }
+
+        // 快速排序
+        async function quickSort(low, high) {
+            if (low < high) {
+                const pi = await partition(low, high);
+                await quickSort(low, pi - 1);
+                await quickSort(pi + 1, high);
+            } else if (low >= 0 && high >= 0 && low === high) {
+                setBarClass(low, 'sorted');
+            }
+        }
+
+        async function partition(low, high) {
+            const pivot = array[high];
+            accesses++;
+            setBarClass(high, 'pivot');
+            await sleep();
+            
+            let i = low - 1;
+            
+            for (let j = low; j < high; j++) {
+                if (await compare(j, high) < 0) {
+                    i++;
+                    if (i !== j) await swap(i, j);
+                }
+            }
+            
+            await swap(i + 1, high);
+            setBarClass(i + 1, 'sorted');
+            return i + 1;
+        }
+
+        // 归并排序
+        async function mergeSort(left, right) {
+            if (left < right) {
+                const mid = Math.floor((left + right) / 2);
+                
+                await mergeSort(left, mid);
+                await mergeSort(mid + 1, right);
+                await merge(left, mid, right);
+            }
+        }
+
+        async function merge(left, mid, right) {
+            const leftArr = array.slice(left, mid + 1);
+            const rightArr = array.slice(mid + 1, right + 1);
+            accesses += leftArr.length + rightArr.length;
+            
+            let i = 0, j = 0, k = left;
+            
+            while (i < leftArr.length && j < rightArr.length) {
+                setBarClass(left + i, 'comparing');
+                setBarClass(mid + 1 + j, 'comparing');
+                await sleep();
+                
+                comparisons++;
+                updateStats();
+                
+                if (leftArr[i] <= rightArr[j]) {
+                    array[k] = leftArr[i];
+                    setBarClass(left + i, 'swapping');
+                    i++;
+                } else {
+                    array[k] = rightArr[j];
+                    setBarClass(mid + 1 + j, 'swapping');
+                    j++;
+                }
+                
+                accesses++;
+                swaps++;
+                updateStats();
+                render();
+                await sleep();
+                
+                setBarClass(k, 'sorted');
+                k++;
+            }
+            
+            while (i < leftArr.length) {
+                array[k] = leftArr[i];
+                accesses++;
+                render();
+                setBarClass(k, 'sorted');
+                await sleep();
+                i++;
+                k++;
+            }
+            
+            while (j < rightArr.length) {
+                array[k] = rightArr[j];
+                accesses++;
+                render();
+                setBarClass(k, 'sorted');
+                await sleep();
+                j++;
+                k++;
+            }
+        }
+
+        // 堆排序
+        async function heapSort() {
+            const n = array.length;
+            
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                await heapify(n, i);
+            }
+            
+            for (let i = n - 1; i > 0; i--) {
+                await swap(0, i);
+                setBarClass(i, 'sorted');
+                await heapify(i, 0);
+            }
+            setBarClass(0, 'sorted');
+        }
+
+        async function heapify(n, i) {
+            let largest = i;
+            const left = 2 * i + 1;
+            const right = 2 * i + 2;
+            
+            setBarClass(i, 'pivot');
+            await sleep();
+            
+            if (left < n) {
+                comparisons++;
+                accesses += 2;
+                updateStats();
+                if (array[left] > array[largest]) {
+                    largest = left;
+                }
+            }
+            
+            if (right < n) {
+                comparisons++;
+                accesses += 2;
+                updateStats();
+                if (array[right] > array[largest]) {
+                    largest = right;
+                }
+            }
+            
+            if (largest !== i) {
+                await swap(i, largest);
+                await heapify(n, largest);
+            }
+            setBarClass(i, '');
+        }
+
+        // 希尔排序
+        async function shellSort() {
+            const n = array.length;
+            let gap = Math.floor(n / 2);
+            
+            while (gap > 0) {
+                for (let i = gap; i < n; i++) {
+                    const temp = array[i];
+                    accesses++;
+                    let j = i;
+                    
+                    setBarClass(i, 'pivot');
+                    await sleep();
+                    
+                    while (j >= gap) {
+                        comparisons++;
+                        accesses += 2;
+                        updateStats();
+                        
+                        setBarClass(j - gap, 'comparing');
+                        await sleep();
+                        
+                        if (array[j - gap] > temp) {
+                            array[j] = array[j - gap];
+                            swaps++;
+                            accesses += 2;
+                            updateStats();
+                            render();
+                            setBarClass(j, 'swapping');
+                            await sleep();
+                            j -= gap;
+                        } else {
+                            setBarClass(j - gap, '');
+                            break;
+                        }
+                        setBarClass(j + gap, '');
+                    }
+                    
+                    array[j] = temp;
+                    accesses++;
+                    render();
+                    setBarClass(i, '');
+                    setBarClass(j, 'sorted');
+                    await sleep();
+                }
+                gap = Math.floor(gap / 2);
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // 鸡尾酒排序
+        async function cocktailSort() {
+            let start = 0, end = array.length - 1;
+            let swapped = true;
+            
+            while (swapped) {
+                swapped = false;
+                
+                for (let i = start; i < end; i++) {
+                    if (await compare(i, i + 1) > 0) {
+                        await swap(i, i + 1);
+                        swapped = true;
+                    }
+                }
+                setBarClass(end, 'sorted');
+                end--;
+                
+                if (!swapped) break;
+                
+                swapped = false;
+                for (let i = end; i > start; i--) {
+                    if (await compare(i - 1, i) > 0) {
+                        await swap(i - 1, i);
+                        swapped = true;
+                    }
+                }
+                setBarClass(start, 'sorted');
+                start++;
+            }
+            
+            for (let i = start; i <= end; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // 梳排序
+        async function combSort() {
+            const n = array.length;
+            let gap = n;
+            let swapped = true;
+            const shrink = 1.3;
+            
+            while (gap > 1 || swapped) {
+                gap = Math.floor(gap / shrink);
+                if (gap < 1) gap = 1;
+                
+                swapped = false;
+                for (let i = 0; i + gap < n; i++) {
+                    if (await compare(i, i + gap) > 0) {
+                        await swap(i, i + gap);
+                        swapped = true;
+                    }
+                }
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // 地精排序
+        async function gnomeSort() {
+            let index = 0;
+            const n = array.length;
+            
+            while (index < n) {
+                if (index === 0 || (await compare(index - 1, index) <= 0)) {
+                    index++;
+                } else {
+                    await swap(index, index - 1);
+                    index--;
+                }
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // 循环排序
+        async function cycleSort() {
+            const n = array.length;
+            
+            for (let cycleStart = 0; cycleStart < n - 1; cycleStart++) {
+                let item = array[cycleStart];
+                accesses++;
+                let pos = cycleStart;
+                
+                setBarClass(cycleStart, 'pivot');
+                await sleep();
+                
+                for (let i = cycleStart + 1; i < n; i++) {
+                    comparisons++;
+                    accesses++;
+                    updateStats();
+                    if (array[i] < item) {
+                        pos++;
+                    }
+                }
+                
+                if (pos === cycleStart) {
+                    setBarClass(cycleStart, '');
+                    continue;
+                }
+                
+                while (item === array[pos]) {
+                    pos++;
+                }
+                
+                if (pos !== cycleStart) {
+                    const temp = item;
+                    item = array[pos];
+                    array[pos] = temp;
+                    accesses += 3;
+                    swaps++;
+                    updateStats();
+                    render();
+                    setBarClass(pos, 'swapping');
+                    await sleep();
+                    setBarClass(pos, '');
+                }
+                
+                while (pos !== cycleStart) {
+                    pos = cycleStart;
+                    
+                    for (let i = cycleStart + 1; i < n; i++) {
+                        comparisons++;
+                        accesses++;
+                        updateStats();
+                        if (array[i] < item) {
+                            pos++;
+                        }
+                    }
+                    
+                    while (item === array[pos]) {
+                        pos++;
+                    }
+                    
+                    if (item !== array[pos]) {
+                        const temp = item;
+                        item = array[pos];
+                        array[pos] = temp;
+                        accesses += 3;
+                        swaps++;
+                        updateStats();
+                        render();
+                        setBarClass(pos, 'swapping');
+                        await sleep();
+                        setBarClass(pos, '');
+                    }
+                }
+                setBarClass(cycleStart, 'sorted');
+            }
+            setBarClass(n - 1, 'sorted');
+        }
+
+        // 双调排序
+        async function bitonicSort() {
+            const n = array.length;
+            const nextPow2 = Math.pow(2, Math.ceil(Math.log2(n)));
+            
+            for (let k = 2; k <= nextPow2; k *= 2) {
+                for (let j = k / 2; j > 0; j /= 2) {
+                    for (let i = 0; i < n; i++) {
+                        const l = i ^ j;
+                        if (l > i && l < n) {
+                            const dir = (i & k) === 0;
+                            comparisons++;
+                            accesses += 2;
+                            updateStats();
+                            
+                            setBarClass(i, 'comparing');
+                            setBarClass(l, 'comparing');
+                            await sleep();
+                            
+                            if ((array[i] > array[l]) === dir) {
+                                await swap(i, l);
+                            }
+                            
+                            setBarClass(i, '');
+                            setBarClass(l, '');
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // 煎饼排序
+        async function pancakeSort() {
+            const n = array.length;
+            
+            for (let currSize = n; currSize > 1; currSize--) {
+                let maxIdx = 0;
+                setBarClass(0, 'pivot');
+                
+                for (let i = 1; i < currSize; i++) {
+                    comparisons++;
+                    accesses += 2;
+                    updateStats();
+                    setBarClass(i, 'comparing');
+                    await sleep();
+                    
+                    if (array[i] > array[maxIdx]) {
+                        setBarClass(maxIdx, '');
+                        maxIdx = i;
+                        setBarClass(maxIdx, 'pivot');
+                    } else {
+                        setBarClass(i, '');
+                    }
+                }
+                
+                if (maxIdx !== currSize - 1) {
+                    await flip(maxIdx);
+                    await flip(currSize - 1);
+                }
+                setBarClass(currSize - 1, 'sorted');
+            }
+            setBarClass(0, 'sorted');
+        }
+
+        async function flip(k) {
+            let i = 0;
+            while (i < k) {
+                await swap(i, k);
+                i++;
+                k--;
+            }
+        }
+
+        // Stooge排序
+        async function stoogeSort(i, j) {
+            if (await compare(i, j) > 0) {
+                await swap(i, j);
+            }
+            
+            if (j - i + 1 > 2) {
+                const t = Math.floor((j - i + 1) / 3);
+                await stoogeSort(i, j - t);
+                await stoogeSort(i + t, j);
+                await stoogeSort(i, j - t);
+            }
+        }
+
+        // 奇偶排序
+        async function oddEvenSort() {
+            const n = array.length;
+            let sorted = false;
+            
+            while (!sorted) {
+                sorted = true;
+                
+                for (let i = 1; i < n - 1; i += 2) {
+                    if (await compare(i, i + 1) > 0) {
+                        await swap(i, i + 1);
+                        sorted = false;
+                    }
+                }
+                
+                for (let i = 0; i < n - 1; i += 2) {
+                    if (await compare(i, i + 1) > 0) {
+                        await swap(i, i + 1);
+                        sorted = false;
+                    }
+                }
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // Bogo排序
+        async function bogoSort() {
+            while (!isSorted()) {
+                shuffle();
+                render();
+                swaps++;
+                updateStats();
+                await sleep();
+            }
+            
+            for (let i = 0; i < array.length; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        function isSorted() {
+            for (let i = 1; i < array.length; i++) {
+                comparisons++;
+                if (array[i] < array[i - 1]) return false;
+            }
+            return true;
+        }
+
+        function shuffle() {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+                accesses += 2;
+            }
+        }
+
+        // 桶排序
+        async function bucketSort() {
+            const n = array.length;
+            const max = Math.max(...array);
+            const min = Math.min(...array);
+            const bucketCount = Math.floor(Math.sqrt(n)) || 1;
+            const buckets = Array.from({ length: bucketCount }, () => []);
+            
+            for (let i = 0; i < n; i++) {
+                const bucketIdx = Math.floor((array[i] - min) / (max - min + 1) * bucketCount);
+                buckets[bucketIdx].push(array[i]);
+                accesses += 2;
+                setBarClass(i, 'comparing');
+                await sleep();
+                setBarClass(i, '');
+            }
+            
+            let idx = 0;
+            for (let i = 0; i < bucketCount; i++) {
+                buckets[i].sort((a, b) => a - b);
+                for (let j = 0; j < buckets[i].length; j++) {
+                    array[idx] = buckets[i][j];
+                    accesses++;
+                    swaps++;
+                    updateStats();
+                    render();
+                    setBarClass(idx, 'swapping');
+                    await sleep();
+                    setBarClass(idx, 'sorted');
+                    idx++;
+                }
+            }
+        }
+
+        // 计数排序
+        async function countingSort() {
+            const max = Math.max(...array);
+            const min = Math.min(...array);
+            const range = max - min + 1;
+            const count = new Array(range).fill(0);
+            const output = new Array(array.length);
+            
+            for (let i = 0; i < array.length; i++) {
+                count[array[i] - min]++;
+                accesses++;
+                setBarClass(i, 'comparing');
+                await sleep();
+                setBarClass(i, '');
+            }
+            
+            for (let i = 1; i < range; i++) {
+                count[i] += count[i - 1];
+            }
+            
+            for (let i = array.length - 1; i >= 0; i--) {
+                output[count[array[i] - min] - 1] = array[i];
+                count[array[i] - min]--;
+                accesses += 2;
+            }
+            
+            for (let i = 0; i < array.length; i++) {
+                array[i] = output[i];
+                accesses++;
+                swaps++;
+                updateStats();
+                render();
+                setBarClass(i, 'sorted');
+                await sleep();
+            }
+        }
+
+        // 基数排序
+        async function radixSort() {
+            const max = Math.max(...array);
+            
+            for (let exp = 1; Math.floor(max / exp) > 0; exp *= 10) {
+                await countingSortByDigit(exp);
+            }
+            
+            for (let i = 0; i < array.length; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        async function countingSortByDigit(exp) {
+            const n = array.length;
+            const output = new Array(n);
+            const count = new Array(10).fill(0);
+            
+            for (let i = 0; i < n; i++) {
+                count[Math.floor(array[i] / exp) % 10]++;
+                accesses++;
+            }
+            
+            for (let i = 1; i < 10; i++) {
+                count[i] += count[i - 1];
+            }
+            
+            for (let i = n - 1; i >= 0; i--) {
+                output[count[Math.floor(array[i] / exp) % 10] - 1] = array[i];
+                count[Math.floor(array[i] / exp) % 10]--;
+                accesses += 2;
+            }
+            
+            for (let i = 0; i < n; i++) {
+                array[i] = output[i];
+                accesses++;
+                swaps++;
+                updateStats();
+                render();
+                setBarClass(i, 'swapping');
+                await sleep();
+                setBarClass(i, '');
+            }
+        }
+
+        // Tim排序
+        async function timSort() {
+            const n = array.length;
+            const RUN = 32;
+            
+            for (let i = 0; i < n; i += RUN) {
+                await timInsertionSort(i, Math.min(i + RUN - 1, n - 1));
+            }
+            
+            for (let size = RUN; size < n; size *= 2) {
+                for (let left = 0; left < n; left += 2 * size) {
+                    const mid = left + size - 1;
+                    const right = Math.min(left + 2 * size - 1, n - 1);
+                    
+                    if (mid < right) {
+                        await timMerge(left, mid, right);
+                    }
+                }
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        async function timInsertionSort(left, right) {
+            for (let i = left + 1; i <= right; i++) {
+                const temp = array[i];
+                accesses++;
+                let j = i - 1;
+                
+                setBarClass(i, 'pivot');
+                await sleep();
+                
+                while (j >= left) {
+                    comparisons++;
+                    accesses++;
+                    updateStats();
+                    
+                    setBarClass(j, 'comparing');
+                    await sleep();
+                    
+                    if (array[j] > temp) {
+                        array[j + 1] = array[j];
+                        accesses += 2;
+                        swaps++;
+                        updateStats();
+                        render();
+                        setBarClass(j, 'swapping');
+                        await sleep();
+                        setBarClass(j, '');
+                        j--;
+                    } else {
+                        setBarClass(j, '');
+                        break;
+                    }
+                }
+                
+                array[j + 1] = temp;
+                accesses++;
+                render();
+                setBarClass(i, '');
+                setBarClass(j + 1, 'sorted');
+                await sleep();
+            }
+        }
+
+        async function timMerge(left, mid, right) {
+            const leftArr = array.slice(left, mid + 1);
+            const rightArr = array.slice(mid + 1, right + 1);
+            accesses += leftArr.length + rightArr.length;
+            
+            let i = 0, j = 0, k = left;
+            
+            while (i < leftArr.length && j < rightArr.length) {
+                comparisons++;
+                
+                if (leftArr[i] <= rightArr[j]) {
+                    array[k] = leftArr[i];
+                    setBarClass(left + i, 'swapping');
+                    i++;
+                } else {
+                    array[k] = rightArr[j];
+                    setBarClass(mid + 1 + j, 'swapping');
+                    j++;
+                }
+                
+                accesses++;
+                swaps++;
+                updateStats();
+                render();
+                await sleep();
+                setBarClass(k, 'sorted');
+                k++;
+            }
+            
+            while (i < leftArr.length) {
+                array[k] = leftArr[i];
+                accesses++;
+                render();
+                setBarClass(k, 'sorted');
+                await sleep();
+                i++;
+                k++;
+            }
+            
+            while (j < rightArr.length) {
+                array[k] = rightArr[j];
+                accesses++;
+                render();
+                setBarClass(k, 'sorted');
+                await sleep();
+                j++;
+                k++;
+            }
+        }
+
+        // 内省排序
+        async function introSort(low, high, depthLimit) {
+            const n = high - low + 1;
+            
+            if (n < 16) {
+                await introInsertionSort(low, high);
+                return;
+            }
+            
+            if (depthLimit === 0) {
+                await heapSortRange(low, high);
+                return;
+            }
+            
+            const pivot = await introPartition(low, high);
+            await introSort(low, pivot - 1, depthLimit - 1);
+            await introSort(pivot + 1, high, depthLimit - 1);
+        }
+
+        async function introInsertionSort(low, high) {
+            for (let i = low + 1; i <= high; i++) {
+                const key = array[i];
+                accesses++;
+                let j = i - 1;
+                
+                while (j >= low && array[j] > key) {
+                    comparisons++;
+                    accesses += 2;
+                    array[j + 1] = array[j];
+                    swaps++;
+                    updateStats();
+                    render();
+                    setBarClass(j, 'swapping');
+                    await sleep();
+                    setBarClass(j, '');
+                    j--;
+                }
+                
+                array[j + 1] = key;
+                accesses++;
+                render();
+            }
+        }
+
+        async function introPartition(low, high) {
+            const pivot = array[high];
+            accesses++;
+            let i = low - 1;
+            
+            setBarClass(high, 'pivot');
+            await sleep();
+            
+            for (let j = low; j < high; j++) {
+                comparisons++;
+                accesses++;
+                
+                setBarClass(j, 'comparing');
+                await sleep();
+                
+                if (array[j] < pivot) {
+                    i++;
+                    if (i !== j) {
+                        await swap(i, j);
+                    }
+                }
+                setBarClass(j, '');
+            }
+            
+            await swap(i + 1, high);
+            return i + 1;
+        }
+
+        async function heapSortRange(low, high) {
+            const n = high - low + 1;
+            
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                await heapifyRange(n, i, low);
+            }
+            
+            for (let i = n - 1; i > 0; i--) {
+                await swap(low, low + i);
+                setBarClass(low + i, 'sorted');
+                await heapifyRange(i, 0, low);
+            }
+            setBarClass(low, 'sorted');
+        }
+
+        async function heapifyRange(n, i, offset) {
+            let largest = i;
+            const left = 2 * i + 1;
+            const right = 2 * i + 2;
+            
+            if (left < n && array[offset + left] > array[offset + largest]) {
+                largest = left;
+            }
+            
+            if (right < n && array[offset + right] > array[offset + largest]) {
+                largest = right;
+            }
+            
+            if (largest !== i) {
+                await swap(offset + i, offset + largest);
+                await heapifyRange(n, largest, offset);
+            }
+        }
+
+        // 树排序
+        async function treeSort() {
+            let root = null;
+            
+            for (let i = 0; i < array.length; i++) {
+                root = await insertBST(root, array[i], i);
+                setBarClass(i, 'comparing');
+                await sleep();
+                setBarClass(i, '');
+            }
+            
+            let idx = 0;
+            await inorderTraversal(root, (val, originalIdx) => {
+                array[idx] = val;
+                render();
+                setBarClass(idx, 'sorted');
+                idx++;
+            });
+        }
+
+        async function insertBST(node, val, idx) {
+            accesses++;
+            
+            if (node === null) {
+                return { val, idx, left: null, right: null };
+            }
+            
+            comparisons++;
+            if (val < node.val) {
+                node.left = await insertBST(node.left, val, idx);
+            } else {
+                node.right = await insertBST(node.right, val, idx);
+            }
+            
+            return node;
+        }
+
+        async function inorderTraversal(node, callback) {
+            if (node !== null) {
+                await inorderTraversal(node.left, callback);
+                await callback(node.val, node.idx);
+                await sleep();
+                await inorderTraversal(node.right, callback);
+            }
+        }
+
+        // Strand排序
+        async function strandSort() {
+            const n = array.length;
+            let result = [];
+            
+            while (array.length > 0) {
+                const sublist = [array[0]];
+                setBarClass(0, 'pivot');
+                await sleep();
+                
+                let i = 1;
+                while (i < array.length) {
+                    comparisons++;
+                    accesses++;
+                    
+                    setBarClass(i, 'comparing');
+                    await sleep();
+                    
+                    if (array[i] > sublist[sublist.length - 1]) {
+                        sublist.push(array[i]);
+                        array.splice(i, 1);
+                        setBarClass(i, 'swapping');
+                        await sleep();
+                    } else {
+                        i++;
+                    }
+                    setBarClass(i - 1, '');
+                }
+                
+                array.shift();
+                result = await mergeStrands(result, sublist);
+                render();
+            }
+            
+            for (let i = 0; i < n; i++) {
+                array[i] = result[i];
+                setBarClass(i, 'sorted');
+                await sleep();
+            }
+            render();
+        }
+
+        async function mergeStrands(list1, list2) {
+            const result = [];
+            let i = 0, j = 0;
+            
+            while (i < list1.length && j < list2.length) {
+                comparisons++;
+                if (list1[i] < list2[j]) {
+                    result.push(list1[i]);
+                    i++;
+                } else {
+                    result.push(list2[j]);
+                    j++;
+                }
+            }
+            
+            while (i < list1.length) {
+                result.push(list1[i]);
+                i++;
+            }
+            
+            while (j < list2.length) {
+                result.push(list2[j]);
+                j++;
+            }
+            
+            return result;
+        }
+
+        // 睡眠排序（模拟版）
+        async function sleepSort() {
+            const n = array.length;
+            const output = [];
+            const promises = [];
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'comparing');
+                promises.push(
+                    new Promise(resolve => {
+                        setTimeout(() => {
+                            output.push({ val: array[i], idx: i });
+                            resolve();
+                        }, array[i] * 10);
+                    })
+                );
+            }
+            
+            await Promise.all(promises);
+            
+            for (let i = 0; i < n; i++) {
+                array[i] = output[i].val;
+                render();
+                setBarClass(i, 'sorted');
+                await sleep();
+            }
+        }
+
+        // 珠排序（模拟版）
+        async function beadSort() {
+            const max = Math.max(...array);
+            const n = array.length;
+            const beads = array.map(x => x);
+            
+            for (let i = 0; i < max; i++) {
+                let count = 0;
+                
+                for (let j = 0; j < n; j++) {
+                    if (beads[j] > 0) {
+                        beads[j]--;
+                        count++;
+                        setBarClass(j, 'comparing');
+                    }
+                }
+                
+                await sleep();
+                
+                for (let j = n - 1; j >= n - count; j--) {
+                    array[j] = Math.max(array[j], i + 1);
+                    setBarClass(j, 'swapping');
+                }
+                
+                for (let j = 0; j < n - count; j++) {
+                    if (array[j] > i) {
+                        array[j] = i;
+                    }
+                }
+                
+                render();
+                await sleep();
+                
+                for (let j = 0; j < n; j++) {
+                    setBarClass(j, '');
+                }
+            }
+            
+            for (let i = 0; i < n; i++) {
+                setBarClass(i, 'sorted');
+            }
+        }
+
+        // 初始化
+        generateArray();
+    </script>
+</body>
+</html>
