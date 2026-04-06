@@ -3,14 +3,21 @@
 
 name: Auto Deploy to Dev
 
+# 环境变量：启用 Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.github/workflows/**'
+    paths:
+      # 只有这些目录变更时才触发开发环境部署
+      - 'ira/**'
+      - 'backend/**'
+      - 'frontend/**'
+      - 'scripts/deploy.sh'
+      - 'requirements.txt'
 
 # 权限配置
 permissions:

@@ -14,7 +14,7 @@ on:
     types: [opened, synchronize, reopened]
     branches: [main, master]
     paths:
-      # 只有代码文件变更时才触发AI代码审查
+      # 只有代码文件和工作流配置变更时才触发AI代码审查
       - '**/*.py'
       - '**/*.js'
       - '**/*.ts'
@@ -23,6 +23,9 @@ on:
       - '**/*.vue'
       - '**/*.java'
       - '**/*.go'
+      - '.github/workflows/**'
+      - '**/requirements.txt'
+      - '**/package.json'
 
 # 权限配置：需要读取代码、写入 PR 评论和创建检查
 permissions:
