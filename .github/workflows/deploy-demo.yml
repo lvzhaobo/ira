@@ -80,32 +80,22 @@ jobs:
           script_stop: true
           script: |
             set -e
-            echo "[remote] 安装Nginx配置..."
+            echo "[remote] 安装Nginx配置到 conf.d 目录..."
             
-            # 检查并创建Nginx配置目录
-            if [[ ! -d /etc/nginx/sites-available ]]; then
-              echo "[remote] 创建 sites-available 目录..."
-              sudo mkdir -p /etc/nginx/sites-available
+            # 确保conf.d目录存在
+            if [[ ! -d /etc/nginx/conf.d ]]; then
+              echo "[remote] 创建 conf.d 目录..."
+              sudo mkdir -p /etc/nginx/conf.d
             fi
             
-            if [[ ! -d /etc/nginx/sites-enabled ]]; then
-              echo "[remote] 创建 sites-enabled 目录..."
-              sudo mkdir -p /etc/nginx/sites-enabled
+            # 备份旧配置（如果存在）
+            if [[ -f /etc/nginx/conf.d/ira-demo.conf ]]; then
+              echo "[remote] 备份现有配置..."
+              sudo cp /etc/nginx/conf.d/ira-demo.conf /etc/nginx/conf.d/ira-demo.conf.bak.$(date +%Y%m%d%H%M%S)
             fi
             
-            # 检查nginx.conf是否包含sites-enabled
-            if ! grep -q "sites-enabled" /etc/nginx/nginx.conf 2>/dev/null; then
-              echo "[remote] 警告: nginx.conf 可能未包含 sites-enabled 配置"
-              echo "[remote] 请确认是否需要手动 include /etc/nginx/sites-enabled/*.conf"
-            fi
-            
-            sudo mv /tmp/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf
-            
-            # 启用站点
-            if [[ -L /etc/nginx/sites-enabled/ira-demo.conf ]]; then
-              sudo rm /etc/nginx/sites-enabled/ira-demo.conf
-            fi
-            sudo ln -sf /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-enabled/
+            # 安装新配置
+            sudo mv /tmp/ira-demo.conf /etc/nginx/conf.d/ira-demo.conf
             
             echo "[remote] 测试Nginx配置..."
             sudo nginx -t
@@ -114,6 +104,7 @@ jobs:
             sudo systemctl reload nginx
             
             echo "[remote] ✅ Nginx配置部署成功！"
+            echo "[remote] 配置文件: /etc/nginx/conf.d/ira-demo.conf"
 
       - name: 📤 上传Demo文件
         uses: appleboy/scp-action@v0.1.7

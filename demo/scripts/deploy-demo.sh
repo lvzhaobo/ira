@@ -21,27 +21,31 @@ scp -P "$SSH_PORT" nginx/ira-demo.conf "${ECS_USER}@${ECS_HOST}:/tmp/ira-demo.co
 
 ssh -p "$SSH_PORT" "${ECS_USER}@${ECS_HOST}" << 'EOF'
     set -e
-    echo "[remote] 备份现有Nginx配置..."
-    if [[ -f /etc/nginx/sites-available/ira-demo.conf ]]; then
-        cp /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf.bak.$(date +%Y%m%d%H%M%S)
+    echo "[remote] 安装Nginx配置到 conf.d 目录..."
+    
+    # 确保conf.d目录存在
+    if [[ ! -d /etc/nginx/conf.d ]]; then
+      echo "[remote] 创建 conf.d 目录..."
+      sudo mkdir -p /etc/nginx/conf.d
+    fi
+    
+    # 备份旧配置（如果存在）
+    if [[ -f /etc/nginx/conf.d/ira-demo.conf ]]; then
+      echo "[remote] 备份现有配置..."
+      sudo cp /etc/nginx/conf.d/ira-demo.conf /etc/nginx/conf.d/ira-demo.conf.bak.$(date +%Y%m%d%H%M%S)
     fi
     
     echo "[remote] 安装新配置..."
-    mv /tmp/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf
-    
-    # 启用站点
-    if [[ -L /etc/nginx/sites-enabled/ira-demo.conf ]]; then
-        rm /etc/nginx/sites-enabled/ira-demo.conf
-    fi
-    ln -sf /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-enabled/
+    sudo mv /tmp/ira-demo.conf /etc/nginx/conf.d/ira-demo.conf
     
     echo "[remote] 测试Nginx配置..."
-    nginx -t
+    sudo nginx -t
     
     echo "[remote] 重载Nginx..."
-    systemctl reload nginx
+    sudo systemctl reload nginx
     
-    echo "[remote] Nginx配置部署成功！"
+    echo "[remote] ✅ Nginx配置部署成功！"
+    echo "[remote] 配置文件: /etc/nginx/conf.d/ira-demo.conf"
 EOF
 
 # 部署Mock API
