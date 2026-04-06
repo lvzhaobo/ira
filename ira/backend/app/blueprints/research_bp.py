@@ -6,6 +6,7 @@ from app.blueprints.lineage_bp import append_trace_record
 from app.errors import error_response
 from app.json_store import read_json, write_json
 from app.services.bailian_qa import bailian_config, chat_research_qa, is_bailian_enabled
+from app.services.copaw_multi_agent_adapter import copaw_multi_agent_run_or_none
 from app.services.copaw_qa_adapter import copaw_qa_ask_or_none
 from app.services.market_data_hub import latest_snapshot
 from app.services.multi_agent_service import run_multi_agent
@@ -268,8 +269,20 @@ def research_stock_multi_agent_run():
     req_snapshot_id = body.get("market_snapshot_id")
     snap = None if mock else latest_snapshot(symbol)
     market_snapshot_id = req_snapshot_id or (snap.get("snapshot_id") if isinstance(snap, dict) else None)
-    out = run_multi_agent(symbol, mock=mock)
+    copaw_out = copaw_multi_agent_run_or_none(
+        symbol=symbol,
+        trace_id=g.trace_id,
+        market_snapshot_id=market_snapshot_id,
+        mock=mock,
+    )
+    if copaw_out:
+        out = copaw_out
+        execution_source = "copaw"
+    else:
+        out = run_multi_agent(symbol, mock=mock)
+        execution_source = "local_mock"
     out["market_snapshot_id"] = market_snapshot_id
+    out["execution_source"] = execution_source
     tid = g.trace_id
     runs = read_json(_data("multi_agent_runs.json"), {"runs": []})
     runs["runs"].insert(
@@ -278,6 +291,7 @@ def research_stock_multi_agent_run():
             "trace_id": tid,
             "symbol": symbol,
             "market_snapshot_id": market_snapshot_id,
+            "execution_source": execution_source,
             "result": out,
         },
     )
@@ -289,6 +303,7 @@ def research_stock_multi_agent_run():
             "parent_trace_id": out["orchestration_trace"],
             "summary": f"{symbol} multi-agent",
             "market_snapshot_id": market_snapshot_id,
+            "meta": {"execution_source": execution_source},
             "created_at": _now(),
         }
     )

@@ -45,3 +45,4 @@ def test_multi_agent_discussion(client):
     rounds = {d["round"] for d in j["discussion"]}
     assert max(rounds) >= 2
     assert any(d.get("reply_to_utterance_id") for d in j["discussion"])
+    assert j.get("execution_source") in ("copaw", "local_mock")

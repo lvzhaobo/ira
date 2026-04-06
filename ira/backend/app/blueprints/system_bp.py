@@ -3,6 +3,7 @@ from pathlib import Path
 
 from app.json_store import read_json, write_json
 from app.services.bailian_qa import bailian_config, is_bailian_enabled
+from app.services.copaw_multi_agent_adapter import copaw_ma_enabled
 from app.services.copaw_qa_adapter import copaw_bridge_status
 from flask import Blueprint, current_app, jsonify, request
 
@@ -24,6 +25,7 @@ def system_health():
             "index_ver": "v2.3.0",
             "mock_quote": True,
             "copaw_bridge": copaw_bridge_status(),
+            "copaw_multi_agent": "configured" if copaw_ma_enabled() else "disabled",
             "research_qa_llm": {
                 "enabled": live,
                 "provider": "dashscope" if live else None,

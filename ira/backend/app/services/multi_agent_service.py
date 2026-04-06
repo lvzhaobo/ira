@@ -87,6 +87,7 @@ def run_multi_agent(symbol: str, mock: bool = True) -> dict:
         "不构成投资建议。"
     )
     return {
+        "execution_source": "local_mock",
         "orchestration_trace": orch,
         "sub_traces": sub_traces,
         "agents": agents,
