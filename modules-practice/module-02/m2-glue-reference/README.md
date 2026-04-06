@@ -10,7 +10,7 @@
 ### Python（契约参考 + 单测）
 
 ```bash
-cd samples/m2-glue-reference
+cd modules-practice/module-02/m2-glue-reference
 pip install -r requirements.txt
 python -m pytest -q
 ```
@@ -20,7 +20,7 @@ python -m pytest -q
 深蓝主色 + 红色强调，**不含任何机构客户名称**；页面与 M2 `06` 运维台叙事一致，默认不请求后端。
 
 ```bash
-cd samples/m2-glue-reference/frontend
+cd modules-practice/module-02/m2-glue-reference/frontend
 npm install
 npm run dev
 ```

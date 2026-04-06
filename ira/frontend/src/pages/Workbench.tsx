@@ -37,6 +37,19 @@ type RecentSession = {
 };
 
 type ReportDraftRow = { workflow_stage?: string; status?: string };
+type OpsSummary = {
+  multi_agent?: {
+    total_runs?: number;
+    pending_reviews?: number;
+    approved_reviews?: number;
+    rejected_reviews?: number;
+  };
+  notify?: {
+    total_deliveries?: number;
+    sent_count?: number;
+    pending_dispatch_count?: number;
+  };
+};
 
 /**
  * 与侧栏「五大核心模块」一致（不含工作台：总览单独占一栏）。
@@ -50,22 +63,22 @@ const CORE_MODULE_ENTRIES: { to: string; title: string; desc: string; tag: strin
     tag: "M1",
   },
   {
+    to: "/stock-analysis",
+    title: "个股覆盖",
+    desc: "M2 数据消费主入口：聚合快照优先、mock 回退，承接 ingest/data hub。",
+    tag: "M2",
+  },
+  {
     to: "/knowledge",
     title: "知识库",
     desc: "文档登记与 RAG 支撑；纵深对齐 M03「知识库与问答」",
     tag: "M3",
   },
   {
-    to: "/compliance",
-    title: "合规扫描",
-    desc: "话术与材料预检、审计流水；投研输出前的风控面",
-    tag: "合规",
-  },
-  {
-    to: "/sentiment",
-    title: "舆情分析",
-    desc: "关键词、预警与市场舆情看板；机构侧外呼与内观结合的主线能力",
-    tag: "舆情",
+    to: "/messages",
+    title: "消息推送",
+    desc: "M4 主入口：渠道投递、发送前合规、投递历史与回溯。",
+    tag: "M4",
   },
   {
     to: "/multi-agent-stock",
@@ -84,19 +97,14 @@ const EXTENDED_QUICK_ENTRIES: { to: string; title: string; desc: string; tag: st
     tag: "①",
   },
   {
-    to: "/stock-analysis",
-    title: "个股覆盖",
-    desc: "与 M2 对照：演示行情/草稿消费侧；完整 Glue Ingest 在 module-02",
-    tag: "M2",
-  },
-  {
     to: "/lineage",
     title: "数据血缘",
     desc: "与 M2 对照：trace 与披露血缘（下游可追溯）；ingest 管线在 module-02",
     tag: "M2",
   },
+  { to: "/compliance", title: "合规扫描", desc: "发送、问答、报告前的规则校验与审计扩展页", tag: "风控" },
+  { to: "/sentiment", title: "舆情分析", desc: "市场舆情看板与告警，作为研究辅助能力扩展", tag: "舆情" },
   { to: "/skills", title: "SKILL", desc: "能力与工具注入示意；可与 CoPaw 技能叙事对照", tag: "技能" },
-  { to: "/messages", title: "消息推送", desc: "渠道 dry-run；对照 M04 推送样例", tag: "M4" },
   { to: "/reports", title: "报告登记", desc: "编制—内审—合规链路登记演示", tag: "流程" },
   { to: "/settings", title: "系统与偏好", desc: "参数、OpenAPI 入口与 MVP 导航开关", tag: "设置" },
 ];
@@ -138,10 +146,11 @@ export default function Workbench() {
   /** null = 尚未拉取或失败，用 kpi 静态兜底 */
   const [kbLiveCount, setKbLiveCount] = useState<number | null>(null);
   const [reportsPipelineLive, setReportsPipelineLive] = useState<number | null>(null);
+  const [opsSummary, setOpsSummary] = useState<OpsSummary | null>(null);
 
   const load = useCallback(async () => {
     setHealthErr(false);
-    const [h, k, td, sr, kb, rep] = await Promise.all([
+    const [h, k, td, sr, kb, rep, ops] = await Promise.all([
       getJson<Health>("/system/health").catch(() => {
         setHealthErr(true);
         return null;
@@ -151,6 +160,7 @@ export default function Workbench() {
       getJson<{ items: RecentSession[] }>("/sessions/recent").catch(() => ({ items: [] })),
       getJson<{ items: unknown[] }>("/kb/documents").catch(() => null),
       getJson<{ items: ReportDraftRow[] }>("/reports/drafts").catch(() => null),
+      getJson<OpsSummary>("/system/ops/summary").catch(() => null),
     ]);
     setHealth(h);
     setKpi(k);
@@ -160,6 +170,7 @@ export default function Workbench() {
     else setKbLiveCount(null);
     if (rep?.items) setReportsPipelineLive(countReportsInPipeline(rep.items));
     else setReportsPipelineLive(null);
+    setOpsSummary(ops);
   }, []);
 
   useEffect(() => {
@@ -233,8 +244,8 @@ export default function Workbench() {
               能力入口
             </h2>
             <span className="ira-wb-section__sub">
-              当前页为<strong>工作台总览</strong>；下方<strong>五大核心模块</strong>与侧栏第二组一致（问答 / 知识库 / 合规 / 舆情 / 多
-              Agent）。其余为<strong>扩展与演示</strong>（含数据血缘、推送等）。
+              当前页为<strong>工作台总览</strong>；下方<strong>五大核心模块</strong>与侧栏第二组一致（M1 问答 / M2 个股覆盖 / M3
+              知识库 / M4 推送 / M5 多Agent）。其余为<strong>扩展与演示</strong>（含血缘、合规、舆情等）。
             </span>
           </div>
           <ul className="ira-wb-grid ira-wb-grid--core">
@@ -344,6 +355,33 @@ export default function Workbench() {
             <h2 id="wb-sys" className="ira-wb-section__title">
               系统与合规提示
             </h2>
+          </div>
+          <div className="ira-wb-section__head" style={{ marginBottom: "0.45rem" }}>
+            <span className="ira-wb-section__sub">
+              闭环状态（M5 审核 → M4 推送）：来自 <code>GET /system/ops/summary</code>，用于课堂演示“未审核不可正式发送”。
+            </span>
+          </div>
+          <div className="ira-wb-kpis" style={{ marginBottom: "0.75rem" }}>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">多Agent待审核</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.multi_agent?.pending_reviews ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">pending_reviews</span>
+            </div>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">多Agent已通过</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.multi_agent?.approved_reviews ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">approved_reviews</span>
+            </div>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">推送待发送</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.notify?.pending_dispatch_count ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">pending_dispatch_count</span>
+            </div>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">推送已发送</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.notify?.sent_count ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">sent_count</span>
+            </div>
           </div>
           <div className="ira-wb-sys">
             <dl className="ira-wb-dl">

@@ -14,6 +14,10 @@ def _prefs_path() -> Path:
     return Path(current_app.config["DATA_DIR"]) / "workspace_preferences.json"
 
 
+def _data(name: str) -> Path:
+    return Path(current_app.config["DATA_DIR"]) / name
+
+
 @bp.route("/system/health", methods=["GET"])
 def system_health():
     live = is_bailian_enabled()
@@ -30,6 +34,32 @@ def system_health():
                 "enabled": live,
                 "provider": "dashscope" if live else None,
                 "model": cfg["model"] if live else None,
+            },
+        }
+    )
+
+
+@bp.route("/system/ops/summary", methods=["GET"])
+def system_ops_summary():
+    runs = read_json(_data("multi_agent_runs.json"), {"runs": []}).get("runs", [])
+    deliveries = read_json(_data("notify_deliveries.json"), {"items": []}).get("items", [])
+    pending_reviews = sum(1 for r in runs if str(r.get("review_status") or "pending").lower() == "pending")
+    approved_reviews = sum(1 for r in runs if str(r.get("review_status") or "").lower() == "approved")
+    rejected_reviews = sum(1 for r in runs if str(r.get("review_status") or "").lower() == "rejected")
+    sent_count = sum(1 for d in deliveries if d.get("status") == "sent")
+    pending_dispatch_count = sum(1 for d in deliveries if d.get("status") == "pending")
+    return jsonify(
+        {
+            "multi_agent": {
+                "total_runs": len(runs),
+                "pending_reviews": pending_reviews,
+                "approved_reviews": approved_reviews,
+                "rejected_reviews": rejected_reviews,
+            },
+            "notify": {
+                "total_deliveries": len(deliveries),
+                "sent_count": sent_count,
+                "pending_dispatch_count": pending_dispatch_count,
             },
         }
     )

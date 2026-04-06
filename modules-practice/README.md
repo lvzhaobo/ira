@@ -19,7 +19,7 @@
 | **M2 改进版** | `module-02-gule-coding-v2/` | Glue 静态页 / 样式练习（参考 / 输出 / `my-style`） | D4 选做或对比 | **无** `specs/workshop` 子包；Spec 以 **M2 主规格包** 为准 | [README.md](./module-02-gule-coding-v2/README.md)、`AGENTS.md`、`reference/README.md` |
 | **M3 知识库** | `module-03/` + **`specs/workshop/module-03-knowledge-copaw/`** | 知识库与问答；**Proposal → Spec → TC**；CoPaw 分工 | **D3 核心** | 教「如何把能力接进类似 `ira` 的平台」 | **规格**：[specs/workshop/module-03-knowledge-copaw/docs/](../specs/workshop/module-03-knowledge-copaw/docs/)；**代码**：[module-03/README.md](./module-03/README.md) |
 | **M4 推送** | `module-04/` + **`specs/workshop/module-04-notify/`** | 多渠道推送样例（Flask + React） | D4～D5 专题 | 叙事上可接工作台「触达/告警」 | **规格**：[module-04-notify/README.md](../specs/workshop/module-04-notify/README.md)；**样例**：[module-04/README.md](./module-04/README.md) |
-| **M5 多 Agent** | `module-05/` + **`specs/workshop/module-05-multi-agent/`** | 多 Agent 基金投研平台（Flask + SQLAlchemy 等） | D4 加深 | 与 `ira` **编排深度**对照；子项目独立配置 | **规格**：[module-05-multi-agent/README.md](../specs/workshop/module-05-multi-agent/README.md)；**代码**：`backend/README.md`、`frontend/README.md` |
+| **M5 多 Agent** | `module-05/` + **`specs/workshop/module-05-multi-agent/`** | 多 Agent 基金投研平台（Flask + SQLAlchemy 等） | D4 加深 | 与 `ira` **编排深度**对照；子项目独立配置 | **规格**：[module-05-multi-agent/README.md](../specs/workshop/module-05-multi-agent/README.md)；**代码**：[module-05/README.md](./module-05/README.md) |
 
 ### Module 02：v1 与 v2 怎么选？
 

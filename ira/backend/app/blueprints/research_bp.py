@@ -24,6 +24,19 @@ def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _load_multi_agent_runs() -> dict:
+    return read_json(_data("multi_agent_runs.json"), {"runs": []})
+
+
+def _save_multi_agent_runs(payload: dict) -> None:
+    write_json(_data("multi_agent_runs.json"), payload)
+
+
+def _find_run_index(payload: dict, trace_id: str) -> int | None:
+    runs = payload.get("runs", [])
+    return next((i for i, r in enumerate(runs) if r.get("trace_id") == trace_id), None)
+
+
 def _kb_evidence_refs_and_block() -> tuple[list, str]:
     """基于知识库元数据构造 evidence_refs 与写入系统提示的摘要块（与机构侧「先入库再引用」一致）。"""
     meta = read_json(_data("kb_documents.json"), {"items": []})
@@ -284,7 +297,8 @@ def research_stock_multi_agent_run():
     out["market_snapshot_id"] = market_snapshot_id
     out["execution_source"] = execution_source
     tid = g.trace_id
-    runs = read_json(_data("multi_agent_runs.json"), {"runs": []})
+    runs = _load_multi_agent_runs()
+    created_at = _now()
     runs["runs"].insert(
         0,
         {
@@ -292,10 +306,15 @@ def research_stock_multi_agent_run():
             "symbol": symbol,
             "market_snapshot_id": market_snapshot_id,
             "execution_source": execution_source,
+            "review_status": "pending",
+            "review_comment": None,
+            "reviewer": None,
+            "created_at": created_at,
+            "updated_at": created_at,
             "result": out,
         },
     )
-    write_json(_data("multi_agent_runs.json"), runs)
+    _save_multi_agent_runs(runs)
     append_trace_record(
         {
             "trace_id": tid,
@@ -308,4 +327,74 @@ def research_stock_multi_agent_run():
         }
     )
     out["trace_id"] = tid
+    out["review_status"] = "pending"
     return jsonify(out)
+
+
+@bp.route("/research/stock/multi-agent/runs", methods=["GET"])
+def research_stock_multi_agent_runs():
+    symbol = (request.args.get("symbol") or "").strip().upper()
+    status = (request.args.get("review_status") or "").strip().lower()
+    limit = int(request.args.get("limit") or 20)
+    data = _load_multi_agent_runs()
+    items = data.get("runs", [])
+    if symbol:
+        items = [r for r in items if str(r.get("symbol", "")).upper() == symbol]
+    if status in ("pending", "approved", "rejected"):
+        items = [r for r in items if str(r.get("review_status") or "pending").lower() == status]
+    out = []
+    for r in items[: max(1, limit)]:
+        out.append(
+            {
+                "trace_id": r.get("trace_id"),
+                "symbol": r.get("symbol"),
+                "market_snapshot_id": r.get("market_snapshot_id"),
+                "execution_source": r.get("execution_source"),
+                "review_status": r.get("review_status", "pending"),
+                "review_comment": r.get("review_comment"),
+                "reviewer": r.get("reviewer"),
+                "created_at": r.get("created_at"),
+                "updated_at": r.get("updated_at"),
+            }
+        )
+    return jsonify({"items": out})
+
+
+@bp.route("/research/stock/multi-agent/runs/<trace_id>/review", methods=["PATCH"])
+def research_stock_multi_agent_review(trace_id: str):
+    body = request.get_json(force=True, silent=True) or {}
+    review_status = str(body.get("review_status") or "").strip().lower()
+    if review_status not in ("approved", "rejected", "pending"):
+        return error_response("VALIDATION_ERROR", "review_status must be approved/rejected/pending", 422)
+    reviewer = (body.get("reviewer") or "").strip() or "workshop-reviewer"
+    comment = body.get("review_comment")
+    data = _load_multi_agent_runs()
+    idx = _find_run_index(data, trace_id)
+    if idx is None:
+        return error_response("NOT_FOUND", f"run not found: {trace_id}", 404)
+    row = data["runs"][idx]
+    row["review_status"] = review_status
+    row["review_comment"] = comment
+    row["reviewer"] = reviewer
+    row["updated_at"] = _now()
+    _save_multi_agent_runs(data)
+    append_trace_record(
+        {
+            "trace_id": new_trace_id("rev"),
+            "artifact_type": "multi_agent_review",
+            "parent_trace_id": trace_id,
+            "summary": f"multi-agent review -> {review_status}",
+            "market_snapshot_id": row.get("market_snapshot_id"),
+            "meta": {"reviewer": reviewer, "review_comment": comment},
+            "created_at": _now(),
+        }
+    )
+    return jsonify(
+        {
+            "trace_id": trace_id,
+            "review_status": row["review_status"],
+            "review_comment": row.get("review_comment"),
+            "reviewer": row.get("reviewer"),
+            "updated_at": row.get("updated_at"),
+        }
+    )

@@ -46,3 +46,16 @@ def test_multi_agent_discussion(client):
     assert max(rounds) >= 2
     assert any(d.get("reply_to_utterance_id") for d in j["discussion"])
     assert j.get("execution_source") in ("copaw", "local_mock")
+    assert j.get("review_status") == "pending"
+
+    trace_id = j["trace_id"]
+    rlist = client.get("/api/v1/research/stock/multi-agent/runs")
+    assert rlist.status_code == 200
+    assert any(it.get("trace_id") == trace_id for it in rlist.get_json()["items"])
+
+    rpatch = client.patch(
+        f"/api/v1/research/stock/multi-agent/runs/{trace_id}/review",
+        json={"review_status": "approved", "reviewer": "qa", "review_comment": "looks good"},
+    )
+    assert rpatch.status_code == 200
+    assert rpatch.get_json()["review_status"] == "approved"
