@@ -4,10 +4,17 @@ ira/frontend/dist/
 ira/frontend/.env
 ira/frontend/.env.*
 !ira/frontend/.env.example
+main-project/frontend/node_modules/
+main-project/frontend/dist/
+main-project/frontend/.env
+main-project/frontend/.env.*
+!main-project/frontend/.env.example
 
 # Backend
 ira/backend/**/__pycache__/
 ira/backend/.pytest_cache/
+main-project/backend/**/__pycache__/
+main-project/backend/.pytest_cache/
 
 # Data
 data/*.json

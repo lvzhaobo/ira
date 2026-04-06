@@ -7,14 +7,14 @@
 ## 从这里开始
 
 1. 阅读 **[AGENTS.md](./AGENTS.md)**：全景目录、端口、推荐学习路径。  
-2. 运行主项目：**[ira/README.md](./ira/README.md)**（Flask + Vite）。  
+2. 运行主项目：**[main-project/README.md](./main-project/README.md)**（Flask + Vite）。  
 3. 按天练习：**[modules-practice/](./modules-practice/)** 下各 `module-*`；**五天路线图与每日产出**见 **[modules-practice/WORKSHOP-五天一页纸.md](./modules-practice/WORKSHOP-五天一页纸.md)**。
 
 ## 顶层目录一览
 
 | 目录 | 说明 |
 |------|------|
-| `ira/` | 投研助手主应用（持续演进的原型） |
+| `main-project/` | 投研助手主应用（持续演进的原型） |
 | `copaw/` | CoPaw 开源底座（AgentScope 生态） |
 | `modules-practice/` | 分模块实验代码与文档 |
 | `demo/` | 静态站 + Mock API + Nginx 配置，配合 CI 部署 |

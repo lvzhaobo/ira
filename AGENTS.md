@@ -11,7 +11,7 @@
 
 ```
 ira-workspace/
-├── ira/                      # 🎯 主项目：投研助手原型（monorepo）
+├── main-project/             # 🎯 主项目：投研助手原型（monorepo）
 ├── copaw/                    # 🤖 CoPaw：AI 助手底座（AgentScope 开源项目）
 ├── demo/                     # 🚀 Demo：演示部署项目（Nginx + Mock API）
 ├── modules-practice/         # 📚 模块练习：5个独立学习模块
@@ -25,7 +25,7 @@ ira-workspace/
 
 ## 🎯 核心项目
 
-### 1. ira/ - 投研助手主项目
+### 1. main-project/ - 投研助手主项目
 
 **技术栈**：
 - **后端**：Flask 3.x | Python ≥ 3.8 | `/api/v1` 对齐 OpenAPI
@@ -34,7 +34,7 @@ ira-workspace/
 
 **目录结构**：
 ```
-ira/
+main-project/
 ├── backend/app/
 │   ├── blueprints/          # 14个API路由模块
 │   ├── services/            # 7个业务服务
@@ -289,7 +289,7 @@ demo/
 
 ### Pre-commit 配置
 - **根配置**：`.pre-commit-config.yaml`
-- **IRA配置**：`ira/workshop/.pre-commit-config.yaml`
+- **IRA配置**：`main-project/workshop/.pre-commit-config.yaml`
 - **CoPaw配置**：`copaw/.pre-commit-config.yaml`
 
 ### 代码质量工具
@@ -314,11 +314,11 @@ demo/
 
 ### 数据目录
 - **共享数据**：`data/`（JSON文件，被 `.gitignore` 忽略）
-- **初始化脚本**：`ira/scripts/seed_data.py`
+- **初始化脚本**：`main-project/scripts/seed_data.py`
 - **上传目录**：`data/uploads/`（被忽略）
 
 ### 环境配置
-- **示例配置**：`.env.example`、`ira/frontend/.env.example`
+- **示例配置**：`.env.example`、`main-project/frontend/.env.example`
 - **实际配置**：`.env`、`.env.*`（被 `.gitignore` 忽略）
 - **密钥文件**：`config/auth_login.json`
 
@@ -331,18 +331,18 @@ demo/
 ```powershell
 # ==================== IRA 主项目 ====================
 # 启动后端
-cd ira/backend
+cd main-project/backend
 pip install -r requirements.txt
 $env:IRA_DATA_DIR = "$(Resolve-Path ..\data)\"
 python -m flask --app wsgi run --port 5000
 
 # 启动前端
-cd ira/frontend
+cd main-project/frontend
 npm install
 npm run dev
 
 # 运行测试
-cd ira/backend
+cd main-project/backend
 $env:PYTHONPATH = "."
 python -m pytest tests -q
 
@@ -362,11 +362,11 @@ copaw app
 pre-commit run --all-files
 
 # 格式化Python代码
-black ira/backend/
-isort ira/backend/
+black main-project/backend/
+isort main-project/backend/
 
 # 格式化前端代码
-cd ira/frontend
+cd main-project/frontend
 npx prettier --write "src/**/*.{ts,tsx}"
 ```
 
@@ -384,9 +384,9 @@ npx prettier --write "src/**/*.{ts,tsx}"
 
 | 资源 | 路径 |
 |------|------|
-| IRA OpenAPI规范 | `ira/backend/app/openapi_spec.py` |
-| IRA API蓝图 | `ira/backend/app/blueprints/`（14个模块） |
-| IRA前端页面 | `ira/frontend/src/pages/`（16个页面） |
+| IRA OpenAPI规范 | `main-project/backend/app/openapi_spec.py` |
+| IRA API蓝图 | `main-project/backend/app/blueprints/`（14个模块） |
+| IRA前端页面 | `main-project/frontend/src/pages/`（16个页面） |
 | CoPaw Agent实现 | `copaw/src/copaw/agents/` |
 | CoPaw CLI命令 | `copaw/src/copaw/cli/`（21个命令） |
 | Demo Nginx配置 | `demo/nginx/ira-demo.conf` |
@@ -397,13 +397,13 @@ npx prettier --write "src/**/*.{ts,tsx}"
 ## 📖 学习路径建议
 
 ### 第1天：基础熟悉
-1. 阅读 `ira/README.md` 了解主项目
+1. 阅读 `main-project/README.md` 了解主项目
 2. 启动 IRA 前后端，熟悉界面和功能
 3. 浏览 `copaw/README.md` 了解CoPaw能力
 
 ### 第2天：深入IRA
-1. 研究 `ira/backend/app/blueprints/` 了解API设计
-2. 查看 `ira/frontend/src/pages/` 了解前端架构
+1. 研究 `main-project/backend/app/blueprints/` 了解API设计
+2. 查看 `main-project/frontend/src/pages/` 了解前端架构
 3. 运行测试，理解测试策略
 
 ### 第3天：CoPaw集成
@@ -428,7 +428,7 @@ npx prettier --write "src/**/*.{ts,tsx}"
 - **CoPaw 官方文档**：https://copaw.agentscope.io/
 - **CoPaw GitHub**：https://github.com/agentscope-ai/CoPaw
 - **AgentScope**：https://github.com/agentscope-ai/agentscope
-- **IRA 部署文档**：`ira/docs/DEPLOY-GITHUB-ACTIONS.md`
+- **IRA 部署文档**：`main-project/docs/DEPLOY-GITHUB-ACTIONS.md`
 
 ---
 
