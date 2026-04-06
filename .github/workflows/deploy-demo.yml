@@ -81,19 +81,37 @@ jobs:
           script: |
             set -e
             echo "[remote] 安装Nginx配置..."
-            mv /tmp/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf
+            
+            # 检查并创建Nginx配置目录
+            if [[ ! -d /etc/nginx/sites-available ]]; then
+              echo "[remote] 创建 sites-available 目录..."
+              sudo mkdir -p /etc/nginx/sites-available
+            fi
+            
+            if [[ ! -d /etc/nginx/sites-enabled ]]; then
+              echo "[remote] 创建 sites-enabled 目录..."
+              sudo mkdir -p /etc/nginx/sites-enabled
+            fi
+            
+            # 检查nginx.conf是否包含sites-enabled
+            if ! grep -q "sites-enabled" /etc/nginx/nginx.conf 2>/dev/null; then
+              echo "[remote] 警告: nginx.conf 可能未包含 sites-enabled 配置"
+              echo "[remote] 请确认是否需要手动 include /etc/nginx/sites-enabled/*.conf"
+            fi
+            
+            sudo mv /tmp/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf
             
             # 启用站点
             if [[ -L /etc/nginx/sites-enabled/ira-demo.conf ]]; then
-              rm /etc/nginx/sites-enabled/ira-demo.conf
+              sudo rm /etc/nginx/sites-enabled/ira-demo.conf
             fi
-            ln -sf /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-enabled/
+            sudo ln -sf /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-enabled/
             
             echo "[remote] 测试Nginx配置..."
-            nginx -t
+            sudo nginx -t
             
             echo "[remote] 重载Nginx..."
-            systemctl reload nginx
+            sudo systemctl reload nginx
             
             echo "[remote] ✅ Nginx配置部署成功！"
 
