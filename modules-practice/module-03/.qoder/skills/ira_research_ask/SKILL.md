@@ -112,9 +112,9 @@
 - 不将密钥写入 Skill 仓库
 - 遵守统一约定：API 基路径 `/api/v1`，错误体格式与 Spec §7 一致
 
-## 参考
+## 参考（相对仓库根）
 
-- OpenAPI 契约: `openapi/kb-qa-contract.yaml`
-- Spec: `docs/01-Spec-知识库与问答-CoPaw底座-v0.1.md` §3.4, §5.1
-- 任务文档: `docs/tasks/T-F.md`
-- 统一约定: `docs/03-任务地图与Qoder-Quest执行指南.md` §3
+- OpenAPI 契约: `specs/workshop/module-03-knowledge-copaw/openapi/kb-qa-contract.yaml`
+- Spec: `specs/workshop/module-03-knowledge-copaw/docs/01-Spec-知识库与问答-CoPaw底座-v0.1.md` §3.4, §5.1
+- 任务文档: `specs/workshop/module-03-knowledge-copaw/docs/tasks/T-F.md`
+- 统一约定: `specs/workshop/module-03-knowledge-copaw/docs/03-任务地图与Qoder-Quest执行指南.md` §3
