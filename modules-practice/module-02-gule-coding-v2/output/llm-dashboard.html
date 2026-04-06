@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM 大模型发展趋势智能看板 | AI Analytics</title>
+<!-- 参考来源: reference/bi/bestbuy-bi-dashboard.html, reference/bi/qatar-bi-dashboard.html -->
+<!-- 生成日期: 2026-04-06 | 主要改动: 主色调#FF8800,聚焦大模型趋势与开源数据 -->
+<style>
+  :root {
+    --orange:        #FF8800;
+    --orange-dark:   #E67A00;
+    --orange-light:  #FFA94D;
+    --orange-pale:   #FFF3E6;
+    --dark:          #0A0F1E;
+    --dark-card:     #141B2D;
+    --dark-card2:    #1A2238;
+    --border:        rgba(255,255,255,0.07);
+    --white:         #FFFFFF;
+    --gray:          rgba(255,255,255,0.6);
+    --gray-light:    rgba(255,255,255,0.4);
+    --green:         #00C851;
+    --green-light:   #E6FAF0;
+    --red:           #E53E3E;
+    --red-light:     #FFF5F5;
+    --blue:          #3B82F6;
+    --blue-light:    #E8F0FF;
+    --purple:        #8B5CF6;
+    --purple-light:  #F3F0FF;
+    --cyan:          #06B6D4;
+    --cyan-light:    #E0F7FA;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: #0D1117;
+    color: var(--white);
+    min-height: 100vh;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: linear-gradient(90deg, #1A0A00 0%, #3D1F00 50%, #FF8800 100%);
+    height: 58px; padding: 0 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid var(--orange);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 28px rgba(255,136,0,0.3);
+  }
+  .tb-left { display: flex; align-items: center; gap: 18px; }
+  .tb-logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: 0 0 16px rgba(255,136,0,0.4);
+  }
+  .logo-name { font-size: 16px; font-weight: 900; color: var(--white); letter-spacing: 0.5px; }
+  .logo-tagline { font-size: 9px; color: var(--orange-light); letter-spacing: 2px; font-weight: 700; margin-top: 2px; }
+  .tb-divider { width: 1px; height: 26px; background: rgba(255,255,255,0.15); }
+  .tb-title { font-size: 13px; color: rgba(255,255,255,0.7); }
+  .tb-title strong { color: var(--orange-light); font-weight: 800; }
+  .tb-right { display: flex; align-items: center; gap: 14px; }
+  .tb-live {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; color: var(--green);
+    background: rgba(0,200,81,0.12); padding: 4px 11px; border-radius: 20px;
+    border: 1px solid rgba(0,200,81,0.3);
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .tb-time { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .tb-source { font-size: 10px; color: rgba(255,136,0,0.7); letter-spacing: 1px; border: 1px solid rgba(255,136,0,0.3); padding: 3px 9px; border-radius: 4px; }
+
+  /* ─── DASHBOARD ─── */
+  .dashboard { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+  /* ─── PAGE HEADER ─── */
+  .page-header { display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-size: 22px; font-weight: 900; color: var(--white); }
+  .page-title span { color: var(--orange); }
+  .page-subtitle { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+  .page-controls { display: flex; align-items: center; gap: 10px; }
+  .ctrl-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all .2s;
+  }
+  .ctrl-btn:hover, .ctrl-btn.active { background: var(--orange); border-color: var(--orange); color: var(--white); }
+  .ctrl-orange { background: rgba(255,136,0,0.15) !important; border-color: rgba(255,136,0,0.4) !important; color: var(--orange) !important; font-weight: 800 !important; }
+  .date-tag { font-size: 12px; color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.04); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); }
+
+  /* ─── ALERT ROW ─── */
+  .alert-row { display: flex; gap: 12px; }
+  .alert-item { flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; font-size: 12px; }
+  .a-orange { background: rgba(255,136,0,0.1); border: 1px solid rgba(255,136,0,0.25); }
+  .a-green { background: rgba(0,200,81,0.1); border: 1px solid rgba(0,200,81,0.25); }
+  .a-blue { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); }
+  .a-msg { flex: 1; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .a-msg strong { color: var(--white); }
+  .a-ts { font-size: 11px; color: rgba(255,255,255,0.35); flex-shrink: 0; }
+
+  /* ─── KPI ROW ─── */
+  .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .kpi-card {
+    background: linear-gradient(145deg, var(--dark-card), var(--dark-card2));
+    border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px;
+    position: relative; overflow: hidden; cursor: default;
+    transition: border-color .2s, transform .2s;
+  }
+  .kpi-card:hover { border-color: rgba(255,136,0,0.3); transform: translateY(-2px); }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .k-orange::before { background: var(--orange); }
+  .k-green::before { background: var(--green); }
+  .k-blue::before { background: var(--blue); }
+  .k-purple::before { background: var(--purple); }
+  .k-cyan::before { background: var(--cyan); }
+  .k-red::before { background: var(--red); }
+  .kpi-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .kpi-value { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+  .k-orange .kpi-value { color: var(--orange); }
+  .k-green .kpi-value { color: var(--green); }
+  .k-blue .kpi-value { color: var(--blue); }
+  .k-purple .kpi-value { color: var(--purple); }
+  .k-cyan .kpi-value { color: var(--cyan); }
+  .k-red .kpi-value { color: #FC8181; }
+  .kpi-trend { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; }
+  .t-up { color: var(--green); }
+  .t-down { color: #FC8181; }
+  .t-vs { font-size: 11px; color: rgba(255,255,255,0.3); margin-left: 2px; }
+
+  /* ─── MAIN GRID ─── */
+  .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+  .col-l { display: flex; flex-direction: column; gap: 18px; }
+  .col-r { display: flex; flex-direction: column; gap: 18px; }
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+
+  /* ─── CARD ─── */
+  .card {
+    background: linear-gradient(145deg, var(--dark-card), var(--dark-card2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: rgba(255,136,0,0.4); }
+  .card-hd { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 800; color: var(--white); margin-bottom: 3px; }
+  .card-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .badge { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .b-orange { background: rgba(255,136,0,0.15); color: var(--orange); border: 1px solid rgba(255,136,0,0.35); }
+  .b-live { background: rgba(0,200,81,0.12); color: var(--green); border: 1px solid rgba(0,200,81,0.3); }
+  .b-ai { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); }
+  .b-new { background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .b-hot { background: rgba(229,62,62,0.12); color: #FC8181; border: 1px solid rgba(229,62,62,0.3); }
+
+  /* ─── SVG CHARTS ─── */
+  .chart-wrap { width: 100%; }
+  .line-chart { height: 200px; }
+  .line-chart svg { width: 100%; height: 100%; }
+  .bar-chart { height: 180px; }
+  .bar-chart svg { width: 100%; height: 100%; }
+
+  /* ─── MODEL TABLE ─── */
+  .model-table { width: 100%; border-collapse: collapse; }
+  .model-table thead th {
+    font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35);
+    text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left;
+  }
+  .model-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .model-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .model-table tbody td { padding: 10px 0; font-size: 12px; vertical-align: middle; }
+  .m-name { font-weight: 700; color: var(--white); }
+  .m-org { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .m-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .mb-open { background: rgba(0,200,81,0.12); color: var(--green); }
+  .mb-closed { background: rgba(229,62,62,0.12); color: #FC8181; }
+  .mb-partial { background: rgba(255,136,0,0.12); color: var(--orange); }
+  .m-score { font-weight: 800; color: var(--orange); }
+
+  /* ─── INSIGHT PANEL ─── */
+  .insight-panel {
+    background: linear-gradient(145deg, #0F0A00, #1A1200);
+    border: 1px solid rgba(255,136,0,0.4); border-radius: 12px; padding: 18px 20px;
+  }
+  .insight-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .insight-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .insight-name { font-size: 13px; font-weight: 800; color: var(--white); }
+  .insight-desc { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .insight-list { display: flex; flex-direction: column; gap: 9px; }
+  .insight { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 11px 13px; border-left: 3px solid; display: flex; align-items: flex-start; gap: 9px; }
+  .i-orange { border-color: var(--orange); }
+  .i-green { border-color: var(--green); }
+  .i-blue { border-color: var(--blue); }
+  .i-purple { border-color: var(--purple); }
+  .i-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .i-text { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+  .i-text strong { color: var(--white); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: rgba(255,136,0,0.2); }
+  .tl-item { position: relative; padding-bottom: 16px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-dot {
+    position: absolute; left: -21px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--orange); border: 2px solid var(--dark);
+    box-shadow: 0 0 0 2px var(--orange);
+  }
+  .tl-date { font-size: 11px; color: var(--orange); font-weight: 700; margin-bottom: 4px; }
+  .tl-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+  .tl-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1200px) {
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
+    .main-grid { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .bottom-grid { grid-template-columns: 1fr; }
+    .alert-row { flex-direction: column; }
+    .topbar { padding: 0 16px; }
+    .dashboard { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">
+        <div class="logo-icon">🤖</div>
+        <div>
+          <div class="logo-name">LLM DASHBOARD</div>
+          <div class="logo-tagline">AI MODEL ANALYTICS</div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div class="tb-title">大模型发展趋势与<strong>开源生态</strong>监控</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-live">
+        <div class="live-dot"></div>
+        <span>实时更新</span>
+      </div>
+      <div class="tb-time" id="currentTime">2026-04-06 14:30:00</div>
+      <div class="tb-source">数据来源: GitHub, HuggingFace, Papers With Code</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Qwen & 主流大模型 <span>发展趋势</span></div>
+        <div class="page-subtitle">追踪全球顶尖语言模型的技术演进、开源进展与性能对比</div>
+      </div>
+      <div class="page-controls">
+        <div class="date-tag">📅 2024.01 - 2026.04</div>
+        <button class="ctrl-btn">日</button>
+        <button class="ctrl-btn active">月</button>
+        <button class="ctrl-btn">季</button>
+        <button class="ctrl-btn orange">📊 导出报告</button>
+      </div>
+    </div>
+
+    <!-- ALERT ROW -->
+    <div class="alert-row">
+      <div class="alert-item a-orange">
+        <span style="font-size: 18px;">🔥</span>
+        <div class="a-msg"><strong>Qwen3 发布</strong> - 性能超越 GPT-4o，开源社区 24h 突破 10k Stars</div>
+        <div class="a-ts">2小时前</div>
+      </div>
+      <div class="alert-item a-green">
+        <span style="font-size: 18px;">📈</span>
+        <div class="a-msg"><strong>开源模型占比</strong> 首次超过 65%，生态持续繁荣</div>
+        <div class="a-ts">6小时前</div>
+      </div>
+      <div class="alert-item a-blue">
+        <span style="font-size: 18px;">🌍</span>
+        <div class="a-msg"><strong>中文能力评测</strong> Qwen 系列包揽前 3 名</div>
+        <div class="a-ts">1天前</div>
+      </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="kpi-row">
+      <div class="kpi-card k-orange">
+        <div class="kpi-label">🔥 追踪模型数</div>
+        <div class="kpi-value">128</div>
+        <div class="kpi-trend t-up">↑ 23 <span class="t-vs">本月新增</span></div>
+      </div>
+      <div class="kpi-card k-green">
+        <div class="kpi-label">📦 开源模型</div>
+        <div class="kpi-value">84</div>
+        <div class="kpi-trend t-up">↑ 65.6% <span class="t-vs">开源率</span></div>
+      </div>
+      <div class="kpi-card k-blue">
+        <div class="kpi-label">⭐ GitHub Stars</div>
+        <div class="kpi-value">2.4M</div>
+        <div class="kpi-trend t-up">↑ 18.5% <span class="t-vs">vs 上月</span></div>
+      </div>
+      <div class="kpi-card k-purple">
+        <div class="kpi-label">📄 论文数量</div>
+        <div class="kpi-value">1,847</div>
+        <div class="kpi-trend t-up">↑ 32.1% <span class="t-vs">vs 上月</span></div>
+      </div>
+      <div class="kpi-card k-cyan">
+        <div class="kpi-label">🚀 下载量 (M)</div>
+        <div class="kpi-value">48.7</div>
+        <div class="kpi-trend t-up">↑ 42.3% <span class="t-vs">vs 上月</span></div>
+      </div>
+      <div class="kpi-card k-red">
+        <div class="kpi-label">🏆 平均性能分</div>
+        <div class="kpi-value">87.3</div>
+        <div class="kpi-trend t-up">↑ 5.2 <span class="t-vs">vs 上月</span></div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+      <!-- LEFT COLUMN -->
+      <div class="col-l">
+        <!-- Performance Trend Chart -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">📈 主流模型性能趋势对比</div>
+              <div class="card-sub">基于 MMLU、HumanEval、GSM8K 综合评分 (2024-2026)</div>
+            </div>
+            <div class="badge b-live">LIVE</div>
+          </div>
+          <div class="chart-wrap line-chart">
+            <svg viewBox="0 0 800 200" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              
+              <!-- Qwen line (orange) -->
+              <polyline fill="none" stroke="#FF8800" stroke-width="3" points="0,160 67,145 133,130 200,110 267,90 333,75 400,60 467,45 533,35 600,28 667,20 733,15 800,12"/>
+              <polyline fill="url(#orangeGradient)" stroke="none" points="0,160 67,145 133,130 200,110 267,90 333,75 400,60 467,45 533,35 600,28 667,20 733,15 800,12 800,200 0,200"/>
+              
+              <!-- GPT line (blue) -->
+              <polyline fill="none" stroke="#3B82F6" stroke-width="3" stroke-dasharray="5,5" points="0,140 67,130 133,115 200,100 267,85 333,72 400,58 467,48 533,40 600,35 667,30 733,28 800,25"/>
+              
+              <!-- Claude line (purple) -->
+              <polyline fill="none" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="3,3" points="0,150 67,140 133,125 200,108 267,92 333,78 400,65 467,55 533,48 600,42 667,38 733,35 800,32"/>
+              
+              <!-- LLaMA line (green) -->
+              <polyline fill="none" stroke="#00C851" stroke-width="2" stroke-dasharray="2,2" points="0,165 67,155 133,142 200,128 267,112 333,98 400,85 467,72 533,62 600,55 667,48 733,42 800,38"/>
+              
+              <!-- Gradient fill -->
+              <defs>
+                <linearGradient id="orangeGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FF8800" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#FF8800" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              
+              <!-- Data points -->
+              <circle cx="800" cy="12" r="5" fill="#FF8800" stroke="#0D1117" stroke-width="2"/>
+              <circle cx="800" cy="25" r="4" fill="#3B82F6" stroke="#0D1117" stroke-width="2"/>
+              <circle cx="800" cy="32" r="4" fill="#8B5CF6" stroke="#0D1117" stroke-width="2"/>
+              <circle cx="800" cy="38" r="4" fill="#00C851" stroke="#0D1117" stroke-width="2"/>
+            </svg>
+          </div>
+          <div style="display: flex; gap: 20px; margin-top: 12px; font-size: 11px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 3px; background: #FF8800;"></div>
+              <span style="color: rgba(255,255,255,0.6);">Qwen 系列</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 3px; background: #3B82F6;"></div>
+              <span style="color: rgba(255,255,255,0.6);">GPT 系列</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 3px; background: #8B5CF6;"></div>
+              <span style="color: rgba(255,255,255,0.6);">Claude 系列</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 3px; background: #00C851;"></div>
+              <span style="color: rgba(255,255,255,0.6);">LLaMA 系列</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model Comparison Table -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">🏆 主流模型详细对比</div>
+              <div class="card-sub">最新版本的综合能力评测 (2026.04)</div>
+            </div>
+            <div class="badge b-ai">AI RANKING</div>
+          </div>
+          <table class="model-table">
+            <thead>
+              <tr>
+                <th>模型名称</th>
+                <th>开源状态</th>
+                <th>参数量</th>
+                <th>MMLU</th>
+                <th>HumanEval</th>
+                <th>GSM8K</th>
+                <th>综合评分</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="m-name">Qwen3-235B</div>
+                  <div class="m-org">阿里巴巴 · 通义千问</div>
+                </td>
+                <td><span class="m-badge mb-open">✓ 开源</span></td>
+                <td>235B</td>
+                <td>89.5</td>
+                <td>92.3</td>
+                <td>95.1</td>
+                <td class="m-score">92.3</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="m-name">Qwen3-72B</div>
+                  <div class="m-org">阿里巴巴 · 通义千问</div>
+                </td>
+                <td><span class="m-badge mb-open">✓ 开源</span></td>
+                <td>72B</td>
+                <td>87.2</td>
+                <td>89.7</td>
+                <td>93.4</td>
+                <td class="m-score">90.1</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="m-name">GPT-4.5</div>
+                  <div class="m-org">OpenAI</div>
+                </td>
+                <td><span class="m-badge mb-closed">✗ 闭源</span></td>
+                <td>~200B</td>
+                <td>90.1</td>
+                <td>93.8</td>
+                <td>96.2</td>
+                <td class="m-score">93.4</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="m-name">Claude 4 Opus</div>
+                  <div class="m-org">Anthropic</div>
+                </td>
+                <td><span class="m-badge mb-closed">✗ 闭源</span></td>
+                <td>~180B</td>
+                <td>89.8</td>
+                <td>91.5</td>
+                <td>94.7</td>
+                <td class="m-score">92.0</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="m-name">LLaMA 4</div>
+                  <div class="m-org">Meta</div>
+                </td>
+                <td><span class="m-badge mb-open">✓ 开源</span></td>
+                <td>140B</td>
+                <td>86.5</td>
+                <td>87.9</td>
+                <td>91.2</td>
+                <td class="m-score">88.5</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="m-name">Mistral Large 3</div>
+                  <div class="m-org">Mistral AI</div>
+                </td>
+                <td><span class="m-badge mb-partial">◐ 部分</span></td>
+                <td>123B</td>
+                <td>85.3</td>
+                <td>86.2</td>
+                <td>90.5</td>
+                <td class="m-score">87.3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-r">
+        <!-- AI Insights -->
+        <div class="insight-panel">
+          <div class="insight-hd">
+            <div class="insight-icon">💡</div>
+            <div>
+              <div class="insight-name">AI 智能洞察</div>
+              <div class="insight-desc">基于数据分析的关键发现</div>
+            </div>
+          </div>
+          <div class="insight-list">
+            <div class="insight i-orange">
+              <div class="i-icon">🔥</div>
+              <div class="i-text"><strong>Qwen 系列持续领跑</strong><br>2026年Q1发布3个新版本，综合性能提升 18.5%，中文能力排名第一</div>
+            </div>
+            <div class="insight i-green">
+              <div class="i-icon">📈</div>
+              <div class="i-text"><strong>开源生态爆发式增长</strong><br>GitHub Stars 同比增长 245%，HuggingFace 下载量突破 4800万次</div>
+            </div>
+            <div class="insight i-blue">
+              <div class="i-icon">🌍</div>
+              <div class="i-text"><strong>多语言能力增强</strong><br>支持语言从 29 种扩展至 119 种，小语种性能提升 67%</div>
+            </div>
+            <div class="insight i-purple">
+              <div class="i-icon">🚀</div>
+              <div class="i-text"><strong>推理成本下降 73%</strong><br>MoE 架构普及，单次推理成本从 $0.03 降至 $0.008</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Release Timeline -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">📅 重要发布时间线</div>
+              <div class="card-sub">2025-2026 关键模型发布</div>
+            </div>
+            <div class="badge b-new">TIMELINE</div>
+          </div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-date">2026.03</div>
+              <div class="tl-title">Qwen3 系列发布</div>
+              <div class="tl-desc">235B/72B/32B 三个版本同步开源</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot" style="background: #3B82F6; box-shadow: 0 0 0 2px #3B82F6;"></div>
+              <div class="tl-date" style="color: #3B82F6;">2026.02</div>
+              <div class="tl-title">GPT-4.5 发布</div>
+              <div class="tl-desc">OpenAI 推理能力大幅增强</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot" style="background: #8B5CF6; box-shadow: 0 0 0 2px #8B5CF6;"></div>
+              <div class="tl-date" style="color: #8B5CF6;">2026.01</div>
+              <div class="tl-title">Claude 4 Opus</div>
+              <div class="tl-desc">Anthropic 最强模型上线</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot" style="background: #00C851; box-shadow: 0 0 0 2px #00C851;"></div>
+              <div class="tl-date" style="color: #00C851;">2025.11</div>
+              <div class="tl-title">LLaMA 4 开源</div>
+              <div class="tl-desc">Meta 开源生态重大更新</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-date">2025.09</div>
+              <div class="tl-title">Qwen2.5 发布</div>
+              <div class="tl-desc">代码能力显著提升</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-date">2025.06</div>
+              <div class="tl-title">GPT-4o 更新</div>
+              <div class="tl-desc">多模态能力增强</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Open Source Growth -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">⭐ GitHub Stars 增长</div>
+              <div class="card-sub">过去 12 个月趋势</div>
+            </div>
+            <div class="badge b-hot">HOT</div>
+          </div>
+          <div class="chart-wrap bar-chart">
+            <svg viewBox="0 0 400 180">
+              <!-- Grid -->
+              <line x1="0" y1="45" x2="400" y2="45" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="90" x2="400" y2="90" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <line x1="0" y1="135" x2="400" y2="135" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              
+              <!-- Bars -->
+              <rect x="10" y="150" width="24" height="30" fill="#FF8800" opacity="0.6" rx="2"/>
+              <rect x="42" y="140" width="24" height="40" fill="#FF8800" opacity="0.65" rx="2"/>
+              <rect x="74" y="128" width="24" height="52" fill="#FF8800" opacity="0.7" rx="2"/>
+              <rect x="106" y="115" width="24" height="65" fill="#FF8800" opacity="0.75" rx="2"/>
+              <rect x="138" y="100" width="24" height="80" fill="#FF8800" opacity="0.8" rx="2"/>
+              <rect x="170" y="85" width="24" height="95" fill="#FF8800" opacity="0.85" rx="2"/>
+              <rect x="202" y="70" width="24" height="110" fill="#FF8800" opacity="0.9" rx="2"/>
+              <rect x="234" y="55" width="24" height="125" fill="#FF8800" opacity="0.95" rx="2"/>
+              <rect x="266" y="40" width="24" height="140" fill="#FF8800" rx="2"/>
+              <rect x="298" y="28" width="24" height="152" fill="#FFA94D" rx="2"/>
+              <rect x="330" y="18" width="24" height="162" fill="#FFA94D" rx="2"/>
+              <rect x="362" y="10" width="24" height="170" fill="#FFA94D" rx="2"/>
+              
+              <!-- Labels -->
+              <text x="22" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">4月</text>
+              <text x="86" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">6月</text>
+              <text x="150" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">8月</text>
+              <text x="214" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">10月</text>
+              <text x="278" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">12月</text>
+              <text x="342" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">2月</text>
+              <text x="374" y="175" fill="rgba(255,255,255,0.4)" font-size="9" text-anchor="middle">4月</text>
+            </svg>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: rgba(255,255,255,0.6);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span>总 Stars:</span>
+              <span style="color: var(--orange); font-weight: 800;">2.4M</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>月均增长:</span>
+              <span style="color: var(--green); font-weight: 700;">+18.5%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="bottom-grid">
+      <!-- Open Source Ecosystem -->
+      <div class="card">
+        <div class="card-hd">
+          <div>
+            <div class="card-title">📦 开源生态分布</div>
+            <div class="card-sub">按许可证类型统计</div>
+          </div>
+          <div class="badge b-orange">STATS</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <svg viewBox="0 0 200 200" style="width: 100%; max-width: 180px; margin: 0 auto; display: block;">
+            <!-- Pie chart -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="40"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#FF8800" stroke-width="40"
+              stroke-dasharray="251.2 251.2" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#00C851" stroke-width="40"
+              stroke-dasharray="150.72 351.68" stroke-dashoffset="-251.2" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#3B82F6" stroke-width="40"
+              stroke-dasharray="100.48 401.92" stroke-dashoffset="-401.92" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#8B5CF6" stroke-width="40"
+              stroke-dasharray="75.36 426.04" stroke-dashoffset="-502.4" transform="rotate(-90 100 100)"/>
+            <text x="100" y="95" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle">开源许可</text>
+            <text x="100" y="112" fill="var(--orange)" font-size="18" font-weight="900" text-anchor="middle">84个</text>
+          </svg>
+        </div>
+        <div style="font-size: 12px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 10px; height: 10px; background: #FF8800; border-radius: 2px;"></div>
+              <span style="color: rgba(255,255,255,0.6);">Apache 2.0</span>
+            </div>
+            <span style="color: var(--white); font-weight: 700;">50%</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 10px; height: 10px; background: #00C851; border-radius: 2px;"></div>
+              <span style="color: rgba(255,255,255,0.6);">MIT</span>
+            </div>
+            <span style="color: var(--white); font-weight: 700;">30%</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 10px; height: 10px; background: #3B82F6; border-radius: 2px;"></div>
+              <span style="color: rgba(255,255,255,0.6);">GPL</span>
+            </div>
+            <span style="color: var(--white); font-weight: 700;">20%</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 10px; height: 10px; background: #8B5CF6; border-radius: 2px;"></div>
+              <span style="color: rgba(255,255,255,0.6);">其他</span>
+            </div>
+            <span style="color: var(--white); font-weight: 700;">15%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Download Statistics -->
+      <div class="card">
+        <div class="card-hd">
+          <div>
+            <div class="card-title">📥 模型下载 TOP 5</div>
+            <div class="card-sub">HuggingFace 月度数据</div>
+          </div>
+          <div class="badge b-live">LIVE</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #FF8800, #FFA94D); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px;">1</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--white);">Qwen3-72B</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.5);">阿里巴巴</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 14px; font-weight: 800; color: var(--orange);">8.7M</div>
+              <div style="font-size: 10px; color: var(--green);">↑ 42%</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #3B82F6, #60A5FA); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px;">2</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--white);">LLaMA 4</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Meta</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 14px; font-weight: 800; color: var(--blue);">7.2M</div>
+              <div style="font-size: 10px; color: var(--green);">↑ 35%</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #00C851, #00E676); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px;">3</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--white);">Qwen2.5-32B</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.5);">阿里巴巴</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 14px; font-weight: 800; color: var(--green);">6.5M</div>
+              <div style="font-size: 10px; color: var(--green);">↑ 28%</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #8B5CF6, #A78BFA); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px;">4</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--white);">Mistral Large 3</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Mistral AI</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 14px; font-weight: 800; color: var(--purple);">4.8M</div>
+              <div style="font-size: 10px; color: var(--green);">↑ 22%</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #06B6D4, #22D3EE); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px;">5</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--white);">DeepSeek-V4</div>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.5);">深度求索</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 14px; font-weight: 800; color: var(--cyan);">3.9M</div>
+              <div style="font-size: 10px; color: var(--green);">↑ 31%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technology Trends -->
+      <div class="card">
+        <div class="card-hd">
+          <div>
+            <div class="card-title">🔬 技术趋势关键词</div>
+            <div class="card-sub">论文 & GitHub 热词分析</div>
+          </div>
+          <div class="badge b-ai">NLP</div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+          <span style="background: rgba(255,136,0,0.15); color: var(--orange); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid rgba(255,136,0,0.3);">MoE 架构</span>
+          <span style="background: rgba(0,200,81,0.12); color: var(--green); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(0,200,81,0.25);">RLHF</span>
+          <span style="background: rgba(59,130,246,0.12); color: var(--blue); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid rgba(59,130,246,0.25);">多模态</span>
+          <span style="background: rgba(139,92,246,0.12); color: var(--purple); padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; border: 1px solid rgba(139,92,246,0.25);">Agent</span>
+          <span style="background: rgba(6,182,212,0.12); color: var(--cyan); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(6,182,212,0.25);">长上下文</span>
+          <span style="background: rgba(255,136,0,0.15); color: var(--orange); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid rgba(255,136,0,0.3);">代码生成</span>
+          <span style="background: rgba(229,62,62,0.12); color: #FC8181; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid rgba(229,62,62,0.25);">推理优化</span>
+          <span style="background: rgba(0,200,81,0.12); color: var(--green); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(0,200,81,0.25);">对齐训练</span>
+          <span style="background: rgba(59,130,246,0.12); color: var(--blue); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid rgba(59,130,246,0.25);">量化部署</span>
+          <span style="background: rgba(139,92,246,0.12); color: var(--purple); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid rgba(139,92,246,0.25);">RAG</span>
+        </div>
+        <div style="padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">热门技术增长趋势</div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                <span style="color: rgba(255,255,255,0.7);">MoE 架构</span>
+                <span style="color: var(--orange); font-weight: 700;">+285%</span>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                <div style="width: 95%; height: 100%; background: var(--orange); border-radius: 3px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                <span style="color: rgba(255,255,255,0.7);">Agent 框架</span>
+                <span style="color: var(--purple); font-weight: 700;">+247%</span>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                <div style="width: 82%; height: 100%; background: var(--purple); border-radius: 3px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                <span style="color: rgba(255,255,255,0.7);">长上下文</span>
+                <span style="color: var(--cyan); font-weight: 700;">+198%</span>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                <div style="width: 66%; height: 100%; background: var(--cyan); border-radius: 3px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                <span style="color: rgba(255,255,255,0.7);">代码生成</span>
+                <span style="color: var(--green); font-weight: 700;">+156%</span>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                <div style="width: 52%; height: 100%; background: var(--green); border-radius: 3px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 更新时间
+    function updateTime() {
+      const now = new Date();
+      const timeStr = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0') + ' ' + 
+        String(now.getHours()).padStart(2, '0') + ':' + 
+        String(now.getMinutes()).padStart(2, '0') + ':' + 
+        String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('currentTime').textContent = timeStr;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // 动画效果
+    document.addEventListener('DOMContentLoaded', function() {
+      // 进度条动画
+      const progressBars = document.querySelectorAll('[style*="width:"]');
+      progressBars.forEach(bar => {
+        if (bar.style.width && bar.style.width.includes('%')) {
+          const width = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => {
+            bar.style.width = width;
+          }, 500);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

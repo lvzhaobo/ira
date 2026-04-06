@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word风格报告文档 | 蓝色主题</title>
+  <!-- 参考来源: reference/report-html/workshop-learner-report.html -->
+  <!-- 生成日期: 2026-04-06 | 主要改动: 替换主色调为#0066FF,去品牌化,简化结构 -->
+  <style>
+    :root {
+      --primary: #0066FF;
+      --primary-dark: #0052CC;
+      --primary-light: #E6F0FF;
+      --black: #000000;
+      --gray-dark: #1a1a1a;
+      --gray-mid: #4a4a4a;
+      --gray-light: #f5f5f5;
+      --gray-border: #d8d8d8;
+      --white: #ffffff;
+      --page-bg: #d6d6d6;
+      --page-w: 794px;
+      --font: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--page-bg);
+      color: var(--gray-dark);
+      line-height: 1.6;
+      padding: 32px 0 64px;
+    }
+
+    /* ── 工具栏 ── */
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 52px;
+      border-bottom: 2px solid var(--primary);
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 20px; }
+    .toolbar-logo { display: flex; align-items: center; gap: 10px; }
+    .toolbar-icon {
+      width: 22px; height: 22px;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    .toolbar-brand { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; }
+    .toolbar-divider { width: 1px; height: 22px; background: #333; }
+    .toolbar-doc { color: #999; font-size: 12px; }
+    .toolbar-right { display: flex; align-items: center; gap: 10px; }
+    .toolbar-btn {
+      background: rgba(255,255,255,0.08); border: 1px solid #333;
+      color: #ccc; font-size: 11px; font-weight: 600;
+      padding: 5px 14px; cursor: pointer; letter-spacing: 0.06em;
+      transition: all 0.2s;
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .toolbar-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .toolbar-btn.primary:hover { background: var(--primary-dark); }
+
+    /* ── 页面主体 ── */
+    .doc-pages { margin-top: 52px; }
+    .page {
+      width: var(--page-w);
+      min-height: 1123px;
+      background: var(--white);
+      margin: 24px auto;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      page-break-after: always;
+      overflow: hidden;
+    }
+
+    /* ══ 封面页 ══ */
+    .cover-page { display: flex; flex-direction: column; }
+    .cover-top-bar { background: var(--black); height: 8px; border-bottom: 3px solid var(--primary); }
+    .cover-body {
+      flex: 1; padding: 60px 64px 40px;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .cover-deco { position: absolute; right: 0; top: 0; width: 240px; height: 240px; overflow: hidden; pointer-events: none; }
+    .cover-deco::before {
+      content: '';
+      position: absolute; right: 0; top: 0;
+      border-style: solid;
+      border-width: 0 240px 240px 0;
+      border-color: transparent rgba(0,102,255,0.06) transparent transparent;
+    }
+    .cover-deco-square { position: absolute; right: 40px; top: 40px; width: 60px; height: 60px; background: var(--primary); border-radius: 4px; opacity: 0.9; }
+    .cover-deco-square2 { position: absolute; right: 24px; top: 112px; width: 36px; height: 36px; background: var(--primary); border-radius: 4px; opacity: 0.35; }
+
+    .cover-client-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--primary);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cover-client-label::before { content: ''; width: 20px; height: 2px; background: var(--primary); }
+    .cover-client-name { font-size: 13px; font-weight: 700; color: var(--gray-mid); margin-bottom: 48px; letter-spacing: 0.04em; }
+
+    .cover-title { font-size: 36px; font-weight: 900; line-height: 1.2; color: var(--black); max-width: 520px; margin-bottom: 12px; }
+    .cover-title .accent { color: var(--primary); }
+    .cover-subtitle { font-size: 15px; color: var(--gray-mid); margin-bottom: 56px; font-weight: 400; }
+    .cover-divider { width: 48px; height: 3px; background: var(--primary); margin-bottom: 40px; }
+
+    .cover-meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--gray-border); margin-bottom: auto; }
+    .cover-meta-item { padding: 20px 0 20px; border-right: 1px solid var(--gray-border); padding-right: 24px; padding-left: 0; }
+    .cover-meta-item:first-child { padding-left: 0; }
+    .cover-meta-item:last-child { border-right: none; padding-left: 24px; }
+    .cover-meta-item:nth-child(2) { padding-left: 24px; }
+    .cover-meta-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+    .cover-meta-value { font-size: 13px; font-weight: 700; color: var(--gray-dark); }
+
+    .cover-footer { padding: 28px 64px; background: var(--black); display: flex; align-items: center; justify-content: space-between; }
+    .cover-footer-logo { display: flex; align-items: center; gap: 10px; }
+    .cover-footer-icon { width: 20px; height: 20px; background: var(--primary); border-radius: 3px; }
+    .cover-footer-brand { color: var(--white); font-size: 14px; font-weight: 700; letter-spacing: 0.06em; }
+    .cover-footer-copy { color: #555; font-size: 11px; }
+
+    /* ══ 正文页通用 ══ */
+    .page-header {
+      height: 56px; background: var(--black);
+      padding: 0 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 3px solid var(--primary);
+    }
+    .page-header-left { display: flex; align-items: center; gap: 12px; }
+    .ph-icon { width: 16px; height: 16px; background: var(--primary); border-radius: 2px; }
+    .ph-brand { color: var(--white); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+    .ph-divider { width: 1px; height: 16px; background: #333; }
+    .ph-section { color: #888; font-size: 11px; letter-spacing: 0.04em; }
+    .page-header-right { color: #555; font-size: 10px; }
+
+    .page-content { padding: 44px 52px 80px; }
+
+    .page-footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px; background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px;
+      border-top: 2px solid var(--primary);
+    }
+    .pf-left { color: #555; font-size: 10px; }
+    .pf-right { color: #555; font-size: 10px; }
+    .pf-page { color: var(--primary); font-weight: 700; font-size: 11px; }
+
+    /* ══ 内容组件 ══ */
+    .section-title {
+      font-size: 24px; font-weight: 900; color: var(--black);
+      margin-bottom: 8px; line-height: 1.3;
+    }
+    .section-subtitle {
+      font-size: 14px; color: var(--gray-mid); margin-bottom: 28px; line-height: 1.7;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::before { content: ''; width: 24px; height: 2px; background: var(--primary); }
+
+    /* 段落 */
+    .text-block { margin-bottom: 20px; }
+    .text-block p { font-size: 14px; color: var(--gray-dark); line-height: 1.8; margin-bottom: 12px; }
+
+    /* 卡片网格 */
+    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px; }
+    .info-card {
+      background: var(--gray-light); border-left: 4px solid var(--primary);
+      padding: 20px; position: relative;
+    }
+    .info-card-title { font-size: 16px; font-weight: 800; color: var(--black); margin-bottom: 8px; }
+    .info-card-desc { font-size: 13px; color: var(--gray-mid); line-height: 1.7; }
+    .info-card-icon {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px; background: var(--primary); border-radius: 4px;
+      opacity: 0.15;
+    }
+
+    /* 数据表格 */
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 13px; }
+    .data-table th {
+      background: var(--black); color: #fff; padding: 12px 14px;
+      text-align: left; font-size: 12px; font-weight: 700;
+    }
+    .data-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-border); vertical-align: top; }
+    .data-table tr:hover td { background: var(--primary-light); }
+
+    /* 进度条 */
+    .progress-item { margin-bottom: 20px; }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .progress-label { font-size: 13px; font-weight: 700; color: var(--gray-dark); }
+    .progress-value { font-size: 13px; font-weight: 800; color: var(--primary); }
+    .progress-bar { height: 8px; background: var(--gray-light); overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
+
+    /* 列表 */
+    .check-list { list-style: none; margin-bottom: 24px; }
+    .check-list li {
+      font-size: 14px; color: var(--gray-dark); padding: 10px 0;
+      border-bottom: 1px solid var(--gray-border);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .check-list li::before {
+      content: '✓'; color: var(--primary); font-weight: 700;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* 提示框 */
+    .tip-box {
+      background: var(--primary-light); border-left: 4px solid var(--primary);
+      padding: 16px 20px; margin-bottom: 24px;
+    }
+    .tip-box-title { font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .tip-box p { font-size: 13px; color: var(--gray-dark); line-height: 1.7; }
+
+    /* 打印优化 */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .page { margin: 0; box-shadow: none; page-break-after: always; }
+    }
+
+    /* 响应式 */
+    @media (max-width: 850px) {
+      .page { width: 100%; margin: 12px 0; }
+      .cover-body, .page-content { padding: 32px 24px 60px; }
+      .page-header, .page-footer { padding: 0 24px; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="toolbar-logo">
+        <div class="toolbar-icon"></div>
+        <span class="toolbar-brand">DOCUMENT</span>
+      </div>
+      <div class="toolbar-divider"></div>
+      <span class="toolbar-doc">业务分析报告 2026</span>
+    </div>
+    <div class="toolbar-right">
+      <button class="toolbar-btn" onclick="window.print()">打印</button>
+      <button class="toolbar-btn" onclick="downloadPDF()">导出PDF</button>
+      <button class="toolbar-btn primary">分享</button>
+    </div>
+  </div>
+
+  <!-- 页面容器 -->
+  <div class="doc-pages">
+
+    <!-- 封面页 -->
+    <div class="page cover-page">
+      <div class="cover-top-bar"></div>
+      <div class="cover-body">
+        <div class="cover-deco">
+          <div class="cover-deco-square"></div>
+          <div class="cover-deco-square2"></div>
+        </div>
+
+        <div class="cover-client-label">CONFIDENTIAL REPORT</div>
+        <div class="cover-client-name">企业数字化转型项目组</div>
+
+        <h1 class="cover-title">
+          2026年度<br>
+          <span class="accent">业务分析与</span><br>
+          战略规划报告
+        </h1>
+        <p class="cover-subtitle">基于数据驱动的增长策略与执行路径</p>
+
+        <div class="cover-divider"></div>
+
+        <div class="cover-meta-grid">
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">文档版本</div>
+            <div class="cover-meta-value">v2.1.0</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">编制日期</div>
+            <div class="cover-meta-value">2026.04.06</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">密级</div>
+            <div class="cover-meta-value">内部公开</div>
+          </div>
+        </div>
+      </div>
+      <div class="cover-footer">
+        <div class="cover-footer-logo">
+          <div class="cover-footer-icon"></div>
+          <span class="cover-footer-brand">DOCUMENT</span>
+        </div>
+        <div class="cover-footer-copy">© 2026 版权所有 · 机密文档</div>
+      </div>
+    </div>
+
+    <!-- 正文页1：执行摘要 -->
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="ph-icon"></div>
+          <span class="ph-brand">DOCUMENT</span>
+          <div class="ph-divider"></div>
+          <span class="ph-section">执行摘要</span>
+        </div>
+        <div class="page-header-right">CONFIDENTIAL</div>
+      </div>
+
+      <div class="page-content">
+        <div class="section-label">SECTION 01</div>
+        <h2 class="section-title">执行摘要</h2>
+        <p class="section-subtitle">本报告概述了2026年度业务增长的关键指标、战略方向与执行计划，为决策层提供数据支持。</p>
+
+        <div class="text-block">
+          <p>在过去的一个财年中，我们的业务实现了显著增长。通过数字化转型和智能化升级，我们成功优化了运营效率，提升了客户满意度，并为未来的可持续发展奠定了坚实基础。</p>
+          <p>本报告将从市场分析、业务绩效、技术创新和战略规划四个维度进行深入剖析，识别关键机会点并提出可执行的行动方案。</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">营收增长</div>
+            <div class="info-card-desc">年度营收同比增长32.5%，超出预期目标8个百分点，主要得益于新产品线的成功推出。</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">客户拓展</div>
+            <div class="info-card-desc">新增企业客户1,240家，客户留存率达到94.7%，创历史新高。</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">技术创新</div>
+            <div class="info-card-desc">完成AI平台2.0升级，部署智能分析模型15个，自动化流程覆盖率提升至78%。</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">团队建设</div>
+            <div class="info-card-desc">核心技术人员增长45%，建立3个创新中心，专利申请数量翻倍。</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-box-title">💡 关键洞察</div>
+          <p>数据显示，AI驱动的业务流程优化贡献了约28%的效率提升，建议下一财年继续加大智能化投资力度，重点布局预测性分析和自动化决策领域。</p>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="pf-left">业务分析与战略规划报告</div>
+        <div class="pf-right">第 <span class="pf-page">02</span> 页</div>
+      </div>
+    </div>
+
+    <!-- 正文页2：数据分析 -->
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="ph-icon"></div>
+          <span class="ph-brand">DOCUMENT</span>
+          <div class="ph-divider"></div>
+          <span class="ph-section">数据分析</span>
+        </div>
+        <div class="page-header-right">CONFIDENTIAL</div>
+      </div>
+
+      <div class="page-content">
+        <div class="section-label">SECTION 02</div>
+        <h2 class="section-title">核心业务指标</h2>
+        <p class="section-subtitle">以下是2026年度各业务线的关键绩效指标达成情况。</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>指标名称</th>
+              <th>目标值</th>
+              <th>实际值</th>
+              <th>达成率</th>
+              <th>同比变化</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>总营收</strong></td>
+              <td>¥5.2亿</td>
+              <td>¥5.8亿</td>
+              <td style="color: var(--primary); font-weight: 700;">111.5%</td>
+              <td style="color: #00a651;">↑ 32.5%</td>
+            </tr>
+            <tr>
+              <td><strong>净利润</strong></td>
+              <td>¥8,500万</td>
+              <td>¥9,200万</td>
+              <td style="color: var(--primary); font-weight: 700;">108.2%</td>
+              <td style="color: #00a651;">↑ 28.3%</td>
+            </tr>
+            <tr>
+              <td><strong>客户数量</strong></td>
+              <td>12,000家</td>
+              <td>13,240家</td>
+              <td style="color: var(--primary); font-weight: 700;">110.3%</td>
+              <td style="color: #00a651;">↑ 24.7%</td>
+            </tr>
+            <tr>
+              <td><strong>客户留存率</strong></td>
+              <td>92%</td>
+              <td>94.7%</td>
+              <td style="color: var(--primary); font-weight: 700;">102.9%</td>
+              <td style="color: #00a651;">↑ 3.2%</td>
+            </tr>
+            <tr>
+              <td><strong>产品交付周期</strong></td>
+              <td>15天</td>
+              <td>12天</td>
+              <td style="color: var(--primary); font-weight: 700;">120%</td>
+              <td style="color: #00a651;">↓ 20%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="section-label" style="margin-top: 36px;">关键指标完成进度</div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Q1 目标达成</span>
+            <span class="progress-value">98%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 98%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Q2 目标达成</span>
+            <span class="progress-value">105%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Q3 目标达成</span>
+            <span class="progress-value">112%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Q4 目标达成</span>
+            <span class="progress-value">118%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="pf-left">业务分析与战略规划报告</div>
+        <div class="pf-right">第 <span class="pf-page">03</span> 页</div>
+      </div>
+    </div>
+
+    <!-- 正文页3：行动计划 -->
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="ph-icon"></div>
+          <span class="ph-brand">DOCUMENT</span>
+          <div class="ph-divider"></div>
+          <span class="ph-section">行动计划</span>
+        </div>
+        <div class="page-header-right">CONFIDENTIAL</div>
+      </div>
+
+      <div class="page-content">
+        <div class="section-label">SECTION 03</div>
+        <h2 class="section-title">2027年战略规划</h2>
+        <p class="section-subtitle">基于本年度成果，制定下一年度的战略重点和执行路径。</p>
+
+        <div class="text-block">
+          <p>展望未来，我们将围绕以下五个核心战略方向展开工作，确保业务的持续增长和市场领先地位：</p>
+        </div>
+
+        <ul class="check-list">
+          <li>
+            <div>
+              <strong>AI+战略深化</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">扩大AI应用场景，覆盖80%核心业务流程，建立智能决策中枢</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>全球化布局</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">拓展东南亚和欧洲市场，建立3个海外运营中心</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>产品创新升级</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">推出下一代智能产品线，研发投入占比提升至18%</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>客户体验优化</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">建立全渠道客户服务体系，NPS评分目标达到75+</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>组织能力建设</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">打造敏捷型组织，培养数字化人才，员工满意度提升至90%</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="tip-box">
+          <div class="tip-box-title">📋 执行要点</div>
+          <p>建议按季度拆解目标，建立月度复盘机制，确保战略落地。关键里程碑包括：Q1完成AI平台3.0升级、Q2启动海外扩张、Q3发布新产品线、Q4实现年度目标。</p>
+        </div>
+
+        <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid var(--gray-border);">
+          <div class="section-label">文档信息</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px; margin-top: 16px;">
+            <div>
+              <strong style="color: var(--gray-mid);">编制部门：</strong>
+              <span>战略规划部</span>
+            </div>
+            <div>
+              <strong style="color: var(--gray-mid);">审批人：</strong>
+              <span>CEO办公室</span>
+            </div>
+            <div>
+              <strong style="color: var(--gray-mid);">联系方式：</strong>
+              <span>strategy@company.com</span>
+            </div>
+            <div>
+              <strong style="color: var(--gray-mid);">下次更新：</strong>
+              <span>2026年Q2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="pf-left">业务分析与战略规划报告</div>
+        <div class="pf-right">第 <span class="pf-page">04</span> 页</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 打印功能
+    function downloadPDF() {
+      alert('提示：请使用浏览器的"打印"功能，选择"另存为PDF"即可导出。\n\n快捷键：Ctrl + P (Windows) 或 Cmd + P (Mac)');
+      window.print();
+    }
+
+    // 页面滚动动画
+    document.addEventListener('DOMContentLoaded', function() {
+      const progressBars = document.querySelectorAll('.progress-fill');
+      progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 300);
+      });
+    });
+  </script>
+
+</body>
+</html>

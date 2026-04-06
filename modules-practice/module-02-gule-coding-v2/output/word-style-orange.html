@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word风格报告文档 | 橙色主题</title>
+  <!-- 参考来源: reference/report-html/workshop-learner-report.html -->
+  <!-- 生成日期: 2026-04-06 | 主要改动: 替换主色调为#FF8800,去品牌化,简化结构 -->
+  <style>
+    :root {
+      --primary: #FF8800;
+      --primary-dark: #E67A00;
+      --primary-light: #FFF3E6;
+      --black: #000000;
+      --gray-dark: #1a1a1a;
+      --gray-mid: #4a4a4a;
+      --gray-light: #f5f5f5;
+      --gray-border: #d8d8d8;
+      --white: #ffffff;
+      --page-bg: #d6d6d6;
+      --page-w: 794px;
+      --font: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--page-bg);
+      color: var(--gray-dark);
+      line-height: 1.6;
+      padding: 32px 0 64px;
+    }
+
+    /* ── 工具栏 ── */
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 52px;
+      border-bottom: 2px solid var(--primary);
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 20px; }
+    .toolbar-logo { display: flex; align-items: center; gap: 10px; }
+    .toolbar-icon {
+      width: 22px; height: 22px;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    .toolbar-brand { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; }
+    .toolbar-divider { width: 1px; height: 22px; background: #333; }
+    .toolbar-doc { color: #999; font-size: 12px; }
+    .toolbar-right { display: flex; align-items: center; gap: 10px; }
+    .toolbar-btn {
+      background: rgba(255,255,255,0.08); border: 1px solid #333;
+      color: #ccc; font-size: 11px; font-weight: 600;
+      padding: 5px 14px; cursor: pointer; letter-spacing: 0.06em;
+      transition: all 0.2s;
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .toolbar-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .toolbar-btn.primary:hover { background: var(--primary-dark); }
+
+    /* ── 页面主体 ── */
+    .doc-pages { margin-top: 52px; }
+    .page {
+      width: var(--page-w);
+      min-height: 1123px;
+      background: var(--white);
+      margin: 24px auto;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      page-break-after: always;
+      overflow: hidden;
+    }
+
+    /* ══ 封面页 ══ */
+    .cover-page { display: flex; flex-direction: column; }
+    .cover-top-bar { background: var(--black); height: 8px; border-bottom: 3px solid var(--primary); }
+    .cover-body {
+      flex: 1; padding: 60px 64px 40px;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .cover-deco { position: absolute; right: 0; top: 0; width: 240px; height: 240px; overflow: hidden; pointer-events: none; }
+    .cover-deco::before {
+      content: '';
+      position: absolute; right: 0; top: 0;
+      border-style: solid;
+      border-width: 0 240px 240px 0;
+      border-color: transparent rgba(255,136,0,0.06) transparent transparent;
+    }
+    .cover-deco-square { position: absolute; right: 40px; top: 40px; width: 60px; height: 60px; background: var(--primary); border-radius: 4px; opacity: 0.9; }
+    .cover-deco-square2 { position: absolute; right: 24px; top: 112px; width: 36px; height: 36px; background: var(--primary); border-radius: 4px; opacity: 0.35; }
+
+    .cover-client-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--primary);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cover-client-label::before { content: ''; width: 20px; height: 2px; background: var(--primary); }
+    .cover-client-name { font-size: 13px; font-weight: 700; color: var(--gray-mid); margin-bottom: 48px; letter-spacing: 0.04em; }
+
+    .cover-title { font-size: 36px; font-weight: 900; line-height: 1.2; color: var(--black); max-width: 520px; margin-bottom: 12px; }
+    .cover-title .accent { color: var(--primary); }
+    .cover-subtitle { font-size: 15px; color: var(--gray-mid); margin-bottom: 56px; font-weight: 400; }
+    .cover-divider { width: 48px; height: 3px; background: var(--primary); margin-bottom: 40px; }
+
+    .cover-meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 1px solid var(--gray-border); margin-bottom: auto; }
+    .cover-meta-item { padding: 20px 0 20px; border-right: 1px solid var(--gray-border); padding-right: 24px; padding-left: 0; }
+    .cover-meta-item:first-child { padding-left: 0; }
+    .cover-meta-item:last-child { border-right: none; padding-left: 24px; }
+    .cover-meta-item:nth-child(2) { padding-left: 24px; }
+    .cover-meta-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+    .cover-meta-value { font-size: 13px; font-weight: 700; color: var(--gray-dark); }
+
+    .cover-footer { padding: 28px 64px; background: var(--black); display: flex; align-items: center; justify-content: space-between; }
+    .cover-footer-logo { display: flex; align-items: center; gap: 10px; }
+    .cover-footer-icon { width: 20px; height: 20px; background: var(--primary); border-radius: 3px; }
+    .cover-footer-brand { color: var(--white); font-size: 14px; font-weight: 700; letter-spacing: 0.06em; }
+    .cover-footer-copy { color: #555; font-size: 11px; }
+
+    /* ══ 正文页通用 ══ */
+    .page-header {
+      height: 56px; background: var(--black);
+      padding: 0 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 3px solid var(--primary);
+    }
+    .page-header-left { display: flex; align-items: center; gap: 12px; }
+    .ph-icon { width: 16px; height: 16px; background: var(--primary); border-radius: 2px; }
+    .ph-brand { color: var(--white); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+    .ph-divider { width: 1px; height: 16px; background: #333; }
+    .ph-section { color: #888; font-size: 11px; letter-spacing: 0.04em; }
+    .page-header-right { color: #555; font-size: 10px; }
+
+    .page-content { padding: 44px 52px 80px; }
+
+    .page-footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 40px; background: var(--black);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px;
+      border-top: 2px solid var(--primary);
+    }
+    .pf-left { color: #555; font-size: 10px; }
+    .pf-right { color: #555; font-size: 10px; }
+    .pf-page { color: var(--primary); font-weight: 700; font-size: 11px; }
+
+    /* ══ 内容组件 ══ */
+    .section-title {
+      font-size: 24px; font-weight: 900; color: var(--black);
+      margin-bottom: 8px; line-height: 1.3;
+    }
+    .section-subtitle {
+      font-size: 14px; color: var(--gray-mid); margin-bottom: 28px; line-height: 1.7;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::before { content: ''; width: 24px; height: 2px; background: var(--primary); }
+
+    /* 段落 */
+    .text-block { margin-bottom: 20px; }
+    .text-block p { font-size: 14px; color: var(--gray-dark); line-height: 1.8; margin-bottom: 12px; }
+
+    /* 卡片网格 */
+    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px; }
+    .info-card {
+      background: var(--gray-light); border-left: 4px solid var(--primary);
+      padding: 20px; position: relative;
+    }
+    .info-card-title { font-size: 16px; font-weight: 800; color: var(--black); margin-bottom: 8px; }
+    .info-card-desc { font-size: 13px; color: var(--gray-mid); line-height: 1.7; }
+    .info-card-icon {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px; background: var(--primary); border-radius: 4px;
+      opacity: 0.15;
+    }
+
+    /* 数据表格 */
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 13px; }
+    .data-table th {
+      background: var(--black); color: #fff; padding: 12px 14px;
+      text-align: left; font-size: 12px; font-weight: 700;
+    }
+    .data-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-border); vertical-align: top; }
+    .data-table tr:hover td { background: var(--primary-light); }
+
+    /* 进度条 */
+    .progress-item { margin-bottom: 20px; }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .progress-label { font-size: 13px; font-weight: 700; color: var(--gray-dark); }
+    .progress-value { font-size: 13px; font-weight: 800; color: var(--primary); }
+    .progress-bar { height: 8px; background: var(--gray-light); overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
+
+    /* 列表 */
+    .check-list { list-style: none; margin-bottom: 24px; }
+    .check-list li {
+      font-size: 14px; color: var(--gray-dark); padding: 10px 0;
+      border-bottom: 1px solid var(--gray-border);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .check-list li::before {
+      content: '✓'; color: var(--primary); font-weight: 700;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* 提示框 */
+    .tip-box {
+      background: var(--primary-light); border-left: 4px solid var(--primary);
+      padding: 16px 20px; margin-bottom: 24px;
+    }
+    .tip-box-title { font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .tip-box p { font-size: 13px; color: var(--gray-dark); line-height: 1.7; }
+
+    /* 打印优化 */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .page { margin: 0; box-shadow: none; page-break-after: always; }
+    }
+
+    /* 响应式 */
+    @media (max-width: 850px) {
+      .page { width: 100%; margin: 12px 0; }
+      .cover-body, .page-content { padding: 32px 24px 60px; }
+      .page-header, .page-footer { padding: 0 24px; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="toolbar-logo">
+        <div class="toolbar-icon"></div>
+        <span class="toolbar-brand">DOCUMENT</span>
+      </div>
+      <div class="toolbar-divider"></div>
+      <span class="toolbar-doc">项目进度报告 2026</span>
+    </div>
+    <div class="toolbar-right">
+      <button class="toolbar-btn" onclick="window.print()">打印</button>
+      <button class="toolbar-btn" onclick="downloadPDF()">导出PDF</button>
+      <button class="toolbar-btn primary">分享</button>
+    </div>
+  </div>
+
+  <!-- 页面容器 -->
+  <div class="doc-pages">
+
+    <!-- 封面页 -->
+    <div class="page cover-page">
+      <div class="cover-top-bar"></div>
+      <div class="cover-body">
+        <div class="cover-deco">
+          <div class="cover-deco-square"></div>
+          <div class="cover-deco-square2"></div>
+        </div>
+
+        <div class="cover-client-label">PROJECT REPORT</div>
+        <div class="cover-client-name">产品创新研发中心</div>
+
+        <h1 class="cover-title">
+          2026年度<br>
+          <span class="accent">项目进展与</span><br>
+          成果总结报告
+        </h1>
+        <p class="cover-subtitle">聚焦核心项目交付与技术创新突破</p>
+
+        <div class="cover-divider"></div>
+
+        <div class="cover-meta-grid">
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">文档版本</div>
+            <div class="cover-meta-value">v1.5.0</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">编制日期</div>
+            <div class="cover-meta-value">2026.04.06</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">密级</div>
+            <div class="cover-meta-value">内部公开</div>
+          </div>
+        </div>
+      </div>
+      <div class="cover-footer">
+        <div class="cover-footer-logo">
+          <div class="cover-footer-icon"></div>
+          <span class="cover-footer-brand">DOCUMENT</span>
+        </div>
+        <div class="cover-footer-copy">© 2026 版权所有 · 内部文档</div>
+      </div>
+    </div>
+
+    <!-- 正文页1：项目概览 -->
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="ph-icon"></div>
+          <span class="ph-brand">DOCUMENT</span>
+          <div class="ph-divider"></div>
+          <span class="ph-section">项目概览</span>
+        </div>
+        <div class="page-header-right">CONFIDENTIAL</div>
+      </div>
+
+      <div class="page-content">
+        <div class="section-label">SECTION 01</div>
+        <h2 class="section-title">项目整体概览</h2>
+        <p class="section-subtitle">本报告总结了2026年度重点项目的执行情况、关键里程碑达成与技术突破。</p>
+
+        <div class="text-block">
+          <p>2026年是产品创新的关键之年。我们围绕智能化、云原生和用户体验三大方向，推进了12个核心项目的研发与交付，其中9个项目已按期完成，3个项目进入收尾阶段。</p>
+          <p>通过引入敏捷开发方法和AI辅助工具，整体交付效率提升了35%，代码质量指标提升了42%，客户满意度达到历史最高水平。</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">项目交付</div>
+            <div class="info-card-desc">完成9个核心项目交付，3个项目进入UAT阶段，整体按期交付率92%。</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">技术突破</div>
+            <div class="info-card-desc">获得技术专利8项，发表技术论文12篇，开源项目Star数突破5000。</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">团队建设</div>
+            <div class="info-card-desc">研发团队扩充至156人，建立4个技术委员会，培养技术专家23名。</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"></div>
+            <div class="info-card-title">质量提升</div>
+            <div class="info-card-desc">生产缺陷率下降65%，自动化测试覆盖率从58%提升至89%。</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-box-title">🎯 核心成就</div>
+          <p>智能推荐系统项目提前2周上线，推荐准确率提升28%，带来直接业务增长约¥2,400万/年，成为本年度最具价值的项目交付。</p>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="pf-left">项目进展与成果总结报告</div>
+        <div class="pf-right">第 <span class="pf-page">02</span> 页</div>
+      </div>
+    </div>
+
+    <!-- 正文页2：详细数据 -->
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="ph-icon"></div>
+          <span class="ph-brand">DOCUMENT</span>
+          <div class="ph-divider"></div>
+          <span class="ph-section">详细数据</span>
+        </div>
+        <div class="page-header-right">CONFIDENTIAL</div>
+      </div>
+
+      <div class="page-content">
+        <div class="section-label">SECTION 02</div>
+        <h2 class="section-title">项目执行详情</h2>
+        <p class="section-subtitle">以下是各重点项目的执行情况和关键指标达成数据。</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>项目名称</th>
+              <th>负责人</th>
+              <th>状态</th>
+              <th>进度</th>
+              <th>预算执行</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>智能推荐系统</strong></td>
+              <td>张明</td>
+              <td style="color: #00a651; font-weight: 700;">✓ 已上线</td>
+              <td>100%</td>
+              <td>96%</td>
+            </tr>
+            <tr>
+              <td><strong>云平台迁移</strong></td>
+              <td>李华</td>
+              <td style="color: #00a651; font-weight: 700;">✓ 已上线</td>
+              <td>100%</td>
+              <td>98%</td>
+            </tr>
+            <tr>
+              <td><strong>数据分析平台</strong></td>
+              <td>王芳</td>
+              <td style="color: var(--primary); font-weight: 700;">◐ UAT中</td>
+              <td>95%</td>
+              <td>92%</td>
+            </tr>
+            <tr>
+              <td><strong>移动App 3.0</strong></td>
+              <td>刘强</td>
+              <td style="color: var(--primary); font-weight: 700;">◐ 开发中</td>
+              <td>87%</td>
+              <td>85%</td>
+            </tr>
+            <tr>
+              <td><strong>AI客服系统</strong></td>
+              <td>陈静</td>
+              <td style="color: var(--primary); font-weight: 700;">◐ 测试中</td>
+              <td>92%</td>
+              <td>90%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="section-label" style="margin-top: 36px;">资源投入分布</div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">研发投入</span>
+            <span class="progress-value">68%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 68%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">基础设施</span>
+            <span class="progress-value">18%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 18%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">培训与文档</span>
+            <span class="progress-value">8%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 8%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">运维支持</span>
+            <span class="progress-value">6%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 6%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="pf-left">项目进展与成果总结报告</div>
+        <div class="pf-right">第 <span class="pf-page">03</span> 页</div>
+      </div>
+    </div>
+
+    <!-- 正文页3：下一步计划 -->
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="ph-icon"></div>
+          <span class="ph-brand">DOCUMENT</span>
+          <div class="ph-divider"></div>
+          <span class="ph-section">下一步计划</span>
+        </div>
+        <div class="page-header-right">CONFIDENTIAL</div>
+      </div>
+
+      <div class="page-content">
+        <div class="section-label">SECTION 03</div>
+        <h2 class="section-title">2027年规划</h2>
+        <p class="section-subtitle">基于本年度成果，制定下一年度的重点项目和技术发展方向。</p>
+
+        <div class="text-block">
+          <p>2027年我们将聚焦以下关键领域，持续推动技术创新和业务价值创造：</p>
+        </div>
+
+        <ul class="check-list">
+          <li>
+            <div>
+              <strong>AI大模型应用</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">部署行业大模型，建设AI中台，赋能10+业务场景智能化升级</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>云原生架构演进</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">完成微服务化改造，实现容器化率100%，提升系统弹性和可靠性</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>数据安全与合规</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">建立零信任安全架构，通过ISO 27001认证，确保数据合规</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>开发者体验提升</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">建设内部开发平台，降低开发门槛，提升交付效率50%</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>开源生态建设</strong>
+              <div style="font-size: 13px; color: var(--gray-mid); margin-top: 4px;">主导3个开源项目，建立技术影响力，吸引优秀人才加入</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="tip-box">
+          <div class="tip-box-title">📌 执行策略</div>
+          <p>采用"双轨制"项目管理：核心项目按季度设定OKR，创新项目采用敏捷迭代模式。每月进行技术评审，每季度进行战略复盘，确保方向正确和执行高效。</p>
+        </div>
+
+        <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid var(--gray-border);">
+          <div class="section-label">文档信息</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px; margin-top: 16px;">
+            <div>
+              <strong style="color: var(--gray-mid);">编制部门：</strong>
+              <span>项目管理办公室</span>
+            </div>
+            <div>
+              <strong style="color: var(--gray-mid);">审批人：</strong>
+              <span>CTO办公室</span>
+            </div>
+            <div>
+              <strong style="color: var(--gray-mid);">联系方式：</strong>
+              <span>pmo@company.com</span>
+            </div>
+            <div>
+              <strong style="color: var(--gray-mid);">下次更新：</strong>
+              <span>2026年Q2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="pf-left">项目进展与成果总结报告</div>
+        <div class="pf-right">第 <span class="pf-page">04</span> 页</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 打印功能
+    function downloadPDF() {
+      alert('提示：请使用浏览器的"打印"功能，选择"另存为PDF"即可导出。\n\n快捷键：Ctrl + P (Windows) 或 Cmd + P (Mac)');
+      window.print();
+    }
+
+    // 页面滚动动画
+    document.addEventListener('DOMContentLoaded', function() {
+      const progressBars = document.querySelectorAll('.progress-fill');
+      progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 300);
+      });
+    });
+  </script>
+
+</body>
+</html>
