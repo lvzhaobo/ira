@@ -1,0 +1,166 @@
+# 手动部署Demo到ECS
+# 自动部署Nginx配置、Mock API和静态文件
+
+name: Deploy Demo to ECS
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "确认部署Demo？（输入 yes 继续）"
+        required: true
+        default: "no"
+  
+  push:
+    branches: [main]
+    paths:
+      - 'demo/**'
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy-demo:
+    name: 部署Demo到ECS
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'yes' || github.event_name == 'push'
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: ⚠️ 部署确认
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "========================================="
+          echo "🚀 即将部署Demo项目"
+          echo "========================================="
+          echo "触发者: ${{ github.actor }}"
+          echo "时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "========================================="
+
+      - name: 📦 部署Nginx配置
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          script_stop: true
+          script: |
+            set -e
+            echo "[remote] 备份现有Nginx配置..."
+            if [[ -f /etc/nginx/sites-available/ira-demo.conf ]]; then
+              cp /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf.bak.$(date +%Y%m%d%H%M%S)
+            fi
+            
+            echo "[remote] 创建配置目录..."
+            mkdir -p /opt/ira/demo
+
+      - name: 📤 上传Nginx配置
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          source: "demo/nginx/ira-demo.conf"
+          target: "/tmp"
+          strip_components: 2
+
+      - name: 🔧 应用Nginx配置
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          script_stop: true
+          script: |
+            set -e
+            echo "[remote] 安装Nginx配置..."
+            mv /tmp/ira-demo.conf /etc/nginx/sites-available/ira-demo.conf
+            
+            # 启用站点
+            if [[ -L /etc/nginx/sites-enabled/ira-demo.conf ]]; then
+              rm /etc/nginx/sites-enabled/ira-demo.conf
+            fi
+            ln -sf /etc/nginx/sites-available/ira-demo.conf /etc/nginx/sites-enabled/
+            
+            echo "[remote] 测试Nginx配置..."
+            nginx -t
+            
+            echo "[remote] 重载Nginx..."
+            systemctl reload nginx
+            
+            echo "[remote] ✅ Nginx配置部署成功！"
+
+      - name: 📤 上传Demo文件
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          source: "demo/mock-api,demo/static,demo/scripts"
+          target: "/opt/ira/demo"
+          strip_components: 1
+
+      - name: 🚀 部署Mock API
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/ira/demo/mock-api
+            
+            echo "[remote] 安装Python依赖..."
+            pip3 install -r requirements.txt
+            
+            echo "[remote] 配置systemd服务..."
+            cat > /etc/systemd/system/ira-mock-api.service << 'EOF'
+            [Unit]
+            Description=IRA Mock API Service
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=/opt/ira/demo/mock-api
+            ExecStart=/usr/bin/python3 app.py
+            Restart=always
+            RestartSec=5
+            Environment=PYTHONUNBUFFERED=1
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+            
+            systemctl daemon-reload
+            systemctl enable ira-mock-api
+            systemctl restart ira-mock-api
+            
+            echo "[remote] ✅ Mock API服务已启动"
+            systemctl status ira-mock-api --no-pager
+
+      - name: ✅ 部署成功
+        if: success()
+        run: |
+          echo "========================================="
+          echo "✅ Demo项目部署成功！"
+          echo "========================================="
+          echo "静态网页: http://${{ secrets.ECS_HOST }}/demo/"
+          echo "Mock API:  http://${{ secrets.ECS_HOST }}/mock-api/"
+          echo "========================================="
+
+      - name: ❌ 部署失败
+        if: failure()
+        run: |
+          echo "========================================="
+          echo "❌ Demo项目部署失败！"
+          echo "========================================="
+          echo "请检查日志并手动修复"
+          echo "服务器: ${{ secrets.ECS_HOST }}"
+          echo "========================================="
+          exit 1
