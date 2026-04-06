@@ -1,5 +1,5 @@
 /** 各路由数据状态：在页面顶部以标签展示 */
-export type PageTagKind = "api" | "demo" | "placeholder" | "live" | "mockWarn" | "liveLlm";
+export type PageTagKind = "api" | "demo" | "placeholder" | "live" | "mockWarn" | "liveLlm" | "extended";
 
 export type PageMode = {
   tags: PageTagKind[];
@@ -30,11 +30,13 @@ export const PAGE_MODES: Record<string, PageMode> = {
   },
   "/lineage": {
     tags: ["api", "demo", "mockWarn"],
-    note: "主视图为公募结论/披露血缘 Mock；「技术审计」页签对接 traces.json",
+    note:
+      "【M2 叙事对照】trace/披露血缘（管道下游可追溯）。完整多源 Ingest（数据源、同步任务 FSM）在 modules-practice/module-02，ira 无 /api/v1/ingest/*。",
   },
   "/stock-analysis": {
     tags: ["api", "demo", "mockWarn"],
-    note: "覆盖页布局；行情/要点部分为 Mock，备忘录与 trace 对接后端演示接口",
+    note:
+      "【M2 叙事对照】演示行情与个股草稿 Mock。VIN Mock、Glue 运维台见 module-02；此处为消费侧演示，非同一套 ingest API。",
   },
   "/multi-agent-stock": {
     tags: ["api", "demo", "mockWarn"],
@@ -69,6 +71,7 @@ const LABELS: Record<PageTagKind, string> = {
   live: "生产数据源",
   mockWarn: "离线/Mock",
   liveLlm: "百炼在线",
+  extended: "扩展演示",
 };
 
 export function resolvePageMode(pathname: string): PageMode {

@@ -7,6 +7,7 @@ from app.errors import error_response
 from app.json_store import read_json, write_json
 from app.services.bailian_qa import bailian_config, chat_research_qa, is_bailian_enabled
 from app.services.copaw_qa_adapter import copaw_qa_ask_or_none
+from app.services.market_data_hub import latest_snapshot
 from app.services.multi_agent_service import run_multi_agent
 from app.trace_util import new_trace_id
 from flask import Blueprint, current_app, g, jsonify, request
@@ -100,20 +101,18 @@ def research_qa_ask():
         elif use_live:
             ans, err, usage_wrap = chat_research_qa(query, evidence_block)
             if err:
-                return error_response(
-                    "UPSTREAM_LLM_ERROR",
-                    f"百炼模型调用失败：{err}",
-                    502,
-                )
-            answer = ans or ""
-            cfg = bailian_config()
-            model_meta = {
-                "model_id": cfg["model"],
-                "prompt_version": "ira-bailian-openai-compatible",
-                "temperature": float(os.environ.get("IRA_BAILIAN_TEMPERATURE", "0.2")),
-            }
-            if usage_wrap.get("raw_usage"):
-                model_meta["usage"] = usage_wrap["raw_usage"]
+                # 线上或课堂演示都优先“可用性”：上游失败直接降级到离线占位，而非返回 502。
+                answer = ""
+            else:
+                answer = ans or ""
+                cfg = bailian_config()
+                model_meta = {
+                    "model_id": cfg["model"],
+                    "prompt_version": "ira-bailian-openai-compatible",
+                    "temperature": float(os.environ.get("IRA_BAILIAN_TEMPERATURE", "0.2")),
+                }
+                if usage_wrap.get("raw_usage"):
+                    model_meta["usage"] = usage_wrap["raw_usage"]
 
     if not answer:
         answer = (
@@ -197,9 +196,16 @@ def research_stock_analysis():
     symbol = body.get("symbol", "")
     mock = bool(body.get("mock", True))
     tid = g.trace_id
+    snap = None if mock else latest_snapshot(symbol)
+    market_snapshot_id = snap.get("snapshot_id") if isinstance(snap, dict) else None
+    source_name = snap.get("source_name") if isinstance(snap, dict) else None
+    quote = (snap or {}).get("quote", {})
+    last_price = quote.get("last")
+    pe_ttm = quote.get("pe_ttm")
     content = (
         f"【模拟草稿】{symbol} · as_of {_now()}\n\n"
-        "## 摘要\n示例段落；实际由行情与研报摘要拼接。\n\n"
+        f"## 摘要\n示例段落；行情来源：{source_name or '本地 Mock 回退'}。"
+        f"{f' 收盘价 {last_price}，PE(TTM) {pe_ttm}。' if last_price is not None and pe_ttm is not None else ''}\n\n"
         "## 结论（演示）\n"
         "内部流程：评级与目标价以研究所正式发布稿为准；本稿仅 Workshop 占位，用于 trace 与合规演练。\n\n"
         "**免责声明**：本输出为辅助草稿，不构成投资建议。"
@@ -210,10 +216,23 @@ def research_stock_analysis():
         "content_format": "markdown",
         "content": content,
         "as_of": _now(),
+        "market_snapshot_id": market_snapshot_id,
         "sources": [
-            {"source_id": "wind", "name": "Wind", "as_of": _now(), "mock": mock},
+            {
+                "source_id": snap.get("source_id") if isinstance(snap, dict) else "wind",
+                "name": source_name or "Wind",
+                "as_of": _now(),
+                "mock": not bool(snap),
+            },
         ],
-        "tool_trace": [{"tool": "wind.get_quote", "mock": mock, "as_of": _now()}],
+        "tool_trace": [
+            {
+                "tool": "market_hub.latest_snapshot" if snap else "wind.get_quote",
+                "mock": not bool(snap),
+                "as_of": _now(),
+                "market_snapshot_id": market_snapshot_id,
+            }
+        ],
         "disclaimer_applied": True,
     }
     append_trace_record(
@@ -222,6 +241,7 @@ def research_stock_analysis():
             "artifact_type": "stock_draft",
             "session_id": None,
             "summary": f"{symbol} 分析草稿",
+            "market_snapshot_id": market_snapshot_id,
             "tool_trace": resp["tool_trace"],
             "model": {"model_id": "demo-llm", "prompt_version": "ira-stock-v1", "temperature": 0.1},
             "compliance": {"ruleset_version": "rules-v1.0.0", "filtered": False, "decline_reason": None},
@@ -245,10 +265,22 @@ def research_stock_multi_agent_run():
     body = request.get_json(force=True, silent=True) or {}
     symbol = body.get("symbol", "600519.SH")
     mock = bool(body.get("mock", True))
+    req_snapshot_id = body.get("market_snapshot_id")
+    snap = None if mock else latest_snapshot(symbol)
+    market_snapshot_id = req_snapshot_id or (snap.get("snapshot_id") if isinstance(snap, dict) else None)
     out = run_multi_agent(symbol, mock=mock)
+    out["market_snapshot_id"] = market_snapshot_id
     tid = g.trace_id
     runs = read_json(_data("multi_agent_runs.json"), {"runs": []})
-    runs["runs"].insert(0, {"trace_id": tid, "symbol": symbol, "result": out})
+    runs["runs"].insert(
+        0,
+        {
+            "trace_id": tid,
+            "symbol": symbol,
+            "market_snapshot_id": market_snapshot_id,
+            "result": out,
+        },
+    )
     write_json(_data("multi_agent_runs.json"), runs)
     append_trace_record(
         {
@@ -256,6 +288,7 @@ def research_stock_multi_agent_run():
             "artifact_type": "multi_agent",
             "parent_trace_id": out["orchestration_trace"],
             "summary": f"{symbol} multi-agent",
+            "market_snapshot_id": market_snapshot_id,
             "created_at": _now(),
         }
     )

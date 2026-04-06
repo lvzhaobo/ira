@@ -53,6 +53,7 @@ def create_app(test_config=None):
     from app.blueprints.dashboard_bp import bp as dashboard_bp
     from app.blueprints.docs_bp import bp as docs_bp
     from app.blueprints.kb_bp import bp as kb_bp
+    from app.blueprints.ingest_bp import bp as ingest_bp
     from app.blueprints.lineage_bp import bp as lineage_bp
     from app.blueprints.notify_bp import bp as notify_bp
     from app.blueprints.reports_bp import bp as reports_bp
@@ -71,6 +72,7 @@ def create_app(test_config=None):
     app.register_blueprint(sentiment_bp, url_prefix="/api/v1")
     app.register_blueprint(notify_bp, url_prefix="/api/v1")
     app.register_blueprint(kb_bp, url_prefix="/api/v1")
+    app.register_blueprint(ingest_bp, url_prefix="/api/v1")
     app.register_blueprint(reports_bp, url_prefix="/api/v1")
     app.register_blueprint(skills_bp, url_prefix="/api/v1")
 

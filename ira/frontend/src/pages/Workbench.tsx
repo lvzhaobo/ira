@@ -38,28 +38,67 @@ type RecentSession = {
 
 type ReportDraftRow = { workflow_stage?: string; status?: string };
 
-const QUICK_ENTRIES: { to: string; title: string; desc: string; tag: string }[] = [
+/**
+ * 与侧栏「五大核心模块」一致（不含工作台：总览单独占一栏）。
+ * 映射：`modules-practice` 中 M01 对话、M03 知识库、M05 多 Agent；合规/舆情为 ira 主线投研风控与市场面。
+ */
+const CORE_MODULE_ENTRIES: { to: string; title: string; desc: string; tag: string }[] = [
+  {
+    to: "/research-qa-change",
+    title: "研报问答",
+    desc: "主问答入口：规格迭代与引用链；叙事对齐 M01「投研助手基础」与 Spec 变更",
+    tag: "M1",
+  },
+  {
+    to: "/knowledge",
+    title: "知识库",
+    desc: "文档登记与 RAG 支撑；纵深对齐 M03「知识库与问答」",
+    tag: "M3",
+  },
+  {
+    to: "/compliance",
+    title: "合规扫描",
+    desc: "话术与材料预检、审计流水；投研输出前的风控面",
+    tag: "合规",
+  },
+  {
+    to: "/sentiment",
+    title: "舆情分析",
+    desc: "关键词、预警与市场舆情看板；机构侧外呼与内观结合的主线能力",
+    tag: "舆情",
+  },
+  {
+    to: "/multi-agent-stock",
+    title: "多 Agent",
+    desc: "多角色编排与合并；叙事对齐 M05「多 Agent 投研」",
+    tag: "M5",
+  },
+];
+
+/** 侧栏「扩展与演示」：含血缘（追溯专题）、推送（M4）等，课堂按需选讲 */
+const EXTENDED_QUICK_ENTRIES: { to: string; title: string; desc: string; tag: string }[] = [
   {
     to: "/research-qa",
-    title: "研报问答 ①",
-    desc: "MVP：检索、引用、合规提示与百炼/离线双态；对应 Workshop Spec Coding 初版",
+    title: "研报问答 ①（MVP）",
+    desc: "简化链路；默认不在侧栏，设置中可打开「显示研报问答①」",
     tag: "①",
   },
   {
-    to: "/research-qa-change",
-    title: "需求变更 ②",
-    desc: "ira-1.1.0、风险标签与规格迭代演示；与 ① 对照回归",
-    tag: "②",
+    to: "/stock-analysis",
+    title: "个股覆盖",
+    desc: "与 M2 对照：演示行情/草稿消费侧；完整 Glue Ingest 在 module-02",
+    tag: "M2",
   },
-  { to: "/knowledge", title: "知识库", desc: "已登记文档与索引状态，支撑 RAG 与权限扩展", tag: "数据" },
-  { to: "/compliance", title: "合规扫描", desc: "话术与材料预检，命中写入审计与血缘", tag: "合规" },
-  { to: "/reports", title: "报告登记", desc: "报告/披露事项在编制—内审—合规—签章链路上的登记", tag: "流程" },
-  { to: "/sentiment", title: "舆情监控", desc: "关键词、预警与联调区（机构侧多源聚合诉求）", tag: "运营" },
-  { to: "/messages", title: "消息推送", desc: "钉钉/飞书/邮件 dry-run，发送前合规扫描", tag: "触达" },
-  { to: "/lineage", title: "血缘追溯", desc: "结论与调用 trace，满足复核与监管问询字段模型", tag: "审计" },
-  { to: "/stock-analysis", title: "个股草稿", desc: "标的分析草稿与演示行情（需授权数据源生产化）", tag: "覆盖" },
-  { to: "/multi-agent-stock", title: "多 Agent", desc: "行业/量化/合规并行与合并编排演示（关卡 PR 抽检场景）", tag: "编排" },
-  { to: "/settings", title: "系统与偏好", desc: "参数、持久化偏好与 Swagger / OpenAPI 入口（Debug/验收）", tag: "设置" },
+  {
+    to: "/lineage",
+    title: "数据血缘",
+    desc: "与 M2 对照：trace 与披露血缘（下游可追溯）；ingest 管线在 module-02",
+    tag: "M2",
+  },
+  { to: "/skills", title: "SKILL", desc: "能力与工具注入示意；可与 CoPaw 技能叙事对照", tag: "技能" },
+  { to: "/messages", title: "消息推送", desc: "渠道 dry-run；对照 M04 推送样例", tag: "M4" },
+  { to: "/reports", title: "报告登记", desc: "编制—内审—合规链路登记演示", tag: "流程" },
+  { to: "/settings", title: "系统与偏好", desc: "参数、OpenAPI 入口与 MVP 导航开关", tag: "设置" },
 ];
 
 function todoLevelClass(level?: string): string {
@@ -194,12 +233,12 @@ export default function Workbench() {
               能力入口
             </h2>
             <span className="ira-wb-section__sub">
-              与《环节与教学法映射》侧栏序号对齐：①② 拆分问答与规格变更；合规/推送/多 Agent 对应关卡 PR 抽检叙事；设置承接 Debug 与
-              OpenAPI。
+              当前页为<strong>工作台总览</strong>；下方<strong>五大核心模块</strong>与侧栏第二组一致（问答 / 知识库 / 合规 / 舆情 / 多
+              Agent）。其余为<strong>扩展与演示</strong>（含数据血缘、推送等）。
             </span>
           </div>
-          <ul className="ira-wb-grid">
-            {QUICK_ENTRIES.map((e) => (
+          <ul className="ira-wb-grid ira-wb-grid--core">
+            {CORE_MODULE_ENTRIES.map((e) => (
               <li key={e.to}>
                 <Link to={e.to} className="ira-wb-card">
                   <span className="ira-wb-card__tag">{e.tag}</span>
@@ -209,6 +248,25 @@ export default function Workbench() {
               </li>
             ))}
           </ul>
+          <div className="ira-wb-subsection" aria-labelledby="wb-quick-ext">
+            <h3 id="wb-quick-ext" className="ira-wb-subsection__title">
+              扩展与演示
+            </h3>
+            <p className="ira-wb-subsection__note">
+              以下页面在页头与侧栏标为「扩展」：含数据血缘（M02 追溯专题）、个股、推送（M4）、报告登记与系统调试等；默认不要求与五大核心同等课时。
+            </p>
+            <ul className="ira-wb-grid">
+              {EXTENDED_QUICK_ENTRIES.map((e) => (
+                <li key={e.to}>
+                  <Link to={e.to} className="ira-wb-card ira-wb-card--secondary">
+                    <span className="ira-wb-card__tag">扩展 · {e.tag}</span>
+                    <span className="ira-wb-card__title">{e.title}</span>
+                    <span className="ira-wb-card__desc">{e.desc}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         <div className="ira-wb-split">

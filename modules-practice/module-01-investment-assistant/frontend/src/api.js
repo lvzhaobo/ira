@@ -5,6 +5,13 @@
 const API_BASE = '/api/v1/agent';
 
 export const api = {
+  /** 能力探测：与 ira 健康检查中的 LLM 状态语义对齐 */
+  async getCapabilities() {
+    const response = await fetch(`${API_BASE}/capabilities`);
+    if (!response.ok) return null;
+    return await response.json();
+  },
+
   /**
    * 提问
    */

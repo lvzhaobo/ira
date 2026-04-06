@@ -6,11 +6,18 @@
 
 | 子目录 | 模块 | 练习代码（实现） |
 |--------|------|------------------|
+| [`module-02-glue-multisource/`](./module-02-glue-multisource/) | M2 GlueCoding 多源数据 | `modules-practice/module-02/` |
 | [`module-03-knowledge-copaw/`](./module-03-knowledge-copaw/) | M3 知识库与问答（CoPaw 底座） | `modules-practice/module-03/` |
+| [`module-01-investment-assistant/`](./module-01-investment-assistant/) | M1 投研助手基础版 | `modules-practice/module-01-investment-assistant/` |
+| [`module-04-notify/`](./module-04-notify/) | M4 多渠道推送 | `modules-practice/module-04/` |
+| [`module-05-multi-agent/`](./module-05-multi-agent/) | M5 多 Agent 投研 | `modules-practice/module-05/` |
+| [`deploy-templates-ecs/`](./deploy-templates-ecs/) | ECS 部署模板包（Nginx 之外） | `ira/`（部署工程模板） |
 
-其他模块（M1 / M2 / M4 / M5）的规格后续可逐步迁入 `specs/workshop/<module-id>/`，与现有 `specs/copaw-repowiki/`（CoPaw 知识库）并存。
+全项目级 Mock（跨模块引用）：[`00-全项目-企业研发规范-Mock.md`](./00-全项目-企业研发规范-Mock.md)、[`00-阿里云资源与CoPaw清单.md`](./00-阿里云资源与CoPaw清单.md)、[`00-CoPaw与五模块对接指南.md`](./00-CoPaw与五模块对接指南.md)。与现有 `specs/copaw-repowiki/`（CoPaw 知识库）并存。
 
 ## 约定
 
-- **相对路径**：各包内 Markdown 中的 `docs/`、`openapi/` 均相对于该包根目录（例如 `specs/workshop/module-03-knowledge-copaw/`）。
-- **仓库根相对路径**：跨目录说明或 CI 中可使用 `specs/workshop/...` 自仓库根起算。
+- **长篇规格**：M1 / M2 / M3 / M4 / M5 均在各自包下的 **`docs/`**（M2 另有子目录 `docs/02-模块-GlueCoding-多源数据/`）；包根仅保留 **`README.md`**、（如有）**`Agents.md`**、（M3）**`openapi/`**。
+- **例外**：`modules-practice/module-02-gule-coding-v2/`（Glue UI 练习包）**不**对应 `specs/workshop` 子目录；M2 契约仍以 **`module-02-glue-multisource`** 为真源。
+- **相对路径**：包内互链以当前 Markdown 所在目录为基准；指向全项目 `00-*` 时，自 `docs/` 下文件一般使用 **`../../00-*.md`**（即到 `specs/workshop/`）。
+- **仓库根相对路径**：CI 或脚本中可使用 `specs/workshop/...`。

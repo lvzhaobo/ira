@@ -34,6 +34,7 @@ def test_ask_success(client):
     assert "answer" in data
     assert "llm_used" in data
     assert "response_time_ms" in data
+    assert data.get("answer_source") in ("copaw", "bailian", "demo")
 
 
 def test_ask_empty_query(client):
@@ -57,18 +58,26 @@ def test_ask_long_query(client):
 
 
 def test_bailian_fallback(client):
-    """无密钥时降级 (REQ-003)"""
-    # 不配置 BAILIAN_API_KEY 时应该降级
+    """无密钥时降级 (REQ-003)；与 ira 一致读取 DASHSCOPE_API_KEY 或 BAILIAN_API_KEY"""
     client.post("/api/v1/agent/sessions", json={"title": "测试会话"})
 
     response = client.post("/api/v1/agent/ask", json={"query": "测试降级", "session_id": "test-session-2"})
 
     assert response.status_code == 200
     data = response.get_json()
-    # 如果没有配置 API Key，应该返回降级回答
-    if not os.getenv("BAILIAN_API_KEY"):
-        assert data["llm_used"] == False
+    if not (os.getenv("DASHSCOPE_API_KEY") or os.getenv("BAILIAN_API_KEY")):
+        assert data["llm_used"] is False
         assert data["model"] is None
+        assert data.get("answer_source") == "demo"
+
+
+def test_capabilities(client):
+    r = client.get("/api/v1/agent/capabilities")
+    assert r.status_code == 200
+    j = r.get_json()
+    assert "bailian_configured" in j
+    assert "copaw_configured" in j
+    assert "llm_live" in j
 
 
 def test_llm_used_flag(client):

@@ -10,6 +10,7 @@ from datetime import datetime
 class Storage:
     def __init__(self, data_dir):
         self.data_dir = data_dir
+        os.makedirs(data_dir, exist_ok=True)
         self.sessions_file = os.path.join(data_dir, "sessions.json")
         self.records_file = os.path.join(data_dir, "qa_records.json")
 
@@ -71,7 +72,7 @@ class Storage:
         data = self._read_json(self.records_file)
         return [r for r in data["records"] if r["session_id"] == session_id]
 
-    def add_record(self, session_id, query, answer, llm_used, model, response_time_ms):
+    def add_record(self, session_id, query, answer, llm_used, model, response_time_ms, answer_source=None):
         data = self._read_json(self.records_file)
 
         record = {
@@ -82,6 +83,7 @@ class Storage:
             "llm_used": llm_used,
             "model": model,
             "response_time_ms": response_time_ms,
+            "answer_source": answer_source,
             "timestamp": datetime.utcnow().isoformat() + "Z",
         }
 

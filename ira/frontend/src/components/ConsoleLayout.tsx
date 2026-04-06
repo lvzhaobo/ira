@@ -89,14 +89,43 @@ export default function ConsoleLayout() {
                           {sec.title}
                         </div>
                       )}
-                      {items.map(({ to, label, short }) => (
+                      {items.map(({ to, label, short, secondary, workshopModule }) => (
                         <NavLink
                           key={to}
                           to={to}
-                          className={({ isActive }) => `ira-navlink${isActive ? " ira-navlink--active" : ""}`}
-                          title={label}
+                          className={({ isActive }) =>
+                            `ira-navlink${isActive ? " ira-navlink--active" : ""}${secondary ? " ira-navlink--secondary" : ""}`
+                          }
+                          title={
+                            secondary
+                              ? `${label}（扩展演示${workshopModule ? ` · ${workshopModule}` : ""}）`
+                              : workshopModule
+                                ? `${label} · ${workshopModule}`
+                                : label
+                          }
                         >
-                          <span className="ira-navlink__full">{label}</span>
+                          <span className="ira-navlink__full">
+                            <span className="ira-navlink__label">{label}</span>
+                            <span className="ira-navlink__badges">
+                              {workshopModule ? (
+                                <span
+                                  className="ira-navlink__mod"
+                                  title={
+                                    workshopModule === "M2"
+                                      ? "对照 modules-practice/module-02（Glue 多源 / Ingest）"
+                                      : `对照 modules-practice（${workshopModule}）`
+                                  }
+                                >
+                                  {workshopModule}
+                                </span>
+                              ) : null}
+                              {secondary ? (
+                                <span className="ira-navlink__badge" title="扩展演示">
+                                  扩展
+                                </span>
+                              ) : null}
+                            </span>
+                          </span>
                           <span className="ira-navlink__short" aria-hidden>
                             {short}
                           </span>

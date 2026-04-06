@@ -195,8 +195,8 @@ const MAP: Record<string, WorkshopPanelConfig> = {
   "/lineage": {
     title: "数据与结论血缘 · Workshop",
     summary:
-      "区分投研结论血缘（字段→上游系统→批次）、监管披露字段溯源（TA/估值/行情）与技术 trace 审计；生产可接元数据平台与 OpenLineage。",
-    moduleLabel: "数据血缘",
+      "【M2 对照】ira 侧重 trace/披露血缘（管道下游）；多源采集与 ingest 任务在 modules-practice/module-02。区分投研结论血缘、监管披露溯源与技术 trace；生产可接元数据平台与 OpenLineage。",
+    moduleLabel: "数据血缘 · M2 对照",
     phase: {
       indexLabel: "④",
       name: "血缘",
@@ -219,8 +219,8 @@ const MAP: Record<string, WorkshopPanelConfig> = {
         body: "官方排障入口之一：404 trace 时检查 traces.json 与 DATA_DIR。",
       },
       {
-        title: "Glue（扩展）",
-        body: "生产可接 OpenLineage；Workshop 保持 JSON 文件演示即可。",
+        title: "Glue / M2",
+        body: "完整 Glue BFF（/api/v1/ingest/*、VIN Mock）在 module-02；ira 仅消费 traces.json 等演示产物。",
       },
     ],
     epicHint: "Epic 1（trace）+ Epic 8 Debug 叙事。",
@@ -228,8 +228,8 @@ const MAP: Record<string, WorkshopPanelConfig> = {
   "/stock-analysis": {
     title: "个股覆盖 · Workshop",
     summary:
-      "对标公募覆盖页：标的抬头、估值/波动示意、备忘录草稿与要点风险分栏；生产可接授权行情与正式覆盖表。",
-    moduleLabel: "个股覆盖",
+      "【M2 对照】演示行情与分析草稿（外源消费侧）；module-02 的 ira-vin-mocks / ingest 为上游管线。对标公募覆盖页：抬头、估值示意、备忘录与风险分栏。",
+    moduleLabel: "个股覆盖 · M2 对照",
     phase: {
       indexLabel: "⑤",
       name: "个股",
