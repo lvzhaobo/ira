@@ -46,7 +46,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.ECS_PASSWORD }}
           script_stop: true
           script: |
             set -e
@@ -63,7 +63,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.ECS_PASSWORD }}
           source: "demo/nginx/ira-demo.conf"
           target: "/tmp"
           strip_components: 2
@@ -73,7 +73,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.ECS_PASSWORD }}
           script_stop: true
           script: |
             set -e
@@ -99,7 +99,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.ECS_PASSWORD }}
           source: "demo/mock-api,demo/static,demo/scripts"
           target: "/opt/ira/demo"
           strip_components: 1
@@ -109,7 +109,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.ECS_PASSWORD }}
           script_stop: true
           script: |
             set -e
