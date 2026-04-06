@@ -24,6 +24,9 @@ jobs:
   deploy-demo:
     name: 部署Demo到ECS
     runs-on: ubuntu-latest
+    
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # 使用Node.js 24
 
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'yes' || github.event_name == 'push'
 
