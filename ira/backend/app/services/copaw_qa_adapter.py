@@ -16,6 +16,8 @@ from typing import Any
 
 import requests
 
+from app.services.copaw_embedded_adapter import copaw_embedded_qa_ask_or_none, copaw_embedded_ready
+
 
 def copaw_config() -> dict[str, Any]:
     return {
@@ -26,18 +28,41 @@ def copaw_config() -> dict[str, Any]:
         # 可选 token（若 CoPaw 需要鉴权）
         "api_token": os.environ.get("IRA_COPAW_API_TOKEN", "").strip(),
         "timeout_sec": float(os.environ.get("IRA_COPAW_TIMEOUT_SEC", "20")),
+        # off|http|embedded|auto（默认 auto：优先 embedded，其次 http）
+        "mode": os.environ.get("IRA_COPAW_MODE", "auto").strip().lower(),
     }
+
+
+def _mode(cfg: dict[str, Any]) -> str:
+    mode = str(cfg.get("mode") or "auto").lower()
+    return mode if mode in ("off", "http", "embedded", "auto") else "auto"
 
 
 def copaw_enabled() -> bool:
     cfg = copaw_config()
-    return bool(cfg["ask_url"] or cfg["base_url"])
+    mode = _mode(cfg)
+    if mode == "off":
+        return False
+    if mode == "embedded":
+        return copaw_embedded_ready()
+    if mode == "http":
+        return bool(cfg["ask_url"] or cfg["base_url"])
+    # auto
+    return copaw_embedded_ready() or bool(cfg["ask_url"] or cfg["base_url"])
 
 
 def copaw_bridge_status() -> str:
-    if not copaw_enabled():
-        return "disabled"
     cfg = copaw_config()
+    mode = _mode(cfg)
+    if mode == "off":
+        return "disabled"
+    if mode == "embedded":
+        return "embedded" if copaw_embedded_ready() else "disabled"
+    if mode == "http":
+        return "configured" if cfg["ask_url"] or cfg["base_url"] else "disabled"
+    # auto
+    if copaw_embedded_ready():
+        return "embedded"
     return "configured" if cfg["ask_url"] or cfg["base_url"] else "disabled"
 
 
@@ -77,7 +102,7 @@ def _pick_model_meta(data: dict[str, Any]) -> dict[str, Any] | None:
     return None
 
 
-def copaw_qa_ask_or_none(
+def _copaw_qa_ask_via_http_or_none(
     *,
     session_id: str,
     query: str,
@@ -145,3 +170,62 @@ def copaw_qa_ask_or_none(
     if isinstance(data.get("compliance"), dict):
         out["compliance"] = data["compliance"]
     return out
+
+
+def copaw_qa_ask_or_none(
+    *,
+    session_id: str,
+    query: str,
+    evidence_block: str,
+    spec_ver: str,
+    require_risk: bool,
+    trace_id: str,
+) -> dict[str, Any] | None:
+    """
+    分发策略：
+    - off: 直接 None
+    - http: 仅走 HTTP 适配
+    - embedded: 仅走源码嵌入适配
+    - auto(默认): 优先 embedded，失败再回退 http
+    """
+    cfg = copaw_config()
+    mode = _mode(cfg)
+    if mode == "off":
+        return None
+    if mode == "http":
+        return _copaw_qa_ask_via_http_or_none(
+            session_id=session_id,
+            query=query,
+            evidence_block=evidence_block,
+            spec_ver=spec_ver,
+            require_risk=require_risk,
+            trace_id=trace_id,
+        )
+    if mode == "embedded":
+        return copaw_embedded_qa_ask_or_none(
+            session_id=session_id,
+            query=query,
+            evidence_block=evidence_block,
+            spec_ver=spec_ver,
+            require_risk=require_risk,
+            trace_id=trace_id,
+        )
+    # auto: 嵌入优先，HTTP 兜底
+    embedded_out = copaw_embedded_qa_ask_or_none(
+        session_id=session_id,
+        query=query,
+        evidence_block=evidence_block,
+        spec_ver=spec_ver,
+        require_risk=require_risk,
+        trace_id=trace_id,
+    )
+    if embedded_out:
+        return embedded_out
+    return _copaw_qa_ask_via_http_or_none(
+        session_id=session_id,
+        query=query,
+        evidence_block=evidence_block,
+        spec_ver=spec_ver,
+        require_risk=require_risk,
+        trace_id=trace_id,
+    )

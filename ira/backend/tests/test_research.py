@@ -10,6 +10,32 @@ def test_qa_ask_mvp(client):
     assert j["evidence_refs"]
 
 
+def test_qa_ask_with_embedded_mode(client, monkeypatch):
+    monkeypatch.setenv("IRA_COPAW_MODE", "embedded")
+    r = client.post(
+        "/api/v1/research/qa/ask",
+        json={"session_id": "s_embedded", "query": "白酒行业观点？"},
+    )
+    assert r.status_code == 200
+    j = r.get_json()
+    assert j["answer"]
+    assert j["model"]["model_id"] == "copaw-embedded-prototype"
+
+
+def test_qa_ask_with_off_mode(client, monkeypatch):
+    monkeypatch.setenv("IRA_COPAW_MODE", "off")
+    monkeypatch.delenv("IRA_COPAW_QA_ASK_URL", raising=False)
+    monkeypatch.delenv("IRA_COPAW_BASE_URL", raising=False)
+    r = client.post(
+        "/api/v1/research/qa/ask",
+        json={"session_id": "s_off", "query": "白酒行业观点？"},
+    )
+    assert r.status_code == 200
+    j = r.get_json()
+    # off 模式下不走 CoPaw，回退到默认离线/本地逻辑
+    assert j["model"]["model_id"] == "demo-llm"
+
+
 def test_qa_ask_change_version(client):
     r = client.post(
         "/api/v1/research/qa/ask",
