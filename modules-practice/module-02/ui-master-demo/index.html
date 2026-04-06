@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>投研助手 · 五模块 UI 主视觉参考（工作坊 Demo）</title>
+  <style>
+    :root {
+      --color-primary: #003d82;
+      --color-primary-hover: #0050a8;
+      --color-primary-muted: #e8eef5;
+      --color-accent-red: #c41230;
+      --color-accent-red-hover: #9e0e26;
+      --color-surface: #f4f6f9;
+      --color-card: #ffffff;
+      --color-text: #1a1d24;
+      --color-text-muted: #5c6370;
+      --color-border: #d4dae3;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0, 45, 96, 0.08);
+      --font: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --module-m3: #0d6e5c;
+      --module-m4: #5c4b8a;
+      --module-m5-bull: #1b5e20;
+      --module-m5-bear: #b71c1c;
+      --module-m5-mod: #1565c0;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; font-family: var(--font); color: var(--color-text); background: var(--color-surface);
+      font-size: 14px; line-height: 1.5; padding-bottom: 4rem;
+    }
+
+    /* —— 顶栏（全应用 Shell，对齐各模块「嵌入全局 Shell」）—— */
+    .app-header {
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #002a5c 100%);
+      color: #fff; height: 52px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.25rem; box-shadow: 0 2px 10px rgba(0, 61, 130, 0.2);
+    }
+    .app-header__brand { font-weight: 700; font-size: 0.95rem; letter-spacing: 0.03em; }
+    .app-header__nav { display: flex; gap: 0.25rem; flex-wrap: wrap; font-size: 0.8rem; }
+    .app-header__nav a {
+      color: rgba(255,255,255,0.88); text-decoration: none; padding: 0.35rem 0.6rem; border-radius: 6px;
+    }
+    .app-header__nav a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .app-header__user { font-size: 0.75rem; opacity: 0.9; }
+
+    .page-intro {
+      max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 0;
+      font-size: 0.8rem; color: var(--color-text-muted);
+    }
+    .page-intro strong { color: var(--color-primary); }
+
+    /* —— 区块通用 —— */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+    .section {
+      margin-top: 1.75rem; scroll-margin-top: 60px;
+      border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-card);
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .section__head {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+      padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border);
+      background: var(--color-primary-muted);
+    }
+    .section__title { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--color-primary); }
+    .section__title::before {
+      content: ""; display: inline-block; width: 3px; height: 0.9em; background: var(--color-accent-red);
+      margin-right: 0.45rem; vertical-align: -0.1em; border-radius: 2px;
+    }
+    .section__spec { font-size: 0.7rem; color: var(--color-text-muted); font-family: ui-monospace, Consolas, monospace; }
+    .section__body { padding: 1rem; }
+
+    /* —— Design tokens 条 —— */
+    .tokens { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: stretch; }
+    .token-swatch {
+      flex: 1; min-width: 100px; border-radius: 8px; padding: 0.6rem 0.75rem; font-size: 0.7rem; color: #fff;
+      font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .token-swatch.muted { color: var(--color-text); text-shadow: none; border: 1px solid var(--color-border); }
+
+    /* —— 组件：按钮、标签、表 —— */
+    .btn {
+      font-family: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.45rem 0.95rem; border-radius: 6px;
+      border: none; cursor: pointer; transition: background 0.15s;
+    }
+    .btn--primary { background: var(--color-primary); color: #fff; }
+    .btn--primary:hover { background: var(--color-primary-hover); }
+    .btn--accent { background: var(--color-accent-red); color: #fff; box-shadow: 0 2px 6px rgba(196, 18, 48, 0.3); }
+    .btn--accent:hover { background: var(--color-accent-red-hover); }
+    .btn--ghost { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .pill { display: inline-block; padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+    .pill--ok { background: #dcfce7; color: #166534; }
+    .pill--run { background: #dbeafe; color: var(--color-primary); }
+    .pill--unread { background: #fef3c7; color: #92400e; }
+    .pill--read { background: #f3f4f6; color: #6b7280; }
+
+    table.demo-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .demo-table th {
+      text-align: left; padding: 0.5rem 0.65rem; background: var(--color-primary-muted);
+      color: var(--color-primary); font-weight: 600; border-bottom: 1px solid var(--color-border);
+    }
+    .demo-table td { padding: 0.5rem 0.65rem; border-bottom: 1px solid #eef1f5; vertical-align: top; }
+    .demo-table tr:last-child td { border-bottom: none; }
+    .mono { font-family: ui-monospace, Consolas, monospace; font-size: 0.75rem; color: var(--color-text-muted); }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; }
+    .input {
+      padding: 0.45rem 0.65rem; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.8rem;
+      min-width: 200px;
+    }
+
+    .highlight-demo {
+      background: #fff8e6; padding: 0.15rem 0.25rem; border-radius: 3px; font-weight: 600; color: #b45309;
+    }
+
+    .drawer-hint {
+      margin-top: 0.75rem; padding: 0.65rem 0.85rem; background: #f8fafc; border-left: 3px solid var(--color-primary);
+      font-size: 0.75rem; color: var(--color-text-muted);
+    }
+
+    /* M3 */
+    .m3-bar { height: 3px; background: var(--module-m3); margin: -1rem -1rem 1rem -1rem; }
+    .upload-zone {
+      border: 2px dashed var(--color-border); border-radius: var(--radius); padding: 1.25rem; text-align: center;
+      color: var(--color-text-muted); font-size: 0.8rem; margin-bottom: 1rem; background: #fafbfb;
+    }
+    .qa-box { background: #f0f9f7; border-radius: 8px; padding: 0.85rem; margin-top: 0.75rem; font-size: 0.8rem; }
+    .citation { display: inline-block; margin: 0.25rem 0.35rem 0 0; padding: 0.2rem 0.5rem; background: #fff; border: 1px solid #b2dfdb; border-radius: 4px; font-size: 0.7rem; color: var(--module-m3); }
+
+    /* M4 */
+    .m4-bar { height: 3px; background: var(--module-m4); margin: -1rem -1rem 1rem -1rem; }
+    .dry-banner {
+      background: linear-gradient(90deg, #fef3c7, #fff); border: 1px solid #fcd34d; border-radius: 8px;
+      padding: 0.65rem 0.85rem; font-size: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .dry-banner strong { color: #b45309; }
+
+    /* M5 */
+    .m5-bar { height: 3px; background: linear-gradient(90deg, var(--module-m5-bull), var(--module-m5-mod), var(--module-m5-bear)); margin: -1rem -1rem 1rem -1rem; }
+    .debate-grid { display: grid; gap: 0.65rem; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .debate-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .utter {
+      border-radius: 8px; padding: 0.65rem 0.75rem; font-size: 0.78rem; line-height: 1.45;
+      border: 1px solid var(--color-border);
+    }
+    .utter--bull { border-top: 3px solid var(--module-m5-bull); background: #f1f8f1; }
+    .utter--bear { border-top: 3px solid var(--module-m5-bear); background: #fef2f2; }
+    .utter--mod { border-top: 3px solid var(--module-m5-mod); background: #e3f2fd; }
+    .utter__who { font-weight: 700; font-size: 0.7rem; margin-bottom: 0.35rem; font-family: ui-monospace, monospace; }
+
+    .global-footer {
+      max-width: 1100px; margin: 2rem auto 0; padding: 1rem 1.25rem; font-size: 0.7rem; color: var(--color-text-muted);
+      border-top: 1px solid var(--color-border); text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <span class="app-header__brand">投研助手 · UI 主视觉参考</span>
+    <nav class="app-header__nav" aria-label="模块锚点">
+      <a href="#tokens">色板</a>
+      <a href="#m1">M1</a>
+      <a href="#m2">M2</a>
+      <a href="#m3">M3</a>
+      <a href="#m4">M4</a>
+      <a href="#m5">M5</a>
+    </nav>
+    <span class="app-header__user">演示用户 · Bearer 会话</span>
+  </header>
+
+  <p class="page-intro">
+    本页为 <strong>静态 Demo</strong>，对应 <strong>docs-5modules</strong> 各模块 <code>06</code> 典型布局与 <code>09</code> 字段语义。
+    实现可用 Ant Design / MUI 等替换组件，但建议 <strong>保留深蓝主色 + 红色强调</strong> 与下述 <strong>信息层级</strong>（列表 → 详情/抽屉 → 主操作按钮）。
+  </p>
+
+  <div class="wrap">
+
+    <section class="section" id="tokens">
+      <div class="section__head">
+        <h2 class="section__title">设计令牌（全模块共用）</h2>
+        <span class="section__spec">与 samples/m2-glue-reference/frontend 对齐</span>
+      </div>
+      <div class="section__body">
+        <div class="tokens">
+          <div class="token-swatch" style="background:#003d82">主色 primary<br>#003d82</div>
+          <div class="token-swatch" style="background:#c41230">强调 accent<br>#c41230</div>
+          <div class="token-swatch muted" style="background:#e8eef5">浅底 muted</div>
+          <div class="token-swatch muted" style="background:#f4f6f9">页面底 surface</div>
+          <div class="token-swatch" style="background:#1a1d24">正文 text<br>#1a1d24</div>
+        </div>
+        <p style="margin:1rem 0 0;font-size:0.75rem;color:var(--color-text-muted)">
+          <strong>M3</strong> 辅助色条 <code style="color:var(--module-m3)">#0d6e5c</code> ·
+          <strong>M4</strong> <code style="color:var(--module-m4)">#5c4b8a</code> ·
+          <strong>M5</strong> 看多/看空/主持 <code>#1b5e20 / #b71c1c / #1565c0</code>（仅辩论区内使用，不替代顶栏主色）
+        </p>
+      </div>
+    </section>
+
+    <!-- M1 -->
+    <section class="section" id="m1">
+      <div class="section__head">
+        <h2 class="section__title">M1 · 投研页（收件箱 / 搜索）</h2>
+        <span class="section__spec">06 §2 · routes /research/inbox · /research/search</span>
+      </div>
+      <div class="section__body">
+        <div class="toolbar">
+          <input class="input" type="search" placeholder="搜索 q（GET /research/messages/search）" value="白酒 季报" readonly />
+          <button type="button" class="btn btn--primary">搜索</button>
+          <label style="font-size:0.75rem;color:var(--color-text-muted)"><input type="checkbox" checked /> unreadOnly</label>
+        </div>
+        <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0 0 0.5rem">列表项对应 <code>MessageSummary</code>：messageId · title · summary · publishedAt · read · highlight（搜索时）</p>
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th>read</th>
+              <th>title / highlight</th>
+              <th>category</th>
+              <th>sourceName</th>
+              <th class="mono">messageId</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pill pill--unread">未读</span></td>
+              <td>消费板块：白酒龙头季报前瞻<br><span class="highlight-demo">白酒</span> · 渠道反馈动销平稳…</td>
+              <td>equity</td>
+              <td>固收研究</td>
+              <td class="mono">a0000001-…</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill--read">已读</span></td>
+              <td>利率债：短端波动与资金面</td>
+              <td>fixed_income</td>
+              <td>量化组</td>
+              <td class="mono">a0000002-…</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="drawer-hint">
+          <strong>详情 / 抽屉</strong>：展示 <code>MessageDetail.body</code> + <code>contentFormat</code> + <code>links[]</code>；主操作 <code>PATCH …/read</code> 标记已读（成功后列表乐观更新 <code>read=true</code>）。页脚固定 <strong>基金投研免责声明</strong>（与 04 一致）。
+        </div>
+      </div>
+    </section>
+
+    <!-- M2 -->
+    <section class="section" id="m2">
+      <div class="section__head">
+        <h2 class="section__title">M2 · Ingest 运维台（Glue）</h2>
+        <span class="section__spec">06 §2 · POST /ingest/jobs · SyncJob</span>
+      </div>
+      <div class="section__body">
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th>数据源</th>
+              <th>providerType</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mock 资讯源</td>
+              <td class="mono">mock</td>
+              <td><button type="button" class="btn btn--accent">触发同步</button></td>
+            </tr>
+            <tr>
+              <td>演示行情聚合</td>
+              <td class="mono">sina</td>
+              <td><button type="button" class="btn btn--accent">触发同步</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0.75rem 0 0.35rem">任务列表 · <code>SyncJob</code></p>
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th class="mono">jobId</th>
+              <th>status</th>
+              <th>mode</th>
+              <th>stats（摘要）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">job-abc01</td>
+              <td><span class="pill pill--run">running</span></td>
+              <td>incremental</td>
+              <td class="mono">fetched 120 · publishedToM1 118</td>
+            </tr>
+            <tr>
+              <td class="mono">job-abc00</td>
+              <td><span class="pill pill--ok">success</span></td>
+              <td>incremental</td>
+              <td class="mono">fetched 3 · normalized 3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- M3 -->
+    <section class="section" id="m3">
+      <div class="m3-bar"></div>
+      <div class="section__head" style="border-top:none">
+        <h2 class="section__title">M3 · 研报 PDF / 向量 / 问答</h2>
+        <span class="section__spec">06 §2 · DocumentSummary · QueryResponse</span>
+      </div>
+      <div class="section__body">
+        <div class="upload-zone">拖入 PDF 或选择文件 · <code>POST /knowledge/documents</code> · 单文件 ≤ 50MB（见 09）</div>
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th>filename</th>
+              <th>status</th>
+              <th>chunkCount</th>
+              <th class="mono">documentId</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>基金季报_演示.pdf</td>
+              <td><span class="pill pill--ok">ready</span></td>
+              <td>42</td>
+              <td class="mono">d0f1e2…</td>
+            </tr>
+            <tr>
+              <td>行业比较_草稿.pdf</td>
+              <td><span class="pill pill--run">parsing</span></td>
+              <td>—</td>
+              <td class="mono">d0f1e3…</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="qa-box">
+          <strong>问答区</strong> · <code>POST /knowledge/query</code><br />
+          Q：该基金当前股票仓位区间？<br />
+          A：根据文档摘录，……（Markdown 渲染）<br />
+          <div style="margin-top:0.5rem">
+            <span class="citation">citation chunkId · score 0.88</span>
+            <span class="citation">documentId 可核对</span>
+          </div>
+          <span class="pill" style="margin-top:0.5rem;background:#fff3e0;color:#e65100">declined=false</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- M4 -->
+    <section class="section" id="m4">
+      <div class="m4-bar"></div>
+      <div class="section__head" style="border-top:none">
+        <h2 class="section__title">M4 · 推送规则 / 试发 / 投递历史</h2>
+        <span class="section__spec">06 §2 · notify rules · dispatch · deliveries</span>
+      </div>
+      <div class="section__body">
+        <div class="dry-banner">
+          <strong>默认 dryRun</strong>：真发前须显式关闭或走沙箱；合规 stub 拦截时 <code>blocked</code> + 错误码见 09。
+        </div>
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th>规则名</th>
+              <th>渠道</th>
+              <th>enabled</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>舆情关键词_利率</td>
+              <td>钉钉</td>
+              <td><span class="pill pill--ok">on</span></td>
+              <td><button type="button" class="btn btn--ghost">编辑</button> <button type="button" class="btn btn--primary">试发</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.75rem;margin-top:0.75rem;color:var(--color-text-muted)">投递记录表头建议含 <code>deliveryId</code> · <code>status</code> · <code>traceId</code>（与审计一致）。</p>
+      </div>
+    </section>
+
+    <!-- M5 -->
+    <section class="section" id="m5">
+      <div class="m5-bar"></div>
+      <div class="section__head" style="border-top:none">
+        <h2 class="section__title">M5 · 多 Agent 辩论 / 纪要</h2>
+        <span class="section__spec">06 · Utterance · agentId: M5-BULL / M5-BEAR / M5-MOD</span>
+      </div>
+      <div class="section__body">
+        <p style="margin:0 0 0.75rem;font-size:0.8rem"><strong>topic</strong>：请讨论 XX 基金与基准在利率环境下的风险收益特征（演示文案，非投资建议） · <strong>symbol</strong> 000001.OF</p>
+        <div class="debate-grid">
+          <div class="utter utter--bull">
+            <div class="utter__who">M5-BULL · roundNo 1 · seq 3</div>
+            看多论据占位：流动性与负债端……（Markdown）
+          </div>
+          <div class="utter utter--bear">
+            <div class="utter__who">M5-BEAR · roundNo 1 · seq 4</div>
+            风险与约束占位：久期与信用利差……
+          </div>
+          <div class="utter utter--mod">
+            <div class="utter__who">M5-MOD · roundNo 2 · seq 9</div>
+            <strong>纪要（演示）</strong><br />多空摘要 + <strong>基金投研免责声明</strong> 固定块（disclaimerVersion 与 06 对齐）
+          </div>
+        </div>
+        <div class="toolbar" style="margin-top:1rem">
+          <button type="button" class="btn btn--primary">POST …/turn（step）</button>
+          <button type="button" class="btn btn--ghost">GET …/export?format=markdown</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="global-footer">
+    工作坊 UI 主视觉参考 · 打开方式：本地双击本 HTML，或静态托管本目录 · 不构成投资建议 ·
+    契约以 <strong>docs-5modules/*/<code>09</code></strong> 为准
+  </footer>
+</body>
+</html>

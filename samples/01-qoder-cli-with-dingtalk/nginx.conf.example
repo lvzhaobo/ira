@@ -1,0 +1,73 @@
+server {
+    listen 80;
+    server_name your-domain.com;  # 替换为你的域名或IP
+
+    # 日志配置
+    access_log /var/log/nginx/dingtalk-qoder-access.log;
+    error_log /var/log/nginx/dingtalk-qoder-error.log;
+
+    # 请求体大小限制
+    client_max_body_size 10M;
+
+    # 代理配置
+    location /webhook {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # 超时设置(Qoder CLI可能需要较长时间)
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+    }
+
+    # 健康检查端点
+    location /health {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    # 状态端点(建议添加IP白名单)
+    location /status {
+        # 取消注释以下行以限制访问
+        # allow 123.45.67.89;  # 你的IP
+        # deny all;
+        
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    # 任务端点(建议添加IP白名单)
+    location /tasks {
+        # 取消注释以下行以限制访问
+        # allow 123.45.67.89;  # 你的IP
+        # deny all;
+        
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    # HTTPS配置(强烈建议使用)
+    # 取消注释并配置SSL证书
+    # listen 443 ssl http2;
+    # ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+    # ssl_protocols TLSv1.2 TLSv1.3;
+    # ssl_ciphers HIGH:!aNULL:!MD5;
+}
+
+# HTTP重定向到HTTPS(如果配置了SSL)
+# server {
+#     listen 80;
+#     server_name your-domain.com;
+#     return 301 https://$server_name$request_uri;
+# }

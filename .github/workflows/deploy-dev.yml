@@ -1,0 +1,54 @@
+# 自动部署到测试/开发环境
+# 当代码推送到 main 分支时自动触发
+
+name: Auto Deploy to Dev
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/**'
+
+# 权限配置
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy-dev:
+    name: 部署到开发环境
+    runs-on: ubuntu-latest
+    environment: development  # GitHub 环境（可选，用于环境特定的 secrets）
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: 🚀 SSH 远程部署
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_PRIVATE_KEY }}
+          # 如果使用非 22 端口，取消注释并配置 ECS_SSH_PORT
+          # port: ${{ secrets.ECS_SSH_PORT }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.ECS_APP_PATH }}"
+            export DEPLOY_BRANCH="main"
+            export DEPLOY_BACKEND_SERVICE="${{ secrets.ECS_SYSTEMD_SERVICE }}"
+            export DEPLOY_NGINX_RELOAD=0
+            chmod +x scripts/deploy.sh
+            bash scripts/deploy.sh
+
+      - name: ✅ 部署成功通知
+        if: success()
+        run: echo "✅ 开发环境部署成功！"
+
+      - name: ❌ 部署失败通知
+        if: failure()
+        run: echo "❌ 开发环境部署失败，请检查日志！"

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRA Demo - Mock API展示</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 IRA Demo</h1>
+            <p class="subtitle">Mock API 展示与测试平台</p>
+        </header>
+
+        <main>
+            <section class="api-section">
+                <h2>📊 统计数据</h2>
+                <button onclick="fetchStats()" class="btn btn-primary">获取统计数据</button>
+                <div id="stats-result" class="result"></div>
+            </section>
+
+            <section class="api-section">
+                <h2>👥 用户列表</h2>
+                <button onclick="fetchUsers()" class="btn btn-primary">获取用户</button>
+                <div id="users-result" class="result"></div>
+            </section>
+
+            <section class="api-section">
+                <h2>📦 产品列表</h2>
+                <button onclick="fetchProducts()" class="btn btn-primary">获取产品</button>
+                <div id="products-result" class="result"></div>
+            </section>
+
+            <section class="api-section">
+                <h2>🛒 订单管理</h2>
+                <button onclick="fetchOrders()" class="btn btn-primary">获取订单</button>
+                <button onclick="createOrder()" class="btn btn-success">创建订单</button>
+                <div id="orders-result" class="result"></div>
+            </section>
+
+            <section class="api-section">
+                <h2>⏱️ 延迟测试</h2>
+                <div class="delay-controls">
+                    <input type="number" id="delay-seconds" value="2" min="1" max="10" class="input">
+                    <span>秒</span>
+                    <button onclick="testDelay()" class="btn btn-warning">测试延迟</button>
+                </div>
+                <div id="delay-result" class="result"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 IRA Demo | Mock API Service</p>
+            <p class="api-url">API地址: <code>/mock-api/</code></p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+# AI 代码审查工作流 - 使用 Qoder Action（官方）
+# 在 Pull Request 时自动运行 AI 代码审查，提供智能改进建议
+# 文档：https://docs.qoder.com/zh/cli/qoder-action
+# 仓库：https://github.com/QoderAI/qoder-action
+
+name: AI Code Review
+
+# 环境变量：启用 Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, master]
+
+# 权限配置：需要读取代码、写入 PR 评论和创建检查
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  ai-code-review:
+    name: Qoder AI Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤 1: 检出代码
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整 Git 历史
+
+      # 步骤 2: 检查 PR 大小（可选：跳过大型 PR 以节省成本）
+      - name: 📏 检查 PR 大小
+        id: check_size
+        run: |
+          # 获取 PR 新增的代码行数
+          if [ -f "$GITHUB_EVENT_PATH" ]; then
+            LINES_CHANGED=$(jq '.pull_request.additions // 0' < "$GITHUB_EVENT_PATH")
+          else
+            LINES_CHANGED=0
+          fi
+          echo "代码变更行数: $LINES_CHANGED"
+          
+          # 如果超过 1000 行，则跳过审查以控制成本
+          if [ "$LINES_CHANGED" -gt 1000 ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠️ PR 变更超过 1000 行，跳过 AI 审查以节省成本"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "✅ PR 大小在合理范围内，继续审查"
+          fi
+
+      # 步骤 3: 使用 Qoder Action 执行代码审查
+      - name: 🔍 Qoder AI 代码审查
+        if: steps.check_size.outputs.skip == 'false'
+        uses: QoderAI/qoder-action@v0
+        with:
+          qoder_personal_access_token: ${{ secrets.QODER_PERSONAL_ACCESS_TOKEN }}
+          prompt: |
+            /review-pr
+            REPO:${{ github.repository }}
+            PR_NUMBER:${{ github.event.pull_request.number }}
+            OUTPUT_LANGUAGE: Chinese
+
+      # 步骤 4: 设置检查状态（标记完成）
+      - name: ✅ 设置检查状态
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          SKIP_REVIEW: ${{ steps.check_size.outputs.skip }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const skip = process.env.SKIP_REVIEW === 'true';
+            const jobStatus = process.env.JOB_STATUS;
+            const conclusion = skip ? 'skipped' : (jobStatus === 'success' ? 'success' : 'failure');
+            
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'AI Code Review',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: 'Qoder AI Code Review',
+                summary: skip 
+                  ? '⏭️ PR 变更超过 1000 行，已跳过 AI 审查以节省成本'
+                  : '✅ AI 代码审查已完成，请查看评论了解详情'
+              }
+            });
