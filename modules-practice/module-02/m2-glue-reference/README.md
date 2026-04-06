@@ -2,7 +2,7 @@
 
 本目录 **不是** 生产代码，而是工作坊用的 **形状对齐** 骨架，便于 CoPaw / 人工编码时对照：
 
-- 正式契约：**`docs-5modules/02-模块-GlueCoding-多源数据/09-API接口规格.md`**、**`10-数据模型与存储规格.md`**、**`06-功能规格说明.md`**。
+- 正式契约（见 `specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/`）：**`09-API接口规格.md`**、**`10-数据模型与存储规格.md`**、**`06-功能规格说明.md`**。
 - 此处仅包含：**Provider 接口**、**Mock 源**、**同步任务状态机**（与 `09` 中 `SyncJob.status` 一致）。
 
 ## 用法

@@ -2,7 +2,7 @@
 
 **Base**：部署根路径，例如 `https://your-ira-vin.example.com`。下文路径均为 **追加** 在该主机名后。
 
-**`IRA_VIN_MOCK_BASE`**：BFF、Glue 连接器与 CoPaw Skill/Cron 的出站 Base 建议统一读此环境变量（**不含尾部 `/`**）。**正式对外域名**（如是否固定为 `https://ira.vin`）在部署敲定后，将本文件中的示例 Base、各模块 **`09`** 示例 URL 与 **`docs-5modules/02-.../08`** 说明改为与线上一致即可；**路径段**仍以本文 **`/mock/v1/...`** 为真源。
+**`IRA_VIN_MOCK_BASE`**：BFF、Glue 连接器与 CoPaw Skill/Cron 的出站 Base 建议统一读此环境变量（**不含尾部 `/`**）。**正式对外域名**（如是否固定为 `https://ira.vin`）在部署敲定后，将本文件中的示例 Base、各模块 **`09`** 示例 URL 与 **`specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/08`** 说明改为与线上一致即可；**路径段**仍以本文 **`/mock/v1/...`** 为真源。
 
 ---
 
