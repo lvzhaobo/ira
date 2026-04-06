@@ -36,12 +36,14 @@ def lineage_search():
     for t in data["traces"]:
         summary = (t.get("summary") or "").lower()
         tid = t.get("trace_id", "")
-        if not q or q in summary or q in tid.lower():
+        msid = str(t.get("market_snapshot_id") or "")
+        if not q or q in summary or q in tid.lower() or q in msid.lower():
             items.append(
                 {
                     "trace_id": t.get("trace_id"),
                     "summary": t.get("summary", ""),
                     "artifact_type": t.get("artifact_type", ""),
+                    "market_snapshot_id": t.get("market_snapshot_id"),
                     "created_at": t.get("created_at", ""),
                 }
             )

@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "id": "dingtalk",
+      "name": "钉钉机器人",
+      "kind": "dingtalk",
+      "connected": false,
+      "hint": "演示渠道"
+    },
+    {
+      "id": "feishu",
+      "name": "飞书机器人",
+      "kind": "feishu",
+      "connected": false,
+      "hint": "演示渠道"
+    },
+    {
+      "id": "email",
+      "name": "邮件列表",
+      "kind": "email",
+      "connected": false,
+      "hint": "演示渠道"
+    }
+  ]
+}

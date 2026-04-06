@@ -1,0 +1,36 @@
+name: Deploy IRA To ECS (Template)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Deploy branch"
+        required: true
+        default: "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy files to ECS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          source: "."
+          target: "__APP_ROOT__"
+
+      - name: Run deploy script on ECS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          password: ${{ secrets.ECS_PASSWORD }}
+          script: |
+            export APP_ROOT="__APP_ROOT__"
+            export BRANCH="${{ github.event.inputs.branch }}"
+            bash "__APP_ROOT__/specs/workshop/deploy-templates-ecs/scripts/deploy.sh"

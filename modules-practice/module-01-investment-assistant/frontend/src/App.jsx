@@ -12,6 +12,13 @@ const COMMON_QUESTIONS = [
   { category: '个股', question: '贵州茅台 Q3 财报要点分析' },
 ];
 
+function sourceLabel(src, llmUsed) {
+  if (src === 'copaw') return 'CoPaw';
+  if (src === 'bailian') return '百炼';
+  if (src === 'demo') return '离线演示';
+  return llmUsed ? '模型' : '离线演示';
+}
+
 function App() {
   const [sessions, setSessions] = useState([]);
   const [currentSession, setCurrentSession] = useState(null);
@@ -20,10 +27,15 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [caps, setCaps] = useState(null);
 
   // 加载会话列表
   useEffect(() => {
     loadSessions();
+  }, []);
+
+  useEffect(() => {
+    api.getCapabilities().then(setCaps).catch(() => setCaps(null));
   }, []);
 
   // 切换会话时加载历史记录
@@ -100,6 +112,7 @@ function App() {
         answer: result.answer,
         llm_used: result.llm_used,
         model: result.model,
+        answer_source: result.answer_source,
         timestamp: new Date().toISOString(),
       }]);
 
@@ -136,10 +149,20 @@ function App() {
           >
             ☰
           </button>
-          <h1>XX基金 · 投研助手 Agent</h1>
+          <h1>投研助手 · M1 练习版</h1>
+          <div className="header-chips" title="与主项目 ira 使用相同的百炼密钥变量（DASHSCOPE_API_KEY）；可选 CoPaw 桥接（IRA_COPAW_*）">
+            {caps?.copaw_configured ? (
+              <span className="ira-chip ira-chip--copaw">CoPaw 桥接</span>
+            ) : null}
+            {caps?.bailian_configured ? (
+              <span className="ira-chip ira-chip--live">百炼 · {caps.bailian_model || 'qwen'}</span>
+            ) : (
+              <span className="ira-chip ira-chip--demo">离线演示（未配置百炼）</span>
+            )}
+          </div>
         </div>
         <div className="header-right">
-          <button className="header-btn">设置</button>
+          <span className="header-hint">对齐 ira「研报问答」降级策略</span>
         </div>
       </header>
 
@@ -216,8 +239,9 @@ function App() {
                   </div>
                   <div className="record-meta">
                     <span className={`llm-tag ${record.llm_used ? 'llm-used' : 'llm-fallback'}`}>
-                      {record.llm_used ? '百炼' : '降级'}
+                      {sourceLabel(record.answer_source, record.llm_used)}
                     </span>
+                    {record.model ? <span className="record-model">{record.model}</span> : null}
                   </div>
                 </div>
               ))}

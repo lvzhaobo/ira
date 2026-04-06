@@ -125,14 +125,14 @@ curl http://127.0.0.1:5000/api/v1/ingest/jobs
 ## 📖 规格文档索引
 
 - **P0 契约**：
-  - [09-API接口规格.md](../02-模块-GlueCoding-多源数据/09-API接口规格.md)
-  - [10-数据模型与存储规格.md](../02-模块-GlueCoding-多源数据/10-数据模型与存储规格.md)
-  - [06-功能规格说明.md](../02-模块-GlueCoding-多源数据/06-功能规格说明.md)
+  - [09-API接口规格.md](../../../specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/09-API接口规格.md)
+  - [10-数据模型与存储规格.md](../../../specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/10-数据模型与存储规格.md)
+  - [06-功能规格说明.md](../../../specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/06-功能规格说明.md)
 
 - **验收文档**：
-  - [05-用户故事与验收标准.md](../02-模块-GlueCoding-多源数据/05-用户故事与验收标准.md)
-  - [13-测试策略与质量门禁.md](../02-模块-GlueCoding-多源数据/13-测试策略与质量门禁.md)
-  - [12-实施计划与里程碑.md](../02-模块-GlueCoding-多源数据/12-实施计划与里程碑.md)
+  - [05-用户故事与验收标准.md](../../../specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/05-用户故事与验收标准.md)
+  - [13-测试策略与质量门禁.md](../../../specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/13-测试策略与质量门禁.md)
+  - [12-实施计划与里程碑.md](../../../specs/workshop/module-02-glue-multisource/docs/02-模块-GlueCoding-多源数据/12-实施计划与里程碑.md)
 
 ---
 
@@ -149,4 +149,4 @@ curl http://127.0.0.1:5000/api/v1/ingest/jobs
 
 - **参考代码**：[../m2-glue-reference/](../m2-glue-reference/)
 - **Mock 数据源**：[../ira-vin-mocks/](../ira-vin-mocks/)
-- **Agent 开发指南**：[../Agents.md](../Agents.md)
+- **Agent 开发指南**：[../../../specs/workshop/module-02-glue-multisource/Agents.md](../../../specs/workshop/module-02-glue-multisource/Agents.md)

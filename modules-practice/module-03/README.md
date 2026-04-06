@@ -35,6 +35,13 @@
 
 - [kb-qa-contract.yaml](../../specs/workshop/module-03-knowledge-copaw/openapi/kb-qa-contract.yaml)
 
+## 课程端口口径（建议）
+
+- M3 BFF 代码默认端口为 `8000`（可通过 `PORT` 环境变量覆盖）。
+- 为便于跨模块串讲，课程建议统一：
+  - **后端优先 `5000`**（示例：PowerShell `\$env:PORT=5000` 后再启动）。
+  - 前端最小联调页可继续使用本地静态服务端口（如 `3000`）。
+
 ## 项目能否基于 CoPaw 开发？
 
 **可以。** Proposal 与 Spec 中已约定：**CoPaw 负责对话入口、Skill、Workflow**；**BFF 负责 REST、入库、组装 `evidence_refs` 与 trace**。实现时以 **`01` 冻结版** 契约为准。

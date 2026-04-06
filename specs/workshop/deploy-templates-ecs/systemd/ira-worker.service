@@ -1,0 +1,17 @@
+[Unit]
+Description=IRA Worker (Optional background tasks)
+After=network.target
+
+[Service]
+Type=simple
+User=__RUN_USER__
+Group=__RUN_USER__
+WorkingDirectory=__APP_ROOT__/ira/backend
+EnvironmentFile=__APP_ROOT__/.env
+# 按需替换为你们实际 worker 启动命令
+ExecStart=__APP_ROOT__/.venv/bin/python -m app.workers.main
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

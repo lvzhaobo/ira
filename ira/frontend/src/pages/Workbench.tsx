@@ -37,29 +37,76 @@ type RecentSession = {
 };
 
 type ReportDraftRow = { workflow_stage?: string; status?: string };
+type OpsSummary = {
+  multi_agent?: {
+    total_runs?: number;
+    pending_reviews?: number;
+    approved_reviews?: number;
+    rejected_reviews?: number;
+  };
+  notify?: {
+    total_deliveries?: number;
+    sent_count?: number;
+    pending_dispatch_count?: number;
+  };
+};
 
-const QUICK_ENTRIES: { to: string; title: string; desc: string; tag: string }[] = [
+/**
+ * 与侧栏「五大核心模块」一致（不含工作台：总览单独占一栏）。
+ * 映射：`modules-practice` 中 M01 对话、M03 知识库、M05 多 Agent；合规/舆情为 ira 主线投研风控与市场面。
+ */
+const CORE_MODULE_ENTRIES: { to: string; title: string; desc: string; tag: string }[] = [
+  {
+    to: "/research-qa-change",
+    title: "研报问答",
+    desc: "主问答入口：规格迭代与引用链；叙事对齐 M01「投研助手基础」与 Spec 变更",
+    tag: "M1",
+  },
+  {
+    to: "/stock-analysis",
+    title: "个股覆盖",
+    desc: "M2 数据消费主入口：聚合快照优先、mock 回退，承接 ingest/data hub。",
+    tag: "M2",
+  },
+  {
+    to: "/knowledge",
+    title: "知识库",
+    desc: "文档登记与 RAG 支撑；纵深对齐 M03「知识库与问答」",
+    tag: "M3",
+  },
+  {
+    to: "/messages",
+    title: "消息推送",
+    desc: "M4 主入口：渠道投递、发送前合规、投递历史与回溯。",
+    tag: "M4",
+  },
+  {
+    to: "/multi-agent-stock",
+    title: "多 Agent",
+    desc: "多角色编排与合并；叙事对齐 M05「多 Agent 投研」",
+    tag: "M5",
+  },
+];
+
+/** 侧栏「扩展与演示」：含血缘（追溯专题）、推送（M4）等，课堂按需选讲 */
+const EXTENDED_QUICK_ENTRIES: { to: string; title: string; desc: string; tag: string }[] = [
   {
     to: "/research-qa",
-    title: "研报问答 ①",
-    desc: "MVP：检索、引用、合规提示与百炼/离线双态；对应 Workshop Spec Coding 初版",
+    title: "研报问答 ①（MVP）",
+    desc: "简化链路；默认不在侧栏，设置中可打开「显示研报问答①」",
     tag: "①",
   },
   {
-    to: "/research-qa-change",
-    title: "需求变更 ②",
-    desc: "ira-1.1.0、风险标签与规格迭代演示；与 ① 对照回归",
-    tag: "②",
+    to: "/lineage",
+    title: "数据血缘",
+    desc: "与 M2 对照：trace 与披露血缘（下游可追溯）；ingest 管线在 module-02",
+    tag: "M2",
   },
-  { to: "/knowledge", title: "知识库", desc: "已登记文档与索引状态，支撑 RAG 与权限扩展", tag: "数据" },
-  { to: "/compliance", title: "合规扫描", desc: "话术与材料预检，命中写入审计与血缘", tag: "合规" },
-  { to: "/reports", title: "报告登记", desc: "报告/披露事项在编制—内审—合规—签章链路上的登记", tag: "流程" },
-  { to: "/sentiment", title: "舆情监控", desc: "关键词、预警与联调区（机构侧多源聚合诉求）", tag: "运营" },
-  { to: "/messages", title: "消息推送", desc: "钉钉/飞书/邮件 dry-run，发送前合规扫描", tag: "触达" },
-  { to: "/lineage", title: "血缘追溯", desc: "结论与调用 trace，满足复核与监管问询字段模型", tag: "审计" },
-  { to: "/stock-analysis", title: "个股草稿", desc: "标的分析草稿与演示行情（需授权数据源生产化）", tag: "覆盖" },
-  { to: "/multi-agent-stock", title: "多 Agent", desc: "行业/量化/合规并行与合并编排演示（关卡 PR 抽检场景）", tag: "编排" },
-  { to: "/settings", title: "系统与偏好", desc: "参数、持久化偏好与 Swagger / OpenAPI 入口（Debug/验收）", tag: "设置" },
+  { to: "/compliance", title: "合规扫描", desc: "发送、问答、报告前的规则校验与审计扩展页", tag: "风控" },
+  { to: "/sentiment", title: "舆情分析", desc: "市场舆情看板与告警，作为研究辅助能力扩展", tag: "舆情" },
+  { to: "/skills", title: "SKILL", desc: "能力与工具注入示意；可与 CoPaw 技能叙事对照", tag: "技能" },
+  { to: "/reports", title: "报告登记", desc: "编制—内审—合规链路登记演示", tag: "流程" },
+  { to: "/settings", title: "系统与偏好", desc: "参数、OpenAPI 入口与 MVP 导航开关", tag: "设置" },
 ];
 
 function todoLevelClass(level?: string): string {
@@ -99,10 +146,11 @@ export default function Workbench() {
   /** null = 尚未拉取或失败，用 kpi 静态兜底 */
   const [kbLiveCount, setKbLiveCount] = useState<number | null>(null);
   const [reportsPipelineLive, setReportsPipelineLive] = useState<number | null>(null);
+  const [opsSummary, setOpsSummary] = useState<OpsSummary | null>(null);
 
   const load = useCallback(async () => {
     setHealthErr(false);
-    const [h, k, td, sr, kb, rep] = await Promise.all([
+    const [h, k, td, sr, kb, rep, ops] = await Promise.all([
       getJson<Health>("/system/health").catch(() => {
         setHealthErr(true);
         return null;
@@ -112,6 +160,7 @@ export default function Workbench() {
       getJson<{ items: RecentSession[] }>("/sessions/recent").catch(() => ({ items: [] })),
       getJson<{ items: unknown[] }>("/kb/documents").catch(() => null),
       getJson<{ items: ReportDraftRow[] }>("/reports/drafts").catch(() => null),
+      getJson<OpsSummary>("/system/ops/summary").catch(() => null),
     ]);
     setHealth(h);
     setKpi(k);
@@ -121,6 +170,7 @@ export default function Workbench() {
     else setKbLiveCount(null);
     if (rep?.items) setReportsPipelineLive(countReportsInPipeline(rep.items));
     else setReportsPipelineLive(null);
+    setOpsSummary(ops);
   }, []);
 
   useEffect(() => {
@@ -194,12 +244,12 @@ export default function Workbench() {
               能力入口
             </h2>
             <span className="ira-wb-section__sub">
-              与《环节与教学法映射》侧栏序号对齐：①② 拆分问答与规格变更；合规/推送/多 Agent 对应关卡 PR 抽检叙事；设置承接 Debug 与
-              OpenAPI。
+              当前页为<strong>工作台总览</strong>；下方<strong>五大核心模块</strong>与侧栏第二组一致（M1 问答 / M2 个股覆盖 / M3
+              知识库 / M4 推送 / M5 多Agent）。其余为<strong>扩展与演示</strong>（含血缘、合规、舆情等）。
             </span>
           </div>
-          <ul className="ira-wb-grid">
-            {QUICK_ENTRIES.map((e) => (
+          <ul className="ira-wb-grid ira-wb-grid--core">
+            {CORE_MODULE_ENTRIES.map((e) => (
               <li key={e.to}>
                 <Link to={e.to} className="ira-wb-card">
                   <span className="ira-wb-card__tag">{e.tag}</span>
@@ -209,6 +259,25 @@ export default function Workbench() {
               </li>
             ))}
           </ul>
+          <div className="ira-wb-subsection" aria-labelledby="wb-quick-ext">
+            <h3 id="wb-quick-ext" className="ira-wb-subsection__title">
+              扩展与演示
+            </h3>
+            <p className="ira-wb-subsection__note">
+              以下页面在页头与侧栏标为「扩展」：含数据血缘（M02 追溯专题）、个股、推送（M4）、报告登记与系统调试等；默认不要求与五大核心同等课时。
+            </p>
+            <ul className="ira-wb-grid">
+              {EXTENDED_QUICK_ENTRIES.map((e) => (
+                <li key={e.to}>
+                  <Link to={e.to} className="ira-wb-card ira-wb-card--secondary">
+                    <span className="ira-wb-card__tag">扩展 · {e.tag}</span>
+                    <span className="ira-wb-card__title">{e.title}</span>
+                    <span className="ira-wb-card__desc">{e.desc}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         <div className="ira-wb-split">
@@ -286,6 +355,33 @@ export default function Workbench() {
             <h2 id="wb-sys" className="ira-wb-section__title">
               系统与合规提示
             </h2>
+          </div>
+          <div className="ira-wb-section__head" style={{ marginBottom: "0.45rem" }}>
+            <span className="ira-wb-section__sub">
+              闭环状态（M5 审核 → M4 推送）：来自 <code>GET /system/ops/summary</code>，用于课堂演示“未审核不可正式发送”。
+            </span>
+          </div>
+          <div className="ira-wb-kpis" style={{ marginBottom: "0.75rem" }}>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">多Agent待审核</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.multi_agent?.pending_reviews ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">pending_reviews</span>
+            </div>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">多Agent已通过</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.multi_agent?.approved_reviews ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">approved_reviews</span>
+            </div>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">推送待发送</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.notify?.pending_dispatch_count ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">pending_dispatch_count</span>
+            </div>
+            <div className="ira-wb-kpi">
+              <span className="ira-wb-kpi__label">推送已发送</span>
+              <span className="ira-wb-kpi__value">{opsSummary?.notify?.sent_count ?? "—"}</span>
+              <span className="ira-wb-kpi__hint">sent_count</span>
+            </div>
           </div>
           <div className="ira-wb-sys">
             <dl className="ira-wb-dl">
