@@ -1,0 +1,443 @@
+# ============================================================
+# T-A：知识库与问答 API 契约 — OpenAPI 3.0 片段
+# 对应 01-Spec v0.1 §3（API 契约）与 §7（统一错误体）
+# 仅描述四条路径的请求/响应结构，不含业务实现。
+# ============================================================
+openapi: "3.0.3"
+info:
+  title: 知识库与研报问答 API 契约
+  description: |
+    本文件为 Workshop 知识库与研报问答系统的 API 契约文档。
+    字段名严格对齐 01-Spec v0.1 §3 与 §7。
+    - 业务拒答（无证据）：HTTP 200 + evidence_refs: []
+    - 非业务错误：4xx/5xx + 统一错误体（ErrorResponse）
+  version: "0.1.0"
+  license:
+    name: "Internal"
+
+# 安全方案留空——Spec 未定义认证机制，实现时按需追加。
+security: []
+
+servers:
+  - url: "{baseUrl}/api/v1"
+    description: BFF 服务（基路径占位，由环境变量 BFF_BASE_URL 决定）
+    variables:
+      baseUrl:
+        default: http://localhost:8000
+
+paths:
+  # ──────────────────────────────────────────────────────
+  # §3.1 获取知识文档列表
+  # ──────────────────────────────────────────────────────
+  /kb/documents:
+    get:
+      operationId: listKbDocuments
+      summary: 获取知识文档列表
+      description: |
+        返回已入库的知识文档列表。items 可为空数组。
+        对应 01-Spec §3.1。
+      tags:
+        - 知识库
+      responses:
+        "200":
+          description: 成功返回文档列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KbDocumentsResponse"
+              example:
+                items:
+                  - doc_id: "doc-001"
+                    title: "2025年Q4研报"
+                    source_filename: "report-2025q4.pdf"
+                    ingested_at: "2026-04-01T10:00:00Z"
+                    status: "ready"
+                    bytes: 204800
+        "400":
+          $ref: "#/components/responses/ClientError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  # ──────────────────────────────────────────────────────
+  # §3.2 索引/管线状态（演示）
+  # ──────────────────────────────────────────────────────
+  /kb/index/status:
+    get:
+      operationId: getKbIndexStatus
+      summary: 获取索引/管线状态
+      description: |
+        返回知识库索引的当前状态。Workshop 允许固定示意值，
+        但字段名不得与 01-Spec §3.2 冲突。
+      tags:
+        - 知识库
+      responses:
+        "200":
+          description: 成功返回索引状态
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KbIndexStatusResponse"
+              example:
+                index_ver: "v1.0"
+                updated_at: "2026-04-01T12:00:00Z"
+                status: "ready"
+        "400":
+          $ref: "#/components/responses/ClientError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  # ──────────────────────────────────────────────────────
+  # §3.3 上传材料（入库）
+  # ──────────────────────────────────────────────────────
+  /research/qa/upload:
+    post:
+      operationId: uploadResearchDocument
+      summary: 上传材料（入库）
+      description: |
+        上传单个文件至知识库。对应 01-Spec §3.3。
+        请求使用 multipart/form-data，字段名为 file（单文件），
+        可选 title。
+      tags:
+        - 问答与上传
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadRequest"
+      responses:
+        "200":
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+              example:
+                doc_id: "doc-002"
+                trace_id: "tr-abc-123"
+                message: "上传成功，文档已入库"
+        "400":
+          $ref: "#/components/responses/ClientError"
+        "413":
+          description: 文件大小超限
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "文件大小超过限制"
+                code: "FILE_TOO_LARGE"
+                trace_id: "tr-abc-456"
+        "415":
+          description: 不支持的文件类型
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "不支持的文件类型"
+                code: "UNSUPPORTED_FILE_TYPE"
+                trace_id: "tr-abc-789"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  # ──────────────────────────────────────────────────────
+  # §3.4 研报问答
+  # ──────────────────────────────────────────────────────
+  /research/qa/ask:
+    post:
+      operationId: askResearchQuestion
+      summary: 研报问答
+      description: |
+        提交问题并获取基于知识库的回答。对应 01-Spec §3.4。
+        - 有证据时：evidence_refs 非空，answer 为正常回答。
+        - 无可靠证据时（业务拒答）：HTTP 200，evidence_refs 为 []，
+          answer 为统一拒答模板，compliance.decline_reason 可填
+          如 "NO_EVIDENCE"。不使用错误体代替。
+      tags:
+        - 问答与上传
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AskRequest"
+      responses:
+        "200":
+          description: |
+            问答成功。注意：无证据时仍返回 200，evidence_refs 为空数组。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AskResponse"
+              examples:
+                with_evidence:
+                  summary: 有证据的正常回答
+                  value:
+                    answer: "根据2025年Q4研报，营收同比增长12%……"
+                    evidence_refs:
+                      - doc_id: "doc-001"
+                        page: 5
+                        ref: "第三章 财务摘要"
+                        retrieval_score: 0.92
+                    trace_id: "tr-ask-001"
+                    model: "qwen-max"
+                    compliance:
+                      decline_reason: null
+                no_evidence:
+                  summary: 无证据时的业务拒答（仍为 200）
+                  value:
+                    answer: "抱歉，当前知识库中未找到与您问题相关的可靠证据，无法作答。"
+                    evidence_refs: []
+                    trace_id: "tr-ask-002"
+                    model: "qwen-max"
+                    compliance:
+                      decline_reason: "NO_EVIDENCE"
+        "400":
+          $ref: "#/components/responses/ClientError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+# ==============================================================
+# 组件定义
+# ==============================================================
+components:
+
+  # ────────────── Schemas ──────────────
+  schemas:
+
+    # ---------- 知识库 ----------
+
+    KbDocumentItem:
+      type: object
+      description: 单条知识文档（对应 01-Spec §3.1 items[] 元素）
+      required:
+        - doc_id
+        - title
+        - source_filename
+        - ingested_at
+        - status
+        - bytes
+      properties:
+        doc_id:
+          type: string
+          description: 文档唯一标识
+        title:
+          type: string
+          description: 文档标题
+        source_filename:
+          type: string
+          description: 原始文件名
+        ingested_at:
+          type: string
+          format: date-time
+          description: 入库时间（ISO8601）
+        status:
+          type: string
+          enum:
+            - ready
+            - indexing
+            - error
+          description: 文档状态
+        bytes:
+          type: integer
+          format: int64
+          description: 文件大小（字节）
+
+    KbDocumentsResponse:
+      type: object
+      description: 知识文档列表响应（01-Spec §3.1）
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/KbDocumentItem"
+          description: 文档列表，可为空数组
+
+    KbIndexStatusResponse:
+      type: object
+      description: 索引/管线状态响应（01-Spec §3.2）
+      required:
+        - index_ver
+        - updated_at
+        - status
+      properties:
+        index_ver:
+          type: string
+          description: 索引版本号
+        updated_at:
+          type: string
+          format: date-time
+          description: 最后更新时间（ISO8601）
+        status:
+          type: string
+          enum:
+            - idle
+            - indexing
+            - ready
+            - error
+          description: 索引状态
+
+    # ---------- 问答与上传 ----------
+
+    UploadRequest:
+      type: object
+      description: 上传材料请求（01-Spec §3.3，multipart/form-data）
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+          description: 上传的单个文件
+        title:
+          type: string
+          description: 文档标题（可选）
+
+    UploadResponse:
+      type: object
+      description: 上传成功响应（01-Spec §3.3）
+      required:
+        - doc_id
+        - trace_id
+        - message
+      properties:
+        doc_id:
+          type: string
+          description: 入库后的文档唯一标识
+        trace_id:
+          type: string
+          description: 追溯标识
+        message:
+          type: string
+          description: 操作结果描述
+
+    AskRequest:
+      type: object
+      description: 研报问答请求（01-Spec §3.4）
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: 用户提问内容
+        session_id:
+          type: string
+          nullable: true
+          description: 会话标识（可选）
+        spec_version:
+          type: string
+          nullable: true
+          description: Spec 版本标识（可选）
+
+    EvidenceRef:
+      type: object
+      description: 单条证据引用（01-Spec §3.4 evidence_refs[] 元素）
+      required:
+        - doc_id
+        - page
+        - ref
+        - retrieval_score
+      properties:
+        doc_id:
+          type: string
+          description: 引用来源文档 ID
+        page:
+          type: integer
+          description: 引用所在页码
+        ref:
+          type: string
+          description: 引用位置/章节描述
+        retrieval_score:
+          type: number
+          format: float
+          description: 检索相关度评分
+
+    ComplianceInfo:
+      type: object
+      description: 合规信息
+      properties:
+        decline_reason:
+          type: string
+          nullable: true
+          description: |
+            拒答原因。有证据时为 null；无证据时如 "NO_EVIDENCE"。
+
+    AskResponse:
+      type: object
+      description: |
+        研报问答响应（01-Spec §3.4）。
+        无可靠证据时：evidence_refs 为 []，仍返回 HTTP 200。
+      required:
+        - answer
+        - evidence_refs
+        - trace_id
+        - model
+        - compliance
+      properties:
+        answer:
+          type: string
+          description: 回答内容（无证据时为统一拒答模板）
+        evidence_refs:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceRef"
+          description: 证据引用列表，无证据时为空数组 []
+        trace_id:
+          type: string
+          description: 追溯标识
+        model:
+          type: string
+          description: 使用的模型标识
+        compliance:
+          $ref: "#/components/schemas/ComplianceInfo"
+
+    # ---------- 统一错误体 ----------
+
+    ErrorResponse:
+      type: object
+      description: |
+        统一错误响应体（01-Spec §7）。
+        仅用于非业务错误（4xx/5xx）。
+        业务拒答（无证据）走 HTTP 200 + 空 evidence_refs，不使用此体。
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: 人类可读的错误描述
+        code:
+          type: string
+          description: 机器可读的错误码
+        trace_id:
+          type: string
+          nullable: true
+          description: 追溯标识（可为 null）
+
+  # ────────────── Responses ──────────────
+  responses:
+
+    ClientError:
+      description: 客户端错误（4xx）
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: "请求参数无效"
+            code: "INVALID_REQUEST"
+            trace_id: "tr-err-400"
+
+    ServerError:
+      description: 服务端/上游错误（5xx）
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: "内部服务器错误"
+            code: "INTERNAL_ERROR"
+            trace_id: "tr-err-500"
