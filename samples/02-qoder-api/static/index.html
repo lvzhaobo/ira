@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qoder CLI Flask 封装示例</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; line-height: 1.5; }
+    textarea, input { width: 100%; box-sizing: border-box; margin: 6px 0 12px; padding: 8px; }
+    button { margin-right: 8px; padding: 8px 12px; }
+    pre { background: #f5f5f5; padding: 10px; white-space: pre-wrap; word-break: break-word; }
+    .row { margin-bottom: 14px; }
+    .hint { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h2>Qoder CLI + Flask + jQuery 示例</h2>
+  <div class="row">
+    <label>Prompt</label>
+    <textarea id="prompt" rows="6" placeholder="例如：生成一个 Flask 健康检查接口"></textarea>
+  </div>
+  <div class="row">
+    <label>Workspace（可选）</label>
+    <input id="workspace" placeholder="例如：D:\code\workshop-5days" />
+  </div>
+  <div class="row">
+    <label>Timeout（秒）</label>
+    <input id="timeout" type="number" value="300" />
+  </div>
+
+  <div class="row">
+    <button id="runSync">同步执行（直接返回）</button>
+    <button id="runAsync">异步执行（轮询状态）</button>
+    <button id="loadJobs">加载任务列表</button>
+  </div>
+  <div class="hint">异步模式会在后端保存 `jobs/*.json` 和 `results/*.txt`，前端可轮询状态并读取文件链接。</div>
+
+  <h3>执行结果</h3>
+  <pre id="output">等待执行...</pre>
+
+  <h3>任务列表</h3>
+  <pre id="jobs">暂无数据</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="/static/main.js"></script>
+</body>
+</html>

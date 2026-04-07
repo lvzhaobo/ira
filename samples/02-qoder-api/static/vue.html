@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qoder CLI Flask 封装（Vue）</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; line-height: 1.5; }
+    textarea, input { width: 100%; box-sizing: border-box; margin: 6px 0 12px; padding: 8px; }
+    button { margin-right: 8px; padding: 8px 12px; }
+    pre { background: #f5f5f5; padding: 10px; white-space: pre-wrap; word-break: break-word; }
+    .row { margin-bottom: 14px; }
+    .muted { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>Qoder CLI + Flask + Vue 示例</h2>
+    <div class="muted">jQuery 版本：<a href="/">/</a>，Vue 版本：<a href="/vue">/vue</a></div>
+
+    <div class="row">
+      <label>Prompt</label>
+      <textarea v-model="prompt" rows="6" placeholder="例如：帮我生成一个 Flask 登录接口"></textarea>
+    </div>
+    <div class="row">
+      <label>Workspace（可选）</label>
+      <input v-model="workspace" placeholder="例如：D:\code\workshop-5days" />
+    </div>
+    <div class="row">
+      <label>Timeout（秒）</label>
+      <input v-model.number="timeout" type="number" />
+    </div>
+
+    <div class="row">
+      <button @click="runSync">同步执行</button>
+      <button @click="runAsync">异步执行</button>
+      <button @click="loadJobs">加载任务列表</button>
+      <button @click="health">健康检查</button>
+    </div>
+
+    <h3>输出</h3>
+    <pre>{{ output }}</pre>
+
+    <h3>任务列表</h3>
+    <pre>{{ jobs }}</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"></script>
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          prompt: "",
+          workspace: "",
+          timeout: 300,
+          output: "等待执行...",
+          jobs: "暂无数据",
+          pollTimer: null
+        };
+      },
+      methods: {
+        payload() {
+          return {
+            prompt: (this.prompt || "").trim(),
+            workspace: (this.workspace || "").trim() || null,
+            timeout: Number(this.timeout || 300)
+          };
+        },
+        async health() {
+          const res = await fetch("/api/health");
+          this.output = JSON.stringify(await res.json(), null, 2);
+        },
+        async runSync() {
+          const body = this.payload();
+          if (!body.prompt) {
+            this.output = JSON.stringify({ ok: false, error: "prompt 不能为空" }, null, 2);
+            return;
+          }
+          body.save_to_file = true;
+          const res = await fetch("/api/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          this.output = JSON.stringify(await res.json(), null, 2);
+        },
+        async runAsync() {
+          const body = this.payload();
+          if (!body.prompt) {
+            this.output = JSON.stringify({ ok: false, error: "prompt 不能为空" }, null, 2);
+            return;
+          }
+          const res = await fetch("/api/jobs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          const data = await res.json();
+          this.output = JSON.stringify(data, null, 2);
+          if (data.job_id) {
+            this.startPolling(data.job_id);
+          }
+        },
+        startPolling(jobId) {
+          if (this.pollTimer) {
+            clearInterval(this.pollTimer);
+          }
+          this.pollTimer = setInterval(async () => {
+            const res = await fetch(`/api/jobs/${jobId}`);
+            const data = await res.json();
+            this.output = JSON.stringify(data, null, 2);
+            const status = data && data.job && data.job.status;
+            if (status === "done" || status === "failed") {
+              clearInterval(this.pollTimer);
+              this.pollTimer = null;
+            }
+          }, 1500);
+        },
+        async loadJobs() {
+          const res = await fetch("/api/jobs");
+          this.jobs = JSON.stringify(await res.json(), null, 2);
+        }
+      }
+    }).mount("#app");
+  </script>
+</body>
+</html>
