@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IRA Workshop · Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f0f2f5;--card:#fff;--border:#e5e7eb;--text:#1f2937;--muted:#6b7280;
+  --blue:#3b82f6;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--indigo:#6366f1;
+}
+body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+
+.top-bar{background:#1e293b;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:24px;position:sticky;top:0;z-index:100}
+.top-bar .logo{font-size:18px;font-weight:700;letter-spacing:-.5px}
+.top-bar .logo span{color:var(--amber)}
+.top-bar .meta-right{margin-left:auto;font-size:12px;color:#64748b;display:flex;align-items:center;gap:12px}
+.time-badge{background:rgba(255,255,255,.1);padding:4px 12px;border-radius:20px;font-size:11px;color:#94a3b8}
+.btn{background:var(--blue);color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:12px;cursor:pointer;transition:.2s}
+.btn:hover{background:#2563eb}
+.btn-secondary{background:#475569}.btn-secondary:hover{background:#334155}
+
+.tabs{display:flex;gap:0;background:#fff;border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:48px;z-index:90}
+.tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tab:hover{color:var(--text)}.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.panel{display:none;padding:20px 24px}.panel.active{display:block}
+
+/* Cards & Grid */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-card .label{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
+.stat-card .value{font-size:28px;font-weight:800;color:var(--blue)}
+.stat-card .sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Leaderboard */
+.lb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+.lb-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;transition:.2s}
+.lb-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
+.lb-card .rank{position:absolute;top:12px;right:16px;font-size:28px;font-weight:800;color:#e5e7eb}
+.lb-card .rank.top1{color:var(--amber)}.lb-card .rank.top2{color:#94a3b8}.lb-card .rank.top3{color:#cd7f32}
+.lb-card .group-name{font-size:15px;font-weight:600;margin-bottom:8px}
+.lb-card .score-row{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+.lb-card .big-score{font-size:32px;font-weight:800;color:var(--blue)}
+.lb-card .max-score{font-size:14px;color:var(--muted)}
+.grade{display:inline-block;padding:2px 12px;border-radius:20px;font-weight:700;font-size:14px;color:#fff}
+.grade-A{background:var(--green)}.grade-B{background:var(--blue)}.grade-C{background:var(--amber)}.grade-D{background:#f97316}.grade-F{background:var(--red)}
+.progress-bar{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-top:8px}
+.progress-bar .fill{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.data-table th{background:#f8fafc;padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px}
+.data-table tr:hover{background:#f8fafc}
+
+/* Detail */
+.detail-section{margin-bottom:24px}
+.detail-section h3{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.check-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px}
+.check-item .status{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0}
+.status.pass{background:var(--green)}.status.fail{background:var(--red)}.status.warn{background:var(--amber)}
+.check-item .info{flex:1;min-width:0}
+.check-item .info .title{font-weight:500;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.check-item .info .msg{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.check-item .pts{font-size:12px;font-weight:600;color:var(--blue);white-space:nowrap}
+
+.stage-bars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:24px}
+.stage-bar{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.stage-bar .stage-label{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.stage-bar .stage-score{font-size:20px;font-weight:700}
+
+/* Commit list */
+.commit-list{list-style:none}
+.commit-item{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:flex-start}
+.commit-item:hover{background:#f8fafc}
+.commit-sha{font-family:monospace;font-size:12px;color:var(--blue);background:#f1f5f9;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.commit-msg{font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.commit-meta{font-size:11px;color:var(--muted);flex-shrink:0;text-align:right;min-width:120px}
+
+/* Branch tags */
+.branch-tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;margin:4px;border:1px solid var(--border);background:#f8fafc}
+.branch-tag.default{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* Activity chart */
+.chart-container{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:24px}
+.chart-bars{display:flex;align-items:flex-end;gap:2px;height:120px;padding:0 4px}
+.chart-bar{flex:1;background:var(--blue);border-radius:3px 3px 0 0;min-width:4px;transition:height .4s ease;position:relative}
+.chart-bar:hover{background:#2563eb}
+.chart-bar:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;white-space:nowrap}
+.chart-labels{display:flex;gap:2px;padding:4px 4px 0;font-size:9px;color:var(--muted)}
+.chart-labels span{flex:1;text-align:center;overflow:hidden}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.hint-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#92400e}
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo"><span>IRA</span> Workshop</div>
+  <div class="meta-right">
+    <span class="time-badge" id="build-info">加载中...</span>
+    <a href="https://github.com/lvzhaobo/ira" target="_blank" style="color:#94a3b8;font-size:12px">GitHub ↗</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="repo-overview">🏠 仓库概览</div>
+  <div class="tab" data-tab="commits">📝 提交历史</div>
+  <div class="tab" data-tab="branches">🌿 分支</div>
+  <div class="tab" data-tab="leaderboard">🏆 评分排行</div>
+  <div class="tab" data-tab="score-detail">📋 检查详情</div>
+  <div class="tab" data-tab="score-matrix">📊 得分矩阵</div>
+</div>
+
+<!-- ========== 仓库概览 ========== -->
+<div class="panel active" id="repo-overview">
+  <div class="stat-grid" id="repo-stats">
+    <div class="stat-card"><div class="label">总提交</div><div class="value" id="stat-commits">—</div></div>
+    <div class="stat-card"><div class="label">分支数</div><div class="value" id="stat-branches">—</div></div>
+    <div class="stat-card"><div class="label">贡献者</div><div class="value" id="stat-contributors">—</div></div>
+    <div class="stat-card"><div class="label">最近 Push</div><div class="value" id="stat-pushed" style="font-size:14px">—</div></div>
+  </div>
+  <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📈 最近 52 周提交活跃度</h3>
+  <div class="chart-container">
+    <div class="chart-bars" id="activity-chart"><div class="loading">加载中...</div></div>
+    <div class="chart-labels" id="activity-labels"></div>
+  </div>
+  <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">👥 贡献者排行</h3>
+  <div id="contributors-list"><div class="loading">加载中...</div></div>
+</div>
+
+<!-- ========== 提交历史 ========== -->
+<div class="panel" id="commits">
+  <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px">
+    <select id="branch-filter" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+      <option value="main">main</option>
+    </select>
+    <span style="font-size:12px;color:var(--muted)" id="commit-count-label"></span>
+  </div>
+  <div class="data-table" style="overflow:hidden">
+    <ul class="commit-list" id="commit-list"><li class="loading">加载提交历史...</li></ul>
+  </div>
+</div>
+
+<!-- ========== 分支 ========== -->
+<div class="panel" id="branches">
+  <div id="branch-list"><div class="loading">加载分支信息...</div></div>
+</div>
+
+<!-- ========== 评分排行 ========== -->
+<div class="panel" id="leaderboard">
+  <div class="hint-box" id="checker-hint">
+    💡 评分数据由 GitHub Actions 自动生成。每次 push 到 <code>modules-practice/**</code> 后自动触发检查。
+  </div>
+  <div class="lb-grid" id="lb-grid">
+    <div class="empty-state"><div class="icon">📊</div><p>等待评分数据...</p></div>
+  </div>
+</div>
+
+<!-- ========== 检查详情 ========== -->
+<div class="panel" id="score-detail">
+  <div id="detail-content">
+    <div class="empty-state"><div class="icon">📋</div><p>等待评分数据...</p></div>
+  </div>
+</div>
+
+<!-- ========== 得分矩阵 ========== -->
+<div class="panel" id="score-matrix">
+  <div id="matrix-content">
+    <div class="empty-state"><div class="icon">📊</div><p>等待评分数据...</p></div>
+  </div>
+</div>
+
+<script>
+const REPO = 'lvzhaobo/ira';
+const API = 'https://api.github.com';
+
+// ===================== Tab 切换 =====================
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  });
+});
+
+// ===================== GitHub API =====================
+async function ghFetch(path) {
+  const r = await fetch(`${API}${path}`, {headers:{'Accept':'application/vnd.github.v3+json'}});
+  if (!r.ok) throw new Error(`GitHub API ${r.status}: ${path}`);
+  return r.json();
+}
+
+async function ghFetchAll(path, max=300) {
+  let all=[], page=1;
+  while(all.length < max) {
+    const r = await fetch(`${API}${path}${path.includes('?')?'&':'?'}per_page=100&page=${page}`,
+      {headers:{'Accept':'application/vnd.github.v3+json'}});
+    if (!r.ok) break;
+    const d = await r.json();
+    if(!d.length) break;
+    all = all.concat(d);
+    page++;
+  }
+  return all.slice(0, max);
+}
+
+// ===================== 仓库概览 =====================
+async function loadRepoOverview() {
+  try {
+    const [repo, contributors, participation] = await Promise.all([
+      ghFetch(`/repos/${REPO}`),
+      ghFetchAll(`/repos/${REPO}/contributors`),
+      ghFetch(`/repos/${REPO}/stats/participation`).catch(()=>null),
+    ]);
+
+    // 基础统计
+    document.getElementById('stat-pushed').textContent = timeAgo(repo.pushed_at);
+    document.getElementById('stat-contributors').textContent = contributors.length;
+
+    // 分支数
+    const branches = await ghFetchAll(`/repos/${REPO}/branches`);
+    document.getElementById('stat-branches').textContent = branches.length;
+
+    // 填充分支下拉
+    const sel = document.getElementById('branch-filter');
+    sel.innerHTML = branches.map(b =>
+      `<option value="${b.name}" ${b.name===repo.default_branch?'selected':''}>${b.name}</option>`
+    ).join('');
+    sel.addEventListener('change', () => loadCommits(sel.value));
+
+    // 分支页面
+    renderBranches(branches, repo.default_branch);
+
+    // 总提交数（用 participation 周数据近似）
+    if (participation && participation.all) {
+      const totalWeekly = participation.all.reduce((a,b)=>a+b, 0);
+      document.getElementById('stat-commits').textContent = totalWeekly;
+      renderActivityChart(participation.all);
+    } else {
+      document.getElementById('stat-commits').textContent = '—';
+      document.getElementById('activity-chart').innerHTML = '<div class="empty-state" style="padding:20px">暂无活跃数据</div>';
+    }
+
+    // 贡献者
+    renderContributors(contributors);
+
+    // 加载默认分支的提交
+    loadCommits(repo.default_branch);
+  } catch(e) {
+    console.error('loadRepoOverview error:', e);
+    document.getElementById('repo-stats').innerHTML = `<div class="hint-box" style="grid-column:1/-1">⚠️ 加载失败: ${e.message}。GitHub API 对未认证请求限制 60次/小时。</div>`;
+  }
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff/60000);
+  if (mins < 60) return `${mins} 分钟前`;
+  const hrs = Math.floor(mins/60);
+  if (hrs < 24) return `${hrs} 小时前`;
+  const days = Math.floor(hrs/24);
+  return `${days} 天前`;
+}
+
+function renderActivityChart(weeks) {
+  const max = Math.max(...weeks, 1);
+  const container = document.getElementById('activity-chart');
+  const labels = document.getElementById('activity-labels');
+  container.innerHTML = weeks.map((w,i) =>
+    `<div class="chart-bar" style="height:${Math.max(w/max*100,2)}%" data-tip="第${i+1}周: ${w}次"></div>`
+  ).join('');
+  // 只显示部分标签
+  labels.innerHTML = weeks.map((_,i) => `<span>${i%8===0?(i+1)+'w':''}</span>`).join('');
+}
+
+function renderContributors(contributors) {
+  const el = document.getElementById('contributors-list');
+  if (!contributors.length) { el.innerHTML = '<div class="empty-state">暂无贡献者数据</div>'; return; }
+  const totalCommits = contributors.reduce((s,c)=>s+c.contributions,0);
+  el.innerHTML = `<div class="data-table"><table style="width:100%;border-collapse:collapse">
+    <thead><tr><th style="width:60px"></th><th>贡献者</th><th style="text-align:center">提交数</th><th style="text-align:center">占比</th><th>贡献度</th></tr></thead>
+    <tbody>${contributors.slice(0,20).map((c,i) => {
+      const pct = Math.round(c.contributions/totalCommits*100);
+      return `<tr>
+        <td><img src="${c.avatar_url}" width="32" height="32" style="border-radius:50%"/></td>
+        <td><a href="${c.html_url}" target="_blank">${c.login}</a></td>
+        <td style="text-align:center;font-weight:600">${c.contributions}</td>
+        <td style="text-align:center">${pct}%</td>
+        <td><div class="progress-bar" style="height:6px"><div class="fill" style="width:${pct}%;background:var(--blue)"></div></div></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+// ===================== 提交历史 =====================
+async function loadCommits(branch) {
+  const list = document.getElementById('commit-list');
+  list.innerHTML = '<li class="loading">加载中...</li>';
+  try {
+    const commits = await ghFetchAll(`/repos/${REPO}/commits?sha=${branch}`, 100);
+    document.getElementById('commit-count-label').textContent = `显示最近 ${commits.length} 条提交`;
+    list.innerHTML = commits.map(c => {
+      const sha = c.sha.substring(0,7);
+      const msg = c.commit.message.split('\n')[0];
+      const author = c.commit.author.name;
+      const date = new Date(c.commit.author.date).toLocaleString('zh-CN');
+      return `<li class="commit-item">
+        <a class="commit-sha" href="${c.html_url}" target="_blank">${sha}</a>
+        <span class="commit-msg" title="${msg.replace(/"/g,'&quot;')}">${msg}</span>
+        <span class="commit-meta">${author}<br/>${date}</span>
+      </li>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `<li class="loading">加载失败: ${e.message}</li>`;
+  }
+}
+
+// ===================== 分支 =====================
+function renderBranches(branches, defaultBranch) {
+  const el = document.getElementById('branch-list');
+  el.innerHTML = `<div style="margin-bottom:16px">${branches.map(b =>
+    `<span class="branch-tag ${b.name===defaultBranch?'default':''}">${b.name===defaultBranch?'★ ':''} ${b.name}</span>`
+  ).join('')}</div>
+  <table class="data-table"><thead><tr><th>分支名</th><th>最后提交 SHA</th><th>保护状态</th></tr></thead>
+  <tbody>${branches.map(b => `<tr>
+    <td style="font-weight:${b.name===defaultBranch?'700':'400'}">${b.name} ${b.name===defaultBranch?' (default)':''}</td>
+    <td><code style="font-size:12px">${b.commit.sha.substring(0,7)}</code></td>
+    <td>${b.protected?'🔒 受保护':'🔓 未保护'}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+// ===================== 评分数据 =====================
+function pctColor(p){return p>=80?'var(--green)':p>=60?'var(--blue)':p>=40?'var(--amber)':'var(--red)'}
+
+async function loadCheckerReport() {
+  try {
+    const r = await fetch('workshop-report.json');
+    if (!r.ok) { console.log('No workshop-report.json found, skip checker.'); return; }
+    const data = await r.json();
+    document.getElementById('checker-hint').innerHTML =
+      `✅ 评分数据已加载（生成于 ${new Date(data.generated_at).toLocaleString('zh-CN')}，共 ${data.groups_count} 个小组）`;
+    renderLeaderboard(data.reports);
+    renderDetail(data.reports);
+    renderMatrix(data.reports);
+  } catch(e) {
+    console.log('Checker report not available:', e.message);
+  }
+}
+
+function renderLeaderboard(reports) {
+  const sorted = [...reports].sort((a,b)=>b.total_score-a.total_score);
+  document.getElementById('lb-grid').innerHTML = sorted.map((r,i) => {
+    const pct = Math.round(r.total_score/r.max_score*100);
+    const rc = i===0?'top1':i===1?'top2':i===2?'top3':'';
+    return `<div class="lb-card">
+      <div class="rank ${rc}">#${i+1}</div>
+      <div class="group-name">${r.group}</div>
+      <div class="score-row">
+        <span class="big-score">${r.total_score}</span><span class="max-score">/ ${r.max_score}</span>
+        <span class="grade grade-${r.grade}" style="margin-left:auto">${r.grade}</span>
+      </div>
+      <div style="display:flex;gap:16px;font-size:11px;color:var(--muted)">
+        <span>📄 ${r.spec_docs.reduce((s,d)=>s+d.score,0).toFixed(1)}/${r.spec_docs.reduce((s,d)=>s+d.max_score,0)}</span>
+        <span>💻 ${r.code.score}/${r.code.max_score}</span>
+        <span>🔗 ${r.traceability.score}/${r.traceability.max_score}</span>
+      </div>
+      <div class="progress-bar"><div class="fill" style="width:${pct}%;background:${pctColor(pct)}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDetail(reports) {
+  const sorted = [...reports].sort((a,b)=>b.total_score-a.total_score);
+  const sm = {Proposal:'🟡',Spec:'🔵',Design:'🟢',Plan:'🟠',Test:'🔴',Trace:'🟣'};
+  const c = document.getElementById('detail-content');
+  c.innerHTML = '<div style="margin-bottom:12px"><select id="grp-sel" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px"></select></div><div id="grp-det"></div>';
+  const sel = document.getElementById('grp-sel');
+  sel.innerHTML = sorted.map((r,i)=>`<option value="${i}">${r.group} — ${r.total_score}分 [${r.grade}]</option>`).join('');
+  sel.addEventListener('change', ()=>show(sorted[sel.value]));
+  show(sorted[0]);
+  function show(r) {
+    const stages=['Proposal','Spec','Design','Plan','Test','Trace'];
+    const ss=stages.map(s=>{const d=r.spec_docs.filter(x=>x.stage===s);return{stage:s,got:Math.round(d.reduce((a,x)=>a+x.score,0)*10)/10,max:d.reduce((a,x)=>a+x.max_score,0)};});
+    let h=`<div class="stage-bars">${ss.map(s=>`<div class="stage-bar"><div class="stage-label">${sm[s.stage]||''} ${s.stage}</div><div class="stage-score" style="color:${s.max?s.got/s.max>=.6?'var(--green)':s.got/s.max>=.3?'var(--amber)':'var(--red)':'var(--muted)'}">${s.got}<span style="font-size:12px;color:var(--muted)">/${s.max}</span></div></div>`).join('')}</div>`;
+    h+='<div class="detail-section"><h3>📄 Spec 文档</h3><div class="check-grid">';
+    r.spec_docs.forEach(d=>{const p=d.max_score?d.score/d.max_score:0;const cl=!d.exists?'fail':p>=.6?'pass':'warn';
+      h+=`<div class="check-item"><div class="status ${cl}">${!d.exists?'✗':p>=.6?'✓':'!'}</div><div class="info"><div class="title">${sm[d.stage]||''} [${d.doc_id}] ${d.name}</div><div class="msg">${d.checks.map(c=>(c.pass?'✓':'✗')+' '+c.item).join(' · ')}</div></div><div class="pts">${d.score}/${d.max_score}</div></div>`;
+    }); h+='</div></div>';
+    h+=`<div class="detail-section"><h3>💻 代码 ${r.code.score}/${r.code.max_score}</h3><div class="check-grid">`;
+    r.code.checks.forEach(c=>{h+=`<div class="check-item"><div class="status ${c.pass?'pass':'fail'}">${c.pass?'✓':'✗'}</div><div class="info"><div class="title">${c.item}</div><div class="msg">${c.msg}</div></div></div>`;}); h+='</div></div>';
+    h+=`<div class="detail-section"><h3>🔗 追溯 ${r.traceability.score}/${r.traceability.max_score}</h3><div class="check-grid">`;
+    r.traceability.checks.forEach(c=>{h+=`<div class="check-item"><div class="status ${c.pass?'pass':'fail'}">${c.pass?'✓':'✗'}</div><div class="info"><div class="title">${c.item}</div><div class="msg">${c.msg}</div></div></div>`;}); h+='</div></div>';
+    document.getElementById('grp-det').innerHTML=h;
+  }
+}
+
+function renderMatrix(reports) {
+  const sorted=[...reports].sort((a,b)=>b.total_score-a.total_score);
+  const ids=['03','04','05','06','07','08','09','10','12','13','14'];
+  let h='<table class="data-table"><thead><tr><th>小组</th>';
+  ids.forEach(id=>{h+=`<th style="text-align:center;font-size:11px">${id}</th>`;});
+  h+='<th style="text-align:center">💻</th><th style="text-align:center">🔗</th><th style="text-align:center;font-weight:700">总分</th><th style="text-align:center">等级</th></tr></thead><tbody>';
+  sorted.forEach(r=>{
+    h+=`<tr><td style="font-weight:600">${r.group}</td>`;
+    ids.forEach(id=>{const d=r.spec_docs.find(x=>x.doc_id===id);if(!d){h+='<td style="text-align:center">—</td>';return;}
+      const p=d.max_score?d.score/d.max_score:0;const bg=!d.exists?'#fef2f2':p>=.6?'#f0fdf4':p>0?'#fffbeb':'#fef2f2';
+      h+=`<td style="text-align:center;background:${bg};font-size:12px">${d.score}/${d.max_score}</td>`;});
+    h+=`<td style="text-align:center">${r.code.score}/${r.code.max_score}</td>`;
+    h+=`<td style="text-align:center">${r.traceability.score}/${r.traceability.max_score}</td>`;
+    h+=`<td style="text-align:center;font-size:15px;font-weight:600">${r.total_score}</td>`;
+    h+=`<td style="text-align:center"><span class="grade grade-${r.grade}" style="font-size:12px;padding:2px 10px">${r.grade}</span></td></tr>`;
+  });
+  h+='</tbody></table>';
+  document.getElementById('matrix-content').innerHTML=h;
+}
+
+// ===================== Build Info =====================
+async function loadBuildInfo() {
+  try {
+    const r = await fetch('build-info.json');
+    if (r.ok) {
+      const info = await r.json();
+      document.getElementById('build-info').textContent =
+        `构建于 ${new Date(info.timestamp).toLocaleString('zh-CN')} · ${info.sha.substring(0,7)} · by ${info.actor}`;
+    }
+  } catch(e) { /* ignore */ }
+}
+
+// ===================== 初始化 =====================
+loadBuildInfo();
+loadRepoOverview();
+loadCheckerReport();
+</script>
+</body>
+</html>

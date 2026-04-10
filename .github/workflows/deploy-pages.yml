@@ -1,0 +1,101 @@
+# Workshop 检查 & GitHub Pages 部署
+# 每次 push 后自动运行 checker，并将仪表盘部署到 GitHub Pages
+#
+# 访问地址: https://lvzhaobo.github.io/ira/
+
+name: Workshop Check & Deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'modules-practice/**'
+      - 'scripts/workshop-checker.py'
+      - 'gh-pages/**'
+  workflow_dispatch:    # 支持手动触发
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: 检查评分 & 部署 Pages
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: 🐍 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 安装依赖
+        run: |
+          pip install pytest flask
+
+      - name: 🔍 运行 Workshop 检查脚本
+        run: |
+          python scripts/workshop-checker.py \
+            --groups-dir modules-practice \
+            --output workshop-report.json
+        continue-on-error: true   # 即使某组检查失败也继续部署
+
+      - name: 📁 组装 Pages 目录
+        run: |
+          mkdir -p _site
+
+          # 复制 GitHub Pages 主页面
+          if [ -f gh-pages/index.html ]; then
+            cp gh-pages/index.html _site/index.html
+          fi
+
+          # 复制检查报告 JSON
+          if [ -f workshop-report.json ]; then
+            cp workshop-report.json _site/workshop-report.json
+          fi
+
+          # 生成仓库元信息供页面读取
+          echo "{
+            \"repo\": \"lvzhaobo/ira\",
+            \"branch\": \"${{ github.ref_name }}\",
+            \"sha\": \"${{ github.sha }}\",
+            \"actor\": \"${{ github.actor }}\",
+            \"run_id\": \"${{ github.run_id }}\",
+            \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+          }" > _site/build-info.json
+
+          echo "📁 _site 目录内容:"
+          ls -la _site/
+
+      - name: 📄 配置 GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 上传 Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: 🚀 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: ✅ 部署成功
+        if: success()
+        run: |
+          echo "========================================="
+          echo "✅ GitHub Pages 部署成功！"
+          echo "========================================="
+          echo "仪表盘: ${{ steps.deployment.outputs.page_url }}"
+          echo "========================================="
