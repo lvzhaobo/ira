@@ -1,0 +1,92 @@
+{
+  // Qoder 配置文件
+  // 文档：https://docs.qoder.com/settings
+
+  // Hooks 配置
+  "hooks": {
+    // 命令执行前拦截
+    "before_run_command": [
+      // 第一层：拦截系统危险命令（rm -rf, git push --force, DROP TABLE 等）
+      ".qoder/hooks/block-dangerous-commands.sh",
+      
+      // 第二层：拦截 aaaa 命令（示例）
+      ".qoder/hooks/block-aaaa-command.sh",
+      
+      // 第三层：自定义拦截规则（aaaa, bbbb, cccc 等）
+      ".qoder/hooks/block-custom-commands.sh",
+
+      ".qoder/hooks/block-rm.sh"
+    ]
+  },
+
+  // 安全设置
+  "security": {
+    // 启用命令拦截
+    "enable_command_filtering": true,
+    
+    // 记录被拦截的命令到日志
+    "log_blocked_commands": true,
+    
+    // 日志文件路径
+    "block_log_path": ".qoder/hooks/audit.log"
+  },
+
+  // AI 行为配置
+  "ai": {
+    // TDD 模式配置
+    "tdd": {
+      // 启用 TDD 工作流
+      "enabled": true,
+      
+      // 测试先行（强制要求先写测试）
+      "test_first": true,
+      
+      // 红-绿-重构循环
+      "red_green_refactor_cycle": true,
+      
+      // 每个阶段等待用户确认
+      "wait_for_approval": true
+    },
+    
+    // Spec 驱动开发
+    "spec_driven": {
+      // 优先从 Spec 文档提取需求
+      "prefer_spec_documents": true,
+      
+      // Spec 文档路径
+      "spec_paths": [
+        "specs/",
+        ".tmp/tdd-20260409/part-3/"
+      ]
+    }
+  },
+
+  // 代码质量
+  "code_quality": {
+    // 自动运行测试
+    "auto_run_tests": true,
+    
+    // 测试覆盖率要求
+    "min_coverage": 80,
+    
+    // 代码规范检查
+    "lint_on_save": true
+  },
+
+  // 项目配置
+  "project": {
+    // 项目名称
+    "name": "IRA Workshop",
+    
+    // 项目类型
+    "type": "monorepo",
+    
+    // 主要技术栈
+    "tech_stack": [
+      "Python",
+      "Flask",
+      "React",
+      "TypeScript"
+    ]
+  }
+}
