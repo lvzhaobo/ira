@@ -1,0 +1,21 @@
+{
+  "group": "Group-X",
+  "members": ["01", "02", "03"],
+  "scanned_at": "2026-04-11T14:30:00Z",
+  "findings": [
+    {
+      "id": "F-001",
+      "category": "compliance",
+      "severity": "high",
+      "file": "app.py",
+      "line": "110-125",
+      "title": "简述问题（一句话）",
+      "description": "详细描述问题及其金融场景影响",
+      "fix_suggestion": "修复建议"
+    }
+  ],
+  "skills_used": [
+    "scan-compliance.md",
+    "scan-observability.md"
+  ]
+}
